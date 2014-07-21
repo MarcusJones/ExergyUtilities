@@ -12,6 +12,7 @@ To view the results of your run:
 
 python runsnake.py OpenGLContext.profile
 
-There will be a brief delay as the application is created and begins the loading process, then you should see something like this:
 
-Screenshot of the application viewing a HotShot profile
+
+
+python "C:\Python27\Lib\site-packages\runsnakerun\runsnake.py" "C:\ExportDir\testprofile.txt"

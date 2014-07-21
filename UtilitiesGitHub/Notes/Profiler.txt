@@ -1,0 +1,17 @@
+To use cProfile to capture your application's profile data, either using the command-line, like so:
+
+$ python -m cProfile -o <outputfilename> <script-name> <options>
+
+Or in code, like so:
+
+import cProfile
+command = """reactor.run()"""
+cProfile.runctx( command, globals(), locals(), filename="OpenGLContext.profile" )
+
+To view the results of your run:
+
+python runsnake.py OpenGLContext.profile
+
+There will be a brief delay as the application is created and begins the loading process, then you should see something like this:
+
+Screenshot of the application viewing a HotShot profile

@@ -12,7 +12,4 @@ To view the results of your run:
 
 python runsnake.py OpenGLContext.profile
 
-
-
-
 python "C:\Python27\Lib\site-packages\runsnakerun\runsnake.py" "C:\ExportDir\testprofile.txt"

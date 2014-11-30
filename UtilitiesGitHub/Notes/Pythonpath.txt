@@ -1,3 +1,0 @@
-set PATH=%PATH%;C:\xampp\php
-
-set PATH=%PATH%;C:\Python27\Lib\site-packages\runsnakerun

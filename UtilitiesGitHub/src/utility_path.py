@@ -12,40 +12,35 @@ Etc.
 #===============================================================================
 # Set up
 #===============================================================================
-# Standard:
 from __future__ import division
+from __future__ import print_function
 
 from config import *
-import wx
-import logging.config
-import unittest
 
-import os
+# Standard
+#import os
 import re
-import time
-from utility_inspect import whoami, whosdaddy
+#import time
+from utility_inspect import get_self, get_parent
 import sys
-import shutil
-
-
-import logging.config
-import os
-import re
 import shutil
 import errno
 import unittest
-from utility_inspect import whoami, whosdaddy, listObject
-import zipfile,os.path
+#import zipfile, os.path
 
+# Logging
+import logging.config
+logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+myLogger = logging.getLogger()
+myLogger.setLevel("DEBUG")
 
 
 def e(pathName):
-
     """
     pathName is a desired path on drive for a project
     Will return a numbered version of this path
     """
-    logging.info("Filtering {}".format(rootPath,name_pat, ext_pat, recurse))
+    logging.info("Filtering {}".format(rootPath, name_pat, ext_pat, recurse))
 
     #print pathName
     pathName = os.path.normpath(pathName)
@@ -92,8 +87,6 @@ def e(pathName):
         myFileName = myFileName + "_r00"
 
     raise
-
-
 
 
 
@@ -145,16 +138,11 @@ def count_dirs(f):
     items = [os.path.join(f,name) for name in os.listdir(f)]
     return len([item for item in items if os.path.isdir(item)])
 
-
-
 def erase_dir(f):
-
     if query_yes_no("ERASING directory: {}, sure?".format(f), None):
         shutil.rmtree(f)
 
 def erase_dir_contents(folder, flgEverything = True):
-#import os
-#folder = '/path/to/folder'
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
         try:
@@ -163,31 +151,7 @@ def erase_dir_contents(folder, flgEverything = True):
             else:
                 os.unlink(file_path)
         except Exception, e:
-            print e
-
-
-
-def simpleYesNo(question="Question; Yes or No?"):
-    #print wx
-    #print dir(wx)
-    
-    app = wx.PySimpleApp()
-    retCode = wx.MessageBox(question, "", wx.YES|wx.NO)
-    if (retCode == 2):
-        return True
-    else:
-        return False  
-
-def check_path(f):
-    print(f)
-    if path_exists(f):
-        if simpleYesNo("Delete file {}?".format(f)):
-            os.remove(f)
-        else:
-            pass
-
-    
-
+            print(e)
 
 def path_exists(f):
     if os.path.exists(f):
@@ -456,7 +420,7 @@ def get_immediate_subdirectories(dir):
 
 def filter_paths_by_filename(paths,filter):
 
-    print paths
+    print(paths)
     # Walk the project dir
     allFilePathList = list()
     for root, dirs, files in os.walk(rootPath):
@@ -602,7 +566,7 @@ def filter_files_dir(rootPath, name_pat = ".", ext_pat = ".*", recurse = False, 
             #print "skip"
             pass
         elif recurse:
-            print "Recursion not yet supported"
+            print("Recursion not yet supported")
             raise
         else:
             raise
@@ -617,7 +581,7 @@ def get_latest_rev(rootPath, name_pat = ".", ext_pat = ".*", recurse = False, fl
     revisionList = list()
     for fullPath in matches:
         if flg_verbose:
-            print fullPath
+            print(fullPath)
 
         fName = split_up_path(fullPath)[-2]
         #print fName
@@ -635,145 +599,6 @@ def get_latest_rev(rootPath, name_pat = ".", ext_pat = ".*", recurse = False, fl
     else:
         raise Exception("Couldn't find revisions in {} filename {} . {}".format(rootPath,name_pat,ext_pat))
         pass
-    #return os.path.join(sourceFileDir,sorted(fileRevisionList).pop()[1] )
-
-
-#===============================================================================
-# Unit testing
-#===============================================================================
-
-class allTests(unittest.TestCase):
-
-    def setUp(self):
-        print "**** TEST {} ****".format(whoami())
-        self.testDir = HTMLdataDir = os.getcwd() + r"\..\test_paths_dirs"
-        self.testDir = os.path.abspath(self.testDir)
-
-    def test010_filter1(self):
-
-        get_files_by_name_ext(r'C:\newtestdir', "results", "csv")
-
-    @unittest.skip("")
-    def test010_Filter(self):
-        print "**** TEST {} ****".format(whoami())
-        #print get_latest_rev_number(self.testDir,"","")
-        print "Matches"
-        matches = filter_files_dir(self.testDir)
-        for path in matches:
-            print path
-
-        assert len(matches) == 6
-
-        print "Matches"
-        matches = filter_files_dir(self.testDir, ext_pat = "txt")
-        for path in matches:
-            print path
-
-        assert len(matches) == 3
-
-        print "Matches"
-        matches = filter_files_dir(self.testDir, "text", ext_pat = "txt")
-        for path in matches:
-            print path
-
-        assert len(matches) == 2
-    @unittest.skip("")
-    def test020_FilterRev(self):
-        print "**** TEST {} ****".format(whoami())
-        #print get_latest_rev_number(self.testDir,"","")
-        print get_latest_rev(self.testDir, "text", ext_pat = "txt")
-
-
-
-
-#class SearchReplace(object):
-#    def __init__(self, regex, value):
-#        self.searchRegex = regex
-#        self.value = value
-#        
-#    def __str__(self):
-#        return "{} -> {}".format(self.searchRegex, self.value)
-#
-#    def __repr__(self):
-#        return "{} -> {}".format(self.searchRegex, self.value)
-
-#class SRInFileSuffix(object):
-#    def __init__(self, regex, value, fileSuffix):
-#        """
-#        Same as SearchReplace, but with a file target
-#        """
-#        self.fileSuffix = fileSuffix
-#        self.searchRegex = regex
-#        self.value = value
-#        
-#    def __str__(self):
-#        return "{} -> {} in {}".format(self.searchRegex, self.value, self.fileSuffix)
-#
-#    def __repr__(self):
-#        return "{} -> {} in {}".format(self.searchRegex, self.value, self.fileSuffix)
-
-#class Target(object):
-#    def __init__(self,file, regex, value):
-#        self.targetFile = file
-#        self.searchRegex = regex
-#        self.replaceValue = value
-#        
-#    def __str__(self):
-#        return "{} -> {} in {}".format(self.searchRegex, self.replaceValue,self.targetFile)
-#
-#    def __repr__(self):
-#        return "{} -> {} in {}".format(self.searchRegex, self.replaceValue,self.targetFile)
-
-#    def makeReplacement(self,inThisFile):
-#        # Open file
-#        input_file_handle = open(inThisFile,'r')
-#        # Read it
-#        fileData = input_file_handle.read()
-#        input_file_handle.close()
-#
-#        # Search it
-#        #matches = re.findall(self.searchRegex, fileData)
-#        
-#        # Count occurances
-#        #print self.searchRegex
-#        matches = re.findall(self.searchRegex, fileData)
-#        
-#        if not matches:
-#            raise Exception("No matches in file")
-#        elif len(matches) > 1:
-#            pass
-#            #raise Exception("More than one match ({}) for {}".format(len(matches),matches))
-#        
-#        #re.findall(pattern, string, flags)
-#
-#        #matches = re.findall(self.searchRegex, fileData)
-#
-#        # Search and sub it
-#        fileData = re.sub(self.searchRegex, str(self.replaceValue), fileData)
-#
-#        # Write it back
-#        outF = open(inThisFile,'w')
-#        outF.write(fileData)
-#        outF.close()
-#
-#        logString = "{} replacement for {} in {}".format(len(matches), self, inThisFile)
-#        #logging.debug(logString)        
-#    
-#class FileWithDir(object):
-#    def __init__(self,fileName, directory):
-#        self.fileName = fileName
-#        self.directory = directory
-#        self.fullFilePath = os.path.join(self.directory,self.fileName)
-#    
-#    def copyTo(self,destinationPath):
-#        shutil.copy(self.fullFilePath,destinationPath)
-#    
-#    def __str__(self):
-#        return "{} in {}".format(self.fileName, self.directory )
-#
-#    def __repr__(self):
-#        return "File {} in {}".format(self.fileName, self.directory )
-
 
 def unzip(source_filename, dest_dir):
     with zipfile.ZipFile(source_filename) as zf:
@@ -822,19 +647,19 @@ class FileObject(object):
 #        logging.debug(logString)
 
     def __str__(self):
-        return "File Object; exists={}, file={}, input path: {}".format(self.exists(), self.isFile(), self.filePath)
+        return "File Object; exists={}, file={}, input path: {}".format(self.exists(), self.is_file(), self.filePath)
     
-    def isFile(self):
+    def is_file(self):
         return os.path.isfile(self.filePath)
     
     def exists(self):
         #os.path.exists(self.filePath)
         return os.path.exists(self.filePath)
     
-    def loadLines(self):
+    def load_lines(self):
         if not self.exists():
             raise Exception("Problem on open; this file does not exist! ")
-        elif not self.isFile():
+        elif not self.is_file():
             raise Exception("Problem on open; this is a directory! ")
         
         input_file_handle = open(self.filePath,'r')
@@ -843,7 +668,7 @@ class FileObject(object):
 
         logging.debug("{} lines of text loaded for {}".format(len(self.lines),self))        
         
-    def loadAllTextOLD(self):
+    def load_all_text_OLD(self):
         """
         Load the text into memory
         """
@@ -851,7 +676,7 @@ class FileObject(object):
         
         if not self.exists():
             raise Exception("Problem on open; this file does not exist! ")
-        elif not self.isFile():
+        elif not self.is_file():
             raise Exception("Problem on open; this is a directory! ")
         
         input_file_handle = open(self.filePath,'r')
@@ -864,7 +689,7 @@ class FileObject(object):
         logString = "{} lines of text loaded for {}".format(len(self.fileData),self)
         logging.debug(logString)        
 
-    def copyToSameDir(self,newFileName):
+    def copy_to_same_dir(self,newFileName):
         """
         Copy the file in the path to a new path, create and return this new path
         as a new FileObject
@@ -884,7 +709,7 @@ class FileObject(object):
         
         return FileObject(targetPath)
         
-    def copyToFullPath(self,newPathName):
+    def copy_to_full_path(self,newPathName):
         """
         Copy the file in the path to a new path, create and return this new path
         as a new FileObject
@@ -911,12 +736,12 @@ class FileObject(object):
                 
         return FileObject(targetPath)
 
-    def printLines(self,lines=None):
+    def print_lines(self,lines=None):
         for line in self.lines:
-            print line.strip()
+            print(line.strip())
     
     
-    def writeFile(self, outpath):
+    def write_file(self, outpath):
         
         #print(self.lines)
         outF = open(outpath,'w')
@@ -927,12 +752,12 @@ class FileObject(object):
         logString = "Wrote {}".format(outpath)
         logging.debug(logString)
     
-    def getMatch(self,regexStr):
+    def get_match(self,regexStr):
         matches = list()
         
         # First, make sure the file text is loaded 
         if not self.lines:
-            self.loadLines()
+            self.load_lines()
         
         matched_line = None        
         for line in self.lines:
@@ -947,7 +772,7 @@ class FileObject(object):
         return matched_line
 
         
-    def makeReplacements(self,replacements):
+    def make_replacements(self,replacements):
         """replacements is a list of tuples, 
         
         """
@@ -959,7 +784,7 @@ class FileObject(object):
         
         # First, make sure the file text is loaded 
         if not self.lines:
-            self.loadLines()
+            self.load_lines()
 
         # Search and sub for each replacement
         newLines = []
@@ -1003,7 +828,7 @@ class FileObject(object):
 #        
         
     
-    def makeReplacementsOLD(self,replacements):
+    def make_replacementsOLD(self,replacements):
         """
         Reads the file data
         Make the given n replacements
@@ -1047,13 +872,6 @@ class FileObject(object):
             self.fileData = re.sub(repl[0], str(repl[1]), self.fileData)
         logString = "{} replacement for {}".format(matchCount, self)
         logging.debug(logString)
-        
-#        # Write it back 
-#        outF = open(self.filePath,'w')
-#        outF.write(self.fileData)
-#        outF.close()
-#
-        
 
 class FileObjectBaseSuffix(FileObject):
     def __init__(self,baseFilePath,suffixFilePath):
@@ -1080,16 +898,11 @@ class FileObjectBaseSuffix(FileObject):
         Copy the file in the path to a new base, create and return this new path
         as a new FileObject
         """        
-        #print "1", newBasePath
-        #print "2", self.suffixFilePath
         newPathName = os.path.join(newBasePath,self.suffixFilePath) 
         targetPath = newPathName
         
-        # =os.path.normpath(self.filePath) 
-        #print targetPath
-        
+
         newDirectoryPath = os.path.dirname(newPathName)
-        #print os.path.basename(newPathName)
         
         # Make the directory tree if doesn't exist
         try:
@@ -1106,30 +919,75 @@ class FileObjectBaseSuffix(FileObject):
 #===============================================================================
 # Unit testing
 #===============================================================================
-
-class allTests(unittest.TestCase):
+class all_tests(unittest.TestCase):
     
     def setUp(self):
-        print "**** TEST {} ****".format(whoami())
-            
-    def test010_SimpleCreation(self):
-        print "**** TEST {} ****".format(whoami())
-
-        testPath = r"C:\Eclipse\MyUtilities\TestingFiles\TestText.txt"
-        thisObj = FileObject(testPath)
-        thisObj.loadLines()
-        thisObj.printLines()
-
+        print("**** TEST {} ****".format(get_self()))
+        this_path = os.path.realpath(__file__) + r"\..\.."
+        self.path = os.path.abspath(this_path)
+        
+        print(self.path)
+        
+    def test000_SimpleCreation(self):
+        print("**** TEST {} ****".format(get_self()))
+        text_file_path = os.path.join(self.path,"TestingFiles", "TestText.txt")
+        print(text_file_path)
+        
+        this_obj = FileObject(text_file_path)
+        this_obj.load_lines()
+        this_obj.print_lines()
+        
+        print(this_obj)
+        
         replacements = [[r"^WALL EXT_WALL$", "WALL REPLACED_WALL"],
                         [r"FRONT", "PIZZA"]]
         
         [
          [r"^WALL EXT_WALL$", "WALL REPLACED_WALL"],
-         ]
+        ]
         
-        # Aft
-        thisObj.makeReplacements(replacements)
-        thisObj.printLines()
+        # After
+        this_obj.make_replacements(replacements)
+        this_obj.print_lines()
+        
+        print(this_obj.get_match("EXT_WALL"))
+        
+    def test010_filter1(self):
+        get_files_by_name_ext(r'C:\newtestdir', "results", "csv")
+
+    @unittest.skip("")
+    def test010_Filter(self):
+        print("**** TEST {} ****".format(get_self()))
+        #print get_latest_rev_number(self.testDir,"","")
+        print("Matches")
+        matches = filter_files_dir(self.testDir)
+        for path in matches:
+            print(path)
+
+        assert len(matches) == 6
+
+        print("Matches")
+        matches = filter_files_dir(self.testDir, ext_pat = "txt")
+        for path in matches:
+            print(path)
+
+        assert len(matches) == 3
+
+        print("Matches")
+        matches = filter_files_dir(self.testDir, "text", ext_pat = "txt")
+        for path in matches:
+            print(path)
+
+        assert len(matches) == 2
+    @unittest.skip("")
+    def test020_FilterRev(self):
+        print("**** TEST {} ****".format(get_self()))
+        #print get_latest_rev_number(self.testDir,"","")
+        print(get_latest_rev(self.testDir, "text", ext_pat = "txt"))
+
+
+
+
         
 def _test1():
     logging.debug("Started _test1".format())
@@ -1145,10 +1003,10 @@ def _test1():
     
     template = FileObject(thisPath)
     #newFileObj.loadAllText()
-    #template.copyToFullPath("Test2.text")
+    #template.copy_to_full_path("Test2.text")
     
-    workingFile = template.copyToSameDir("Test2.text")
-    workingFile.makeReplacements(replaceVector)
+    workingFile = template.copy_to_same_dir("Test2.text")
+    workingFile.make_replacements(replaceVector)
     
     logging.debug("Finished _test1".format())
 
@@ -1172,14 +1030,29 @@ def _test2():
     
     
     
-    print template
+    #print template
     #newFileObj.loadAllText()
     newFile = template.copyToNewBasePath("d:\\")
     
-    print newFile
-    #workingFile = template.copyToSameDir("Test2.text")
-    #workingFile.makeReplacements(replaceVector)
+    #print newFile
+    #workingFile = template.copy_to_same_dir("Test2.text")
+    #workingFile.make_replacements(replaceVector)
     
     logging.debug("Finished _test1".format())
 
+#===============================================================================
+# Main
+#===============================================================================
+if __name__ == "__main__":
+    print(ABSOLUTE_LOGGING_PATH)
+    logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+    
+    myLogger = logging.getLogger()
+    myLogger.setLevel("DEBUG")
+    
+    logging.debug("Started _main".format())
+    
+    unittest.main()
+    
+    logging.debug("Finished _main".format())
 

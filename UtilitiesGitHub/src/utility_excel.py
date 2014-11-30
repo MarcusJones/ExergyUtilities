@@ -12,13 +12,13 @@ import xlrd
 import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
-from utility_inspect import whoami, whosdaddy
+from utility_inspect import get_self, get_parent
 import unittest
 from config import *
 
 import shutil
 
-class ExcelBookWrite(object):
+class excel_book_write(object):
     def __init__(self):
         #self.excelPath = excelPath
 
@@ -28,7 +28,7 @@ class ExcelBookWrite(object):
     def exists(self):
         return os.path.exists(self.excelPath)
 
-def excelWriteTableXLSX(fullPath,sheetName,rows):
+def excel_write_table_xlsx(fullPath,sheetName,rows):
     wb = Workbook()
     sheet = wb.create_sheet()
     sheet.title = sheetName
@@ -54,7 +54,7 @@ def excelWriteTableXLSX(fullPath,sheetName,rows):
 
 
 
-def excelWriteTable(fullPath,sheetName,rows):
+def excel_write_table(fullPath,sheetName,rows):
     wb = xlwt.Workbook()
     sheet = wb.add_sheet(sheetName)
     print sheet
@@ -704,7 +704,7 @@ def _test1():
 # Unit testing
 #===============================================================================
 @unittest.skip("Skip")
-class allTests(unittest.TestCase):
+class all_tests(unittest.TestCase):
     @unittest.skip("Skip")
     def test010(self):
         print "**** TEST {} ****".format(whoami())

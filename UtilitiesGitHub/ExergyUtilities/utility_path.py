@@ -714,7 +714,7 @@ class FileObject(object):
         
         # =os.path.normpath(self.filePath) 
         shutil.copyfile(self.filePath, targetPath)
-        #copyfile(src, dst)
+        #copyfile(ExergyUtilities, dst)
         
         return FileObject(targetPath)
         
@@ -738,7 +738,7 @@ class FileObject(object):
         # =os.path.normpath(self.filePath) 
         #print targetPath
         shutil.copyfile(self.filePath, targetPath)
-        #copyfile(src, dst)
+        #copyfile(ExergyUtilities, dst)
         
         logString = "Copied {} to {}".format(self,newPathName)
         logging.debug(logString)
@@ -921,7 +921,7 @@ class FileObjectBaseSuffix(FileObject):
                 raise
 
         shutil.copyfile(self.filePath, targetPath)
-        #copyfile(src, dst)
+        #copyfile(ExergyUtilities, dst)
         
         return FileObjectBaseSuffix(newBasePath,self.suffixFilePath)
     

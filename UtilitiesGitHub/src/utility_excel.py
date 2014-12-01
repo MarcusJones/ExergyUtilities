@@ -1,4 +1,4 @@
-# EnergyUtilities
+# ExergyUtilities
 # Copyright (c) 2010, B. Marcus Jones <>
 # All rights reserved.
 #

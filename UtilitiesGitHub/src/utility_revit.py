@@ -1,12 +1,21 @@
-#===============================================================================
-# Title of this Module
-# Authors; MJones, Other
-# 00 - 2012FEB05 - First commit
-# 01 - 2012MAR17 - Update to ...
-#===============================================================================
+# EnergyUtilities
+# Copyright (c) 2010, B. Marcus Jones <>
+# All rights reserved.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module does A and B.
-Etc.
+"""The :mod:`xx` module 
 """
 
 #===============================================================================
@@ -23,7 +32,7 @@ import unittest
 from win32com.client import Dispatch
 import clr
 #from Autodesk.Revit.DB import *
-from utility_inspect import whoami, whosdaddy, listObject
+from utility_inspect import get_self, get_parent, listObject
 import sys
 
 sys.path.append(r'D:\Apps\Autocad Plant 3D\Revit 2015')

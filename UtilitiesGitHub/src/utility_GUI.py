@@ -1,15 +1,24 @@
+# EnergyUtilities
+# Copyright (c) 2010, B. Marcus Jones <>
+# All rights reserved.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""The :mod:`xx` module 
+"""
 
 from __future__ import division    
-#===============================================================================
-# Title of this Module
-# Authors; MJones, Other
-# 00 - 2012FEB05 - First commit
-# 01 - 2012MAR17 - Update to ...
-#===============================================================================
-
-"""This module does A and B. 
-Etc.
-"""
 
 #===============================================================================
 # Set up
@@ -22,7 +31,7 @@ from config import *
 import logging.config
 import unittest
 
-from utility_inspect import whoami, whosdaddy, listObject
+from utility_inspect import get_self, get_parent, listObject
 import wx
 from utility_pathOLD import filter_files_dir
 

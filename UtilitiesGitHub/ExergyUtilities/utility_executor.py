@@ -23,14 +23,27 @@
 #===============================================================================
 from __future__ import division
 from __future__ import print_function
+
 import logging.config
 import subprocess
 from datetime import datetime
-import psutil
 import time
 from config import *
 
+import warnings
+
 # psutil is a cross-platform library for retrieving information on running processes and system utilization (CPU, memory, disks, network)in Python.
+try:
+    import psutil
+    FLG_PSUTIL = True
+except ImportError, e:
+    FLG_PSUTIL = False
+    warnings.warn(
+   "'psutil' module not imported. Without psutil, current CPU load is not detected.",
+    ImportWarning
+    )
+    pass 
+
 
 # max_cpu_percent = 80
 # max_processes = 4
@@ -89,7 +102,7 @@ class DOSCommand(object):
             # This process has not been started
             pass
 
-def execute_parallel(commands, update_delay, max_cpu_percent,max_processes):
+def execute_parallel(commands, update_delay, max_cpu_percent, max_processes):
     """This function will execute a list of DOS commands
     DOS commands are passed as a list of strings 
     Strings have all flags and paths (commands assembled externally)
@@ -118,7 +131,10 @@ def execute_parallel(commands, update_delay, max_cpu_percent,max_processes):
         time.sleep(update_delay)
         
         # Check CPU load
-        currentCPU = psutil.cpu_percent()
+        if FLG_PSUTIL:
+            currentCPU = psutil.cpu_percent()
+        else:
+            currentCPU = -1
 
         # Try to move 1 process from pending -> live
         if (pending_queue and
@@ -147,14 +163,15 @@ def execute_parallel(commands, update_delay, max_cpu_percent,max_processes):
 # Main
 #===============================================================================
 if __name__ == "__main__":
-    
-    logging.config.fileConfig('..\\..\\MyUtilities\\LoggingConfig\\loggingNofile.conf')
-    my_logger = logging.getLogger()
-    my_logger.setLevel("DEBUG")
+    print(ABSOLUTE_LOGGING_PATH)
+    logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+    myLogger = logging.getLogger()
+    myLogger.setLevel("DEBUG")
 
     logging.debug("Started _main".format())
-    
-    execute_parallel(["echo Testing 1","echo Testing 2"])
-    
-    logging.debug("Started _main".format())
+
+    execute_parallel(["echo Testing 1","echo Testing 2"], update_delay = 2, max_cpu_percent = 80, max_processes = 4)
+
+    logging.debug("Finished _main".format())
+
     

@@ -30,7 +30,7 @@ from config import *
 #import os
 import re
 #import time
-from exergy_frame.tests.utility_inspect import get_self, get_parent
+from ExergyUtilities.utility_inspect import get_self, get_parent
 import sys
 import shutil
 import errno

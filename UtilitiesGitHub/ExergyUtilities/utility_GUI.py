@@ -31,9 +31,8 @@ from config import *
 import logging.config
 import unittest
 
-from exergy_frame.tests.utility_inspect import get_self, get_parent, listObject
 import wx
-from utility_pathOLD import filter_files_dir
+from ExergyUtilities.utility_path import filter_files_dir
 
 #===============================================================================
 # Code

@@ -7,6 +7,7 @@
 # Standard:
 from __future__ import division
 from __future__ import print_function
+import unittest
 
 # Logging
 import logging
@@ -19,27 +20,16 @@ my_logger.setLevel("DEBUG")
 #import xxx
 
 # Own
-from utility_inspect import get_self, get_parent
+from ExergyUtilities.utility_inspect import get_self, get_parent
 
 #===============================================================================
-# Code
+# Testing
 #===============================================================================
-class MyClass(object):
-    """This class does something for someone.
-    """
-    def __init__(self, aVariable):
-        pass
+class allTests(unittest.TestCase):
 
-class MySubClass(MyClass):
-    """This class does
-
-    """
-    def __init__(self, aVariable):
-        super(MySubClass,self).__init__(aVariable)
-    def a_method(self):
-        """Return the something to the something."""
-        pass
-
-def some_function():
-    """Return the something to the something."""
-    pass
+    def setUp(self):
+        print("**** TEST {} ****".format(get_self()))
+        self.curr_dir = os.path.dirname(os.path.realpath(__file__))
+        
+    def test010_empty(self):
+        print("**** TEST {} ****".format(get_self()))

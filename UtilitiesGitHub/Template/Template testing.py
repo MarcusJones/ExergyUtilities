@@ -7,8 +7,6 @@
 # Standard:
 from __future__ import division
 from __future__ import print_function
-import os
-import unittest
 
 # Logging
 import logging
@@ -16,8 +14,9 @@ logging.basicConfig(format='%(funcName)-20s %(levelno)-3s: %(message)s', level=l
 my_logger = logging.getLogger()
 my_logger.setLevel("DEBUG")
 
+
 # External 
-import nose
+#import xxx
 
 # Own
 from utility_inspect import get_self, get_parent

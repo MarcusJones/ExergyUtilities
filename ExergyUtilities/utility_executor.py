@@ -15,7 +15,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The :mod:`xx` module 
+"""This utility module supports parallel execution of commands. 
+Dependence:
+    psutil - (Optional) A cross-platform library for retrieving information on running processes and system utilization (CPU, memory, disks, network)in Python.
+
+Attributes:
+    FLG_PSUTIL - Detects if this module is installed
 """
 
 #===============================================================================
@@ -54,16 +59,19 @@ except ImportError, e:
 #===============================================================================
 class DOSCommand(object):
     """A class holding a running DOS command
-    Keyword arguments:
+    Arguments:
     runID                 - An arbitrary ID for tracking
     execution_command     - the fully formed DOS command string
     
-    Internal:
-    status           - Pending -> Running -> Finished
-    process          - The actual subprocess Popen object
-    PID              - Process ID in Windows
-    run_start_time   - Time started
-    run_end_time     - Time ended
+    Arguments:
+        runID (any): An arbitrary ID for tracking
+        execution_command (str): The fully formed DOS command string
+    Attributes:
+        status (str): Pending -> Running -> Finished
+        process: The actual subprocess Popen object
+        PID: Process ID in Windows
+        run_start_time (datetime): Time started
+        run_end_time (datetime): Time ended
     """
     
     def __init__(self, runID, execution_command): 

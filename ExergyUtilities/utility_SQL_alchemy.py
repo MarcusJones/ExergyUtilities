@@ -15,7 +15,7 @@ engine acts as an interface
 # Set up
 #===============================================================================
 # Standard:
-from __future__ import division
+
 
 from config import *
 
@@ -23,7 +23,7 @@ import logging.config
 import unittest
 from ExergyUtilities.utility_excel_api import ExtendedExcelBookAPI
 
-from utility_inspect import get_self, get_parent
+from .utility_inspect import get_self, get_parent
 import datetime
 from ExergyUtilities.utility_path import get_new_file_rev_path
 from UtilityPrintTable import PrettyTable
@@ -64,7 +64,7 @@ def NOTESONLY_JOINING():
     # This is an easy way to join tables!
     qry = sa.select(['*']).where(tab_RVD.c.TimeIndex  == tab_time.c.TimeIndex)
     # The 'where' method overrides the __eq__ operator to produce an SQL statement
-    print users.c.name == None
+    print(users.c.name == None)
 
 #--- Utilities
 def get_metadata(engine):
@@ -85,7 +85,7 @@ def get_dict(engine, table_object):
     rows = list()
 
     for row in engine.execute(table_object.select()):
-        rows.append(dict(zip(column_names,row)))
+        rows.append(dict(list(zip(column_names,row))))
 
     return rows
 
@@ -123,7 +123,7 @@ def get_table_names(engine):
     """ DOC """
     metadata= get_metadata(engine)
     
-    return metadata.tables.keys()
+    return list(metadata.tables.keys())
 
 #def get_table_col_names(engine):
     
@@ -145,7 +145,7 @@ def insertRows(engine, tableObject, rows):
     #engine
     trans = connection.begin()
 
-    assert not isinstance(rows[0], basestring)
+    assert not isinstance(rows[0], str)
 
     for row in rows:
         connection.execute(tableObject.insert().values(row))
@@ -172,7 +172,7 @@ def count_rows(engine,tableObj):
 def get_pretty_table(engine,tableObj,maxRows = None, verbose = False):
     """Get a PP table given a <sqlalchemy.schema.Table> object
     Return a tuple containing the table name, and the PP rows"""
-    columnNames = tableObj.columns.keys()
+    columnNames = list(tableObj.columns.keys())
     myTable = PrettyTable(columnNames)
 
     s = sa.select([tableObj])
@@ -207,8 +207,8 @@ def get_all_pretty_tables(engine,maxRows = None):
 def print_all_pretty_tables(engine,maxRows = None):
     """Call get_all_pretty_tables(), and print all to screen"""
     for thisTable in get_all_pretty_tables(engine,maxRows):
-        print "***" + thisTable[0] + "***"
-        print thisTable[1]
+        print("***" + thisTable[0] + "***")
+        print(thisTable[1])
 
 def printOnePrettyTable(engine, tableName,maxRows = None):
     """Call get_pretty_table(), and print to screen"""
@@ -218,8 +218,8 @@ def printOnePrettyTable(engine, tableName,maxRows = None):
     #print thisTable
     #raise
     thisTableData =  get_pretty_table(engine,thisTable,maxRows)
-    print "***" + thisTableData[0] + "***"
-    print thisTableData[1]
+    print("***" + thisTableData[0] + "***")
+    print(thisTableData[1])
 
 def sa_join_select():
 
@@ -238,7 +238,7 @@ def get_column(table,col_name):
         if col.name == col_name:
             #print "Yes,"
             return col
-    print(col_name, cols)
+    print((col_name, cols))
             
     raise
         
@@ -284,7 +284,7 @@ def get_variable_vector(engine, metadata, criteria_list):
         connection = engine.connect()
         result_iterator = connection.execute(qry)#.fetchall()
 
-        column_headers = result_iterator.keys()
+        column_headers = list(result_iterator.keys())
 
         myTable = PrettyTable(column_headers)
 
@@ -296,7 +296,7 @@ def get_variable_vector(engine, metadata, criteria_list):
             if maxRows and idx_row > maxRows:
                 break
 
-        print myTable
+        print(myTable)
         raise
 
     #===========================================================================
@@ -315,10 +315,10 @@ def get_variable_vector(engine, metadata, criteria_list):
 
     connection = engine.connect()
     results = connection.execute(qry).fetchall()
-    print results
+    print(results)
     raise
 
-    column_headers = result_iterator.keys()
+    column_headers = list(result_iterator.keys())
 
     result_vector = list()
     unit = set()
@@ -375,7 +375,7 @@ def get_variable_def_from_RVDD(engine, metadata, varName, key_val,interval = "Ho
     # Get the column names
     col_names = [c.name for c in tReportVariableDataDictionary.c]
 
-    return dict(zip(col_names, this_res))
+    return dict(list(zip(col_names, this_res)))
 
 def idf_var_names_RVDD(engine, metadata):
     "Gets all variable names from the RVDD"
@@ -390,7 +390,7 @@ def idf_var_names_RVDD(engine, metadata):
 
     var_keys = ['{}'.format(objName[0]) for objName in engine.execute(s)]
 
-    return zip(var_names,var_keys)
+    return list(zip(var_names,var_keys))
 
 #--- Export
 
@@ -413,7 +413,7 @@ def get_frame_simple(engine,table_name,maxRows = None):
     
     tableObj = get_table_object(engine, table_name)
     rows = get_rows(engine,tableObj,maxRows)
-    columnNames = tableObj.columns.keys()
+    columnNames = list(tableObj.columns.keys())
 
     # Insert to a dataframe
     if len(rows) == 0:
@@ -489,7 +489,7 @@ def get_frame_Eplus(engine):
     #print type(qry)
     #qry = qry.select(["VariableValue"])
     #qry = qry.select('"ReportVariableData"."VariableValue"')
-    print rvd_time_rvdd
+    print(rvd_time_rvdd)
     qry = sa.select(["*"]).select_from(rvd_time_rvdd)
     #print qry
     #sa.select()
@@ -514,12 +514,12 @@ def get_frame_Eplus(engine):
     results = connection.execute(qry)
     connection.close()
 
-    print results
-    print results.keys
+    print(results)
+    print(results.keys)
     #print results["Interval"]
     #raise
-    for k in results.keys():
-        print k
+    for k in list(results.keys()):
+        print(k)
     #for item in dir(results):
     #    print item
 
@@ -549,7 +549,7 @@ def get_frame_OLD(engine, metadata):
         this_idx = item["ReportVariableDataDictionaryIndex"]
         this_unit = item["VariableUnits"]
         #this_vec = get_variable_vector(engine, metadata, this_idx)
-        print this_key, this_name
+        print(this_key, this_name)
 
 def load_database(fullPath):
     """Given a database path, open it and extract information to create the DesignSpace object
@@ -584,7 +584,7 @@ def run_project(database_path, output_path):
 
     zone_name_list = get_zone_names(engine,metadata)
 
-    print zone_name_list
+    print(zone_name_list)
 
     criteria_zone_temp =  [(('KeyValue',zone_name),('VariableName','Zone Mean Air Temperature'),('ReportingFrequency','Hourly')) for zone_name in zone_name_list]
     criteria_list = criteria_list + criteria_zone_temp
@@ -612,14 +612,14 @@ def run_project(database_path, output_path):
 
     this_frame = xrg.ExergyFrame(
             name="Test",
-            dataArray = zip(*data),
+            dataArray = list(zip(*data)),
             timeArray=None,
-            headersArray = zip(*headers),
+            headersArray = list(zip(*headers)),
 
             headersDef= header_def,
             )
     this_frame = xrg.add_simple_time(this_frame)
-    print this_frame.checkTimeExists()
+    print(this_frame.checkTimeExists())
     xrg.displayFrame(this_frame)
 
     xl = ExtendedExcelBookAPI(output_path)
@@ -655,7 +655,7 @@ def OLD_FROM_SUPER_TABLE():
     if 0:
         one_row = result_iterator.fetchone()
         for item in zip(column_headers,one_row):
-            print item
+            print(item)
 
     result = result_iterator.fetchall()
 
@@ -663,11 +663,11 @@ def OLD_FROM_SUPER_TABLE():
     connection.close()
 
     logging.info("Matching {} criteria to return {} data rows".format(len(criteria_list), len(result)))
-    print result
+    print(result)
     raise
 
-    result = zip(*result)
-    result_dict = dict(zip(column_headers,result))
+    result = list(zip(*result))
+    result_dict = dict(list(zip(column_headers,result)))
     df = pd.DataFrame(result_dict)
 
     #===========================================================================

@@ -21,8 +21,8 @@
 #===============================================================================
 # Set up
 #===============================================================================
-from __future__ import division
-from __future__ import print_function
+
+
 
 from config import *
 
@@ -122,7 +122,7 @@ def query_yes_no(question, default="yes"):
 
     while True:
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             #print choice
             return valid[default]
@@ -159,7 +159,7 @@ def erase_dir_contents(folder, flgEverything = True):
                 os.unlink(file_path)
             else:
                 os.unlink(file_path)
-        except Exception, e:
+        except Exception as e:
             print(e)
 
 def path_exists(f):
@@ -788,7 +788,7 @@ class FileObject(object):
         # replacements should be a list
         assert replacements[0][0]
         
-        if isinstance(replacements, basestring):
+        if isinstance(replacements, str):
             replacements = list().append(replacements) 
         
         # First, make sure the file text is loaded 
@@ -847,7 +847,7 @@ class FileObject(object):
         replate 
         """
         # replacements should be a list
-        if isinstance(replacements, basestring):
+        if isinstance(replacements, str):
             replacements = list().append(replacements) 
         
         # First, make sure the file text is loaded 
@@ -916,7 +916,7 @@ class FileObjectBaseSuffix(FileObject):
         # Make the directory tree if doesn't exist
         try:
             os.makedirs(newDirectoryPath)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
                 raise
 

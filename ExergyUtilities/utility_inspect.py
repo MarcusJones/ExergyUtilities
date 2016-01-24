@@ -19,7 +19,7 @@
 """
 
 
-from __future__ import print_function
+
 
 import inspect
 
@@ -31,7 +31,7 @@ def get_parent():
 
 def list_attrs(obj):
     attrs = vars(obj)
-    attr_list  = ["{} : {}".format(*item) for item in attrs.items()]
+    attr_list  = ["{} : {}".format(*item) for item in list(attrs.items())]
     print(attr_list)
     
 def list_object(theObject,cols = 5):

@@ -5,9 +5,8 @@
 # Set up
 #===============================================================================
 # Standard:
-from __future__ import division
-from __future__ import print_function
 import unittest
+import os 
 
 # Logging
 import logging
@@ -17,7 +16,7 @@ my_logger.setLevel("DEBUG")
 
 
 # External 
-#import xxx
+import xlrd
 
 # Own
 from ExergyUtilities.utility_inspect import get_self, get_parent
@@ -29,33 +28,34 @@ from ExergyUtilities.utility_inspect import get_self, get_parent
 #===============================================================================
 # Unit testing
 #===============================================================================
-@unittest.skip("Skip")
+#@unittest.skip("Skip")
 class all_tests(unittest.TestCase):
-    @unittest.skip("Skip")
+    #@unittest.skip("Skip")
     def test010(self):
-        print "**** TEST {} ****".format(whoami())
-        workBookPath = os.getcwd() + "\\..\\TestingFiles\\testing01.xlsx"
+        print("**** TEST {} ****".format(get_self()))
+        workBookPath = os.getcwd() + "\\..\\..\\TestingFiles\\testing01.xlsx"
         wb = xlrd.open_workbook(workBookPath)
-        print wb
+        print("HELLO")
+        print( wb)
         sh = wb.sheet_by_name(u'Sheet1')
-        print sh
+        print( sh)
         for rownum in range(sh.nrows):
-            print sh.row_values(rownum)
+            print( sh.row_values(rownum))
 
-    @unittest.skip("Skip")
+    #@unittest.skip("Skip")
     def test020(self):
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(get_self()))
 
         workBookPath = os.getcwd() + "\\..\\TestingFiles\\testing01.xlsx"
         thisBook = ExcelBookRead(workBookPath)
-        print thisBook.get_table("Sheet1", 0, 2, 0, 2)
+        print( thisBook.get_table("Sheet1", 0, 2, 0, 2))
         thisTable = thisBook.get_table("Sheet1", 0, 2)
         for row in thisTable:
             for val in row:
-                print val
+                print( val)
 
     def test030(self):
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(get_self()))
 
         testPath = r"C:\Projects\IDFout\00Test.xlsx"
         testData= [['the', 'big', 'cat', 'flies'],[3,4,5]]
@@ -71,7 +71,7 @@ class all_tests(unittest.TestCase):
 
 class test_pw(unittest.TestCase):
     def test010(self):
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(get_self()))
         workBookPath = r"C:\Users\PC1\Desktop\Test.xlsx"
         import sys
         #workBookPath = r"C:\Users\PC1\Desktop\short.xlsx"
@@ -83,7 +83,7 @@ class test_pw(unittest.TestCase):
         import datetime as dt
         import time
         xlApp = win32com.client.Dispatch("Excel.Application")
-        print "Excel library version:", xlApp.Version
+        print( "Excel library version:", xlApp.Version)
 
         for pw_size in range(5, 10):
 
@@ -95,7 +95,7 @@ class test_pw(unittest.TestCase):
                 password = "".join(password)
 
                 if count % 100 == 0:
-                    print "{:<10} - {}".format(count, password)
+                    print( "{:<10} - {}".format(count, password))
 
 
                 try:
@@ -103,21 +103,21 @@ class test_pw(unittest.TestCase):
                     flg_found = True
                 except:
                     pass
-                    #traceback.print_exc()
-                    #print "Err"
+                    #traceback.print(_exc()
+                    #print( "Err"
                 if flg_found:
                     break
 
                 count += 1
             end_time = time.time()
-            print "Combinations length {} over {} seconds".format(pw_size,end_time - start_time)
-            print "Last password was {}".format(password)
+            print( "Combinations length {} over {} seconds".format(pw_size,end_time - start_time))
+            print( "Last password was {}".format(password))
             if flg_found:
                 break
 
-        print password
-        print password
-        print password
+        print( password)
+        print( password)
+        print( password)
 
 
 
@@ -140,7 +140,7 @@ def _test1():
 
     theseRows = excelBook1.get_rows("Variables", 1, None, 1, None)
 
-    print theseRows
+    print( theseRows)
 
     logging.debug("Finished _test1".format())
 

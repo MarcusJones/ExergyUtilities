@@ -19,8 +19,8 @@
 For xlrd/xlwt methods, see utility_excel module. 
 """
 
-from __future__ import division
-from __future__ import print_function
+
+
 
 from win32com.client import Dispatch
 import logging.config

@@ -30,18 +30,18 @@ from ExergyUtilities.utility_inspect import get_self, get_parent
 class allTests(unittest.TestCase):
     
     def setUp(self):
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(whoami()))
 
     @unittest.skip("")         
     def test020_SimpleCreation(self):
-        print "**** TEST {} ****".format(whoami())
-        print "BETTER?"
+        print( "**** TEST {} ****".format(whoami()))
+        print( "BETTER?")
         ret = simpleYesNo("Test")
-        print "Got  answer;", ret
+        print( "Got  answer;", ret)
 
     @unittest.skip("")         
     def test030_getDir(self):
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(whoami()))
         app = wx.App(False)
         frame = MyForm()
         frame.Show()
@@ -49,12 +49,12 @@ class allTests(unittest.TestCase):
 
     def test040_getDirFOrm(self):
 
-        print "**** TEST {} ****".format(whoami())
+        print( "**** TEST {} ****".format(whoami()))
         
 
         def testFunction1(dirName):
-            print "Test function RUN"
-            print dirName
+            print( "Test function RUN")
+            print( dirName)
         
         runDirFilter(testFunction1)
 

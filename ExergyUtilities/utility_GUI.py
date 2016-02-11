@@ -18,7 +18,7 @@
 """The :mod:`xx` module 
 """
 
-from __future__ import division    
+    
 
 #===============================================================================
 # Set up
@@ -131,25 +131,25 @@ class runDirectory(wx.Frame):
     def update(self):
         # Get files
         self.filesList =  filter_files_dir(self.dirName,self.fileName,self.extensionSearch)
-        print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
+        print("Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch))
         #self.lbox.SetItems(self.choices)
         
     def EvtText(self, event):
-        print "Hit {} - {}".format(whoami(), event.GetString())
+        print("Hit {} - {}".format(whoami(), event.GetString()))
         self.update()        
         #self.log.WriteText('EvtText: %s\n' % event.GetString())
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
 
     def EvtTextEnter(self, event):
         #self.log.WriteText('EvtTextEnter\n')
-        print "Hit {}; {}".format(whoami(), event.GetString())
+        print("Hit {}; {}".format(whoami(), event.GetString()))
         self.update()        
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
         
         #event.Skip()
 
     def EvtChar(self, event):
-        print "Hit {}".format(whoami())
+        print("Hit {}".format(whoami()))
         self.update()
         #self.log.WriteText('EvtChar: %d\n' % event.GetKeyCode())
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
@@ -158,12 +158,12 @@ class runDirectory(wx.Frame):
 
         
     def change_ctrl_ext(self,event):
-        print "Hit {}".format(whoami())
+        print("Hit {}".format(whoami()))
         self.update()
              
     def onRun(self, event):
         logging.debug("Run function {}".format(self.dirName))
-        print "Hit {}".format(whoami())
+        print("Hit {}".format(whoami()))
         self.runFunction(self.dirName)
         self.update()
         
@@ -194,8 +194,8 @@ def YesNoOLD(parent, question, caption = 'Yes or no?'):
     return result
 
 def simpleYesNo(question="Question; Yes or No?"):
-    print wx
-    print dir(wx)
+    print(wx)
+    print(dir(wx))
     
     app = wx.PySimpleApp()
     retCode = wx.MessageBox(question, "", wx.YES|wx.NO)
@@ -280,8 +280,8 @@ def YesNoOLD(parent, question, caption = 'Yes or no?'):
     return result
 
 def simpleYesNo(question="Question; Yes or No?"):
-    print wx
-    print dir(wx)
+    print(wx)
+    print(dir(wx))
     
     app = wx.PySimpleApp()
     retCode = wx.MessageBox(question, "", wx.YES|wx.NO)

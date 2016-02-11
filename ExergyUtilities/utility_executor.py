@@ -26,8 +26,8 @@ Attributes:
 #===============================================================================
 # Set up
 #===============================================================================
-from __future__ import division
-from __future__ import print_function
+
+
 
 import logging.config
 import subprocess
@@ -41,7 +41,7 @@ import warnings
 try:
     import psutil
     FLG_PSUTIL = True
-except ImportError, e:
+except ImportError as e:
     FLG_PSUTIL = False
     warnings.warn(
    "'psutil' module not imported. Without psutil, current CPU load is not detected.",

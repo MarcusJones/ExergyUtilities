@@ -18,7 +18,7 @@
 """The :mod:`xx` module is a utility and notebook module to interface with Excel. The two xlrd/xlwt  
 """
 
-from __future__ import division
+
 from win32com.client import Dispatch
 import logging.config
 import os
@@ -71,7 +71,7 @@ def excel_write_table_xlsx(fullPath,sheetName,rows):
 def excel_write_table(fullPath,sheetName,rows):
     wb = xlwt.Workbook()
     sheet = wb.add_sheet(sheetName)
-    print sheet
+    print(sheet)
 
     for i,row in enumerate(rows):
         for j,item in enumerate(row):
@@ -162,14 +162,14 @@ class ExcelBookRead2(object):
             #print(data_row)
             assert(len(header_row) == len(data_row)), "Mismatch header length {}, row length {}".format(len(header_row),len(data_row))
         
-        return dict(zip(header_row, data_row))
+        return dict(list(zip(header_row, data_row)))
     
     def get_table_all(self, target_sheet, dataType="str"):
         
         sheet = self.wb.sheet_by_name(target_sheet)
 
         data = list()
-        for i in xrange(sheet.nrows):
+        for i in range(sheet.nrows):
             if dataType == "str":
                 data.append(sheet.row_values(i)) #drop all the values in the rows into data
             else:
@@ -244,7 +244,7 @@ class ExcelBookRead(object):
         sheet = wb.sheet_by_name(targetSheet)
 
         data = list()
-        for i in xrange(sheet.nrows):
+        for i in range(sheet.nrows):
             if dataType == "str":
                 data.append(sheet.row_values(i)) #drop all the values in the rows into data
             else:

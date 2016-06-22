@@ -11,6 +11,7 @@ import unittest
 
 # Logging
 import logging
+import os
 logging.basicConfig(format='%(funcName)-20s %(levelno)-3s: %(message)s', level=logging.DEBUG, datefmt='%I:%M:%S')
 my_logger = logging.getLogger()
 my_logger.setLevel("DEBUG")

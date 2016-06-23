@@ -19,8 +19,11 @@
 For xlrd/xlwt methods, see utility_excel module. 
 """
 
-
 #from win32com.client import Dispatch
+import clr
+clr.AddReferenceByName('Microsoft.Office.Interop.Excel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c')
+from Microsoft.Office.Interop import Excel
+
 import logging.config
 import os
 import re
@@ -35,11 +38,11 @@ class ExtendedExcelBookAPI(object):
     """
 
     def __enter__(self):
-        logging.debug("***Enter ExtendedExcelBookAPI ***".format())
+        logging.debug("***Enter Excel API***".format())
         return self
 
     def __exit__(self, type, value, traceback):
-        logging.debug("***Exit ExtendedExcelBookAPI ***".format())
+        logging.debug("***Exit Excel API***".format())
         if self.autosave:
             self.save_and_close()
         else:
@@ -49,8 +52,13 @@ class ExtendedExcelBookAPI(object):
         self.excelPath = os.path.abspath(excelPath)
         self.autosave = autosave
         logging.debug("Excel file at: {}, exists={}".format(self.excelPath,self.exists))
-        self.xl = Dispatch('Excel.Application')
-        self.xl.Visible = 0
+        
+        #self.xl = Dispatch('Excel.Application')
+        #self.xl.Visible = 0
+        
+        self.xl = Excel.ApplicationClass()   
+        self.xl.Visible = False
+        self.xl.DisplayAlerts = False 
         
         if not self.exists and autocreate:
             self.book = self.xl.Workbooks.Add()
@@ -63,6 +71,8 @@ class ExtendedExcelBookAPI(object):
             logging.debug("Created file Excel file at: {}, exists={}".format(self.excelPath,self.exists))
         else:
             self.book = self.xl.Workbooks.Open(self.excelPath)
+            logging.debug("Opened book: {}".format(self.excelPath))
+            
     
     def closeAll(self):
         #self.book.Close(0)
@@ -425,28 +435,26 @@ class ExtendedExcelBookAPI(object):
         startCol, Starts at 1
         endCol Inclusive
         """
-        logging.debug("Loading table on {}".format(targetSheet))
+        logging.debug("Loading table on sheet {}, {} rows X {} cols".format(targetSheet, endRow - startRow, endCol-startCol))
 
         # Attach the excel COM object
 
-        xl = Dispatch('Excel.Application')
+        #xl = Dispatch('Excel.Application')
 
         # Open the project file
-        book = xl.Workbooks.Open(self.excelPath)
+        #book = xl.Workbooks.Open(self.excelPath)
 
         # Select the sheet
-        sheet = book.Sheets(targetSheet)
-
-        xl.Visible = False
+        sheet = self.book.Sheets(targetSheet)
 
         rows = list()
         for row in range(startRow,endRow+1):
             rows.append(list())
             for col in range(startCol, endCol+1):
-                thisVal = sheet.Cells(row,col).Value
+                thisVal = sheet.Cells(row,col).Value2
                 rows[-1].append(thisVal)
 
-        book.Close(SaveChanges=0) #to avoid prompt
+        #book.Close(SaveChanges=0) #to avoid prompt
 
         return rows
 

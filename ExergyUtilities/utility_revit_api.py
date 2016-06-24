@@ -12,23 +12,66 @@ import logging
 #uidoc = __revit__.ActiveUIDocument
 #doc = __revit__.ActiveUIDocument.Document
 
+# NOTES ----
+"""
+#     for v in floorplans:
+#         phasep = v.LookupParameter('Phase')
+#         sheetnum = v.LookupParameter('Sheet Number')
+#         detnum = v.LookupParameter('Detail Number')
+#         refsheet = v.LookupParameter('Referencing Sheet')
+#         refviewport = v.LookupParameter('Referencing Detail')
+# 
+#         print('TYPE: {1}ID: {2}PHASE:{4}  {0}'.format(
+#                 v.ViewName,
+#                 str( v.ViewType ).ljust(20),
+#                 str(v.Id).ljust(10),
+#                 str(v.IsTemplate).ljust(10),
+#                 phasep.AsValueString().ljust(25) if phasep else '---'.ljust(25),
+#             ))
+"""
  
 #-Utility---
 class Trans():
     def __init__(self, doc, msg):
-        logging.debug("INIT")
+        self.msg = msg
         self.t = Transaction(doc, msg)
         
     def __enter__(self):
-        logging.debug("ENTER")        
+        logging.debug("TRANSACTION INITATIATED - {}".format(self.msg))
         self.t.Start()
     
     def __exit__(self, exception_type, exception_value, traceback):
-        logging.debug("EXIT")
+        logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
         self.t.Commit()
         
-        
+
 #-Family---
+
+def get_type(this_elem):
+    raise
+    this_elem.GetType() # For floorplans!
+
+def get_all_categories(doc):
+    categories = doc.Settings.Categories;
+    print("{:40} | {:30} | {:30}".format("cat.Name", "cat.Id", "cat.Parent"))    
+    for cat in categories:
+        print("{:40} | {:30} | {:30}".format(cat.Name, cat.Id, cat.Parent))
+
+def get_all_BuiltInCategory():
+    raise
+    builtIn = System.Enum.ToObject(BuiltInCategory)
+    
+#     for bic in BuiltInCategory.GetValue():
+#         print(bic)
+
+
+def get_elements(doc,category):
+    #category = BuiltInCategory.OST_Mass
+    
+    collector = FilteredElementCollector(doc)
+    collector.OfCategory(category)
+    return collector
+
 
 def get_table(path_excel_book):
     
@@ -105,56 +148,76 @@ def get_family():
     e.g. the 'I Beam' family contains a W14x32 symbol, a W12x32 symbol etc.    """
 
 #-Views and Sheets---
-
-def get_view_dict(doc):
+def get_view_templates(doc):
     logging.debug("get_view_dict")
-    views = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
+    floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
     view_dict = dict()
-    for v in views:
-        view_dict[v.ViewName] = v
-        
-    logging.debug("Returned {} views in dict".format(len(view_dict)))
+    
+    for v in floorplans:
+        if v.IsTemplate:
+            view_dict[v.ViewName] = v
+  
+    logging.debug("Returned {} view templates in dict".format(len(view_dict)))
+    
+    return view_dict    
+
+def apply_template(doc, view):
+    pass
+#     
+#     View viewTemplate = (from v in new FilteredElementCollector(doc)
+#         .OfClass(typeof(View))
+#         .Cast<View>()
+#         where v.IsTemplate == true && v.Name == "MyViewTemplate"
+#         select v)
+#         .First();
+# 
+#     using (Transaction t = new Transaction(doc,"Set View Template"))
+#     {
+#         t.Start();           
+#         doc.ActiveView.ViewTemplateId = viewTemplate.Id;
+#         t.Commit();
+#     }
+# }    
+
+
+
+def get_all_views(doc):
+    logging.debug("get_all_views")
+    floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
+    view_dict = dict()
+    
+    for v in floorplans:
+        if not v.IsTemplate:
+            #print(v.ViewName,v.ViewType,v.IsTemplate)
+            view_dict[v.ViewName] = v
+
+    logging.debug("Returned {} views in dict (no view templates)".format(len(view_dict)))
     
     return view_dict
-#     for v in views:
-#         phasep = v.LookupParameter('Phase')
-#         sheetnum = v.LookupParameter('Sheet Number')
-#         detnum = v.LookupParameter('Detail Number')
-#         refsheet = v.LookupParameter('Referencing Sheet')
-#         refviewport = v.LookupParameter('Referencing Detail')
-# 
-#         print('TYPE: {1}ID: {2}PHASE:{4}  {0}'.format(
-#                 v.ViewName,
-#                 str( v.ViewType ).ljust(20),
-#                 str(v.Id).ljust(10),
-#                 str(v.IsTemplate).ljust(10),
-#                 phasep.AsValueString().ljust(25) if phasep else '---'.ljust(25),
-#             ))
 
-def get_all_categories(doc):
-    categories = doc.Settings.Categories;
-    print("{:40} | {:30} | {:30}".format("cat.Name", "cat.Id", "cat.Parent"))    
-    for cat in categories:
-        print("{:40} | {:30} | {:30}".format(cat.Name, cat.Id, cat.Parent))
+def get_views_by_type(doc, view_type):
 
-def get_all_BuiltInCategory():
-    raise
-    builtIn = System.Enum.ToObject(BuiltInCategory)
+    logging.debug("get_view_dict")
+    floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
+    view_dict = dict()
     
-#     for bic in BuiltInCategory.GetValue():
-#         print(bic)
+    for v in floorplans:
+        if not v.IsTemplate and v.ViewType.__str__() == view_type:
+            view_dict[v.ViewName] = v
 
-
-def get_elements(doc,category):
-    #category = BuiltInCategory.OST_Mass
+    logging.debug("Returned {} {} in dict (no view templates)".format(len(view_dict), view_type))
     
-    collector = FilteredElementCollector(doc)
-    collector.OfCategory(category)
-    return collector
+    return(view_dict)
 
+# def get_all_title_blocks(doc):
+#     logging.debug("get_sheet_types")
+#     
+#     
+#     return collector 
+#     
+def get_title_blocks(doc):
+    logging.debug("get_title_block")
 
-def get_all_title_blocks(doc):
-    logging.debug("get_sheet_types")
     this_category = BuiltInCategory.OST_TitleBlocks
     this_class = FamilySymbol
     
@@ -162,36 +225,28 @@ def get_all_title_blocks(doc):
     collector.OfCategory(this_category)
     collector.OfClass(this_class)
     
-    return collector 
-    
-def get_title_block(doc, titleblock_name):
-    logging.debug("get_title_block")
-    
-    collector = get_all_title_blocks(doc)
+    #collector = get_all_title_blocks(doc)
     
     title_block_dict = dict()
     
     for elem in collector:
         title_block_dict[elem.FamilyName]=elem
-    
-    try:
-        logging.debug("Returning title block {}".format(titleblock_name))
-        return title_block_dict[titleblock_name]
-    except KeyError:
-        logging.error("Can't find {}".format(titleblock_name))
-        raise
 
-def print_title_blocks(doc):
+    logging.debug("Returned {} title blocks".format(len(title_block_dict)))
     
-    collector = get_all_title_blocks(doc)
-    #collector.ToElements()
-    #elem_list = [el for el in collector]
-    #logging.debug("{} elements".format(len(elem_list)))
+    return(title_block_dict)
 
-    print("{:30} | {:30} |".format("Name:","ID:"))
-    for elem in collector:
-        print("{:30} | {:30} ".format(elem.FamilyName,elem.Id))
-    
+# def print_title_blocks(doc):
+#     
+#     collector = get_all_title_blocks(doc)
+#     #collector.ToElements()
+#     #elem_list = [el for el in collector]
+#     #logging.debug("{} elements".format(len(elem_list)))
+# 
+#     print("{:30} | {:30} |".format("Name:","ID:"))
+#     for elem in collector:
+#         print("{:30} | {:30} ".format(elem.FamilyName,elem.Id))
+#     
     #for item in dir(elem):
     #    print(item)
         #print(elem.Name)
@@ -212,21 +267,40 @@ def print_title_blocks(doc):
     
     #print(collector.ToList())
 
-def add_view_sheet(doc, sheet, view):
-    pass
-#     FilteredElementCollector fec = new FilteredElementCollector(doc);
-#     fec.OfClass(typeof(ViewPlan));
-#     var viewPlans = fec.Cast<ViewPlan>().Where<ViewPlan>(vp => !vp.IsTemplate && vp.ViewType == ViewType.CeilingPlan);
+def add_view_sheet(doc, sheet, view, center_pt):
+    logging.debug("add_view_sheet")
+    
+    with Trans(doc, "Add view to sheet"):
+        rvt_db.Viewport.Create(doc, sheet.Id, view.Id, center_pt)
+    
+    logging.debug("View {} placed on sheet {} {} at {}".format(view.Name, sheet.Name, sheet.SheetNumber, center_pt))
 
+def get_element_from_id(doc, id_int):
+
+    elem_id = rvt_db.ElementId(id_int)
+    elem = doc.GetElement(elem_id)
+    
+    return elem
+
+def get_uv_center(this_sheet):
+
+    #print(this_sheet.Outline)
+    #print()
+    #print()
+    
+    center_u = (this_sheet.Outline.Max[0] - this_sheet.Outline.Min[0])/2 + this_sheet.Outline.Min[0]
+    center_v = (this_sheet.Outline.Max[1] - this_sheet.Outline.Min[1])/2 + this_sheet.Outline.Min[1]
+    centerUV = rvt_db.UV(center_u,center_v) 
+    
+    logging.debug("Box {} {} with center point {}".format(this_sheet.Outline.Min, this_sheet.Outline.Max, centerUV))
+    return centerUV
 
 def create_sheet(doc, title_block, name, number):
     logging.debug("create_sheet")
     
     title_block_id = title_block.Id
     with Trans(doc, "Create sheet"):
-        logging.debug("Inside Trans")
         new_sheet = rvt_db.ViewSheet.Create(doc, title_block_id)
-        
         new_sheet.Name = name
         new_sheet.SheetNumber = number
         
@@ -239,8 +313,8 @@ def create_sheet(doc, title_block, name, number):
 
     public static ViewSheet ViewSheet.Create(Document document, ElementId titleBlockTypeId);
 
-    The newly created sheet has no views. The Viewport.Create() method is used to add views. 
-    The Viewport class is used to add regular views to a view sheet, i.e. plan, elevation, 
+    The newly created sheet has no floorplans. The Viewport.Create() method is used to add floorplans. 
+    The Viewport class is used to add regular floorplans to a view sheet, i.e. plan, elevation, 
     drafting and three dimensional. To add schedules to a view, use ScheduleSheetInstance.Create() instead. 
     """
     
@@ -266,16 +340,30 @@ def create_sheet(doc, title_block, name, number):
     #new_view.Name = new_name
     #t.Commit()
 
-          
+def get_sheet_dict(doc):
+    logging.debug("get_sheet dict")
+    cl_sheets = FilteredElementCollector(doc)
+    
+    sheets = cl_sheets.OfCategory(BuiltInCategory.OST_Sheets).WhereElementIsNotElementType().ToElements()
+    
+    sheet_dict = dict()
+    for s in sheets:
+        sheet_dict[s.Name] = s
+        
+    #logging.debug("Returned {} floorplans in dict".format(len(view_dict)))
+    
+    logging.debug("Returned {} sheets in dictionary".format(len(sheets)))
+    
+    return sheet_dict
+
 def get_sheets(doc):
     logging.debug("get_sheets")
     cl_sheets = FilteredElementCollector(doc)
     
     sheetsnotsorted = cl_sheets.OfCategory(BuiltInCategory.OST_Sheets).WhereElementIsNotElementType().ToElements()
     sheets = sorted(sheetsnotsorted, key=lambda x: x.SheetNumber)
-
-    logging.debug("Found {} sheets".format(len(sheets)))
     
+    logging.debug("Found {} sheets".format(len(sheets)))
     
     for s in sheets:
         print(s)

@@ -14,6 +14,20 @@ import logging
 
 # NOTES ----
 """
+
+#A legend:
+# this_elem = util_ra.get_element_from_id(rvt_doc, 4703098)
+# print(this_elem.ViewType)
+# 
+# #A view:
+# this_elem = util_ra.get_element_from_id(rvt_doc, 5035828)
+# print(this_elem.ViewType)
+
+# Get all floorplans, sheets, titleblocks, legends---
+
+
+
+
 #     for v in floorplans:
 #         phasep = v.LookupParameter('Phase')
 #         sheetnum = v.LookupParameter('Sheet Number')

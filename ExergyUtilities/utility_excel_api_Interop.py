@@ -428,14 +428,16 @@ class ExtendedExcelBookAPI(object):
         return thisVal
 
 
-    def get_table_2(self, targetSheet, startRow, endRow, startCol, endCol):
+    def get_table(self, targetSheet, startRow, endRow, startCol, endCol):
         """
         startRow, Starts at 1, not 0!
         endRow, Inclusive
         startCol, Starts at 1
         endCol Inclusive
         """
-        logging.debug("Loading table on sheet {}, {} rows X {} cols".format(targetSheet, endRow - startRow, endCol-startCol))
+        logging.debug("get_table".format())
+        
+        #logging.debug("Loading table on sheet {}, {} rows X {} cols".format(targetSheet, endRow - startRow, endCol-startCol))
 
         # Attach the excel COM object
 
@@ -446,16 +448,24 @@ class ExtendedExcelBookAPI(object):
 
         # Select the sheet
         sheet = self.book.Sheets(targetSheet)
-
+        
+        #print(sheet)
+        
         rows = list()
         for row in range(startRow,endRow+1):
             rows.append(list())
             for col in range(startCol, endCol+1):
+                #print(row, col)
+                
                 thisVal = sheet.Cells(row,col).Value2
+                #print(thisVal)
                 rows[-1].append(thisVal)
-
+        #print(rows)
         #book.Close(SaveChanges=0) #to avoid prompt
-
+        #print()
+        
+        logging.debug("Loaded table on sheet {}, {} rows X {} cols".format(targetSheet, endRow - startRow, endCol-startCol))
+        
         return rows
 
 #     def get_table(self,sheetName):
@@ -473,3 +483,11 @@ class ExtendedExcelBookAPI(object):
 #     
 #     def __exit__(self, type, value, traceback):
 #         self.object.save_and_close()
+
+#Marshal.ReleaseComObject(xlWorksheet)
+#Marshal.ReleaseComObject(xlWorkbook)
+#Marshal.ReleaseComObject(xlApp)
+
+
+#xl_workbook = xlrd.open_workbook(path_excel_book)
+#logging.info("excel book : {}".format(xl_workbook))

@@ -2,6 +2,7 @@ import Autodesk.Revit.DB as rvt_db
 from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory 
 from Autodesk.Revit.DB import FamilyInstance, FamilySymbol
 from Autodesk.Revit.DB import Transaction
+from Autodesk.Revit.DB import Line, XYZ, CurveLoop
 import System
 
 import logging
@@ -309,6 +310,23 @@ def get_uv_center(this_sheet):
     logging.debug("Box {} {} with center point {}".format(this_sheet.Outline.Min, this_sheet.Outline.Max, centerUV))
     return centerUV
 
+    
+def create_dependent(doc, active_view, part_name):
+    # Copy current view as dependant\
+    logging.debug("create_dependent".format())
+    with Trans(doc, "Duplicate"):
+        new_view_id = active_view.Duplicate(rvt_db.ViewDuplicateOption.AsDependent)
+        new_view = doc.GetElement(new_view_id)
+    
+    new_name = new_view.Name.replace("Dependent 1", part_name)
+
+    with Trans(doc, "Rename"):
+        new_view.Name = new_name
+    
+    logging.debug("Created {}".format(new_view.Name))
+    return new_view
+
+
 def create_sheet(doc, title_block, name, number):
     logging.debug("create_sheet")
     
@@ -389,6 +407,16 @@ def get_sheets(doc):
         
     return(sheets)
 
+#-Selection---
+
+def selection(uidoc):
+    print(uidoc.Selection)
+    for el_ID in uidoc.Selection.GetElementIds():
+        el = uidoc.GetElement(el_ID)
+        print(el_ID)
+        print(el)
+        #el.Duplicate( ViewDuplicateOption.WithDetailing )
+
 #-Get objects---
 def get_element_by_id(doc,id):
     doc.GetElement(id)
@@ -400,3 +428,90 @@ def get_element_OST_Walls_ActiveView(doc):
 def get_element_OST_Walls_Document(doc):
     fec = rvt_db.FilteredElementCollector(doc)
     fec.OfCategory(BuiltInCategory.OST_Walls);
+
+def apply_crop(doc,view, bound_box):
+    logging.debug("apply_crop")
+    
+    # Adjust Crop on existing
+    crop_manager = view.GetCropRegionShapeManager()
+    logging.debug("Crop manager valid {}".format(crop_manager.Valid))
+    
+    #if 0 :
+        #assert crop_manager.Valid, "Crop manager invalid"
+
+    with Trans(doc, "Adjust crop"):
+        crop_manager.SetCropRegionShape(bound_box)
+        crop_manager.SetCropShape(bound_box)
+        logging.debug("Cropped {}".format(view))
+
+
+
+def get_grids(doc):
+    logging.debug("get_grids")
+    # Collect all grids in entire project to a name:element Dict
+    collector = FilteredElementCollector(doc)
+    collector.OfCategory(BuiltInCategory.OST_Grids).WhereElementIsNotElementType()
+    collect_grids = collector.ToElements()
+
+    grid_dict = {}
+
+    for grid in collect_grids:
+        grid_name = grid.GetParameters('Name')[0].AsString()
+        grid_dict[grid_name] = grid
+    
+    #for k,v in grid_dict.items():
+        #    print(k,v)
+    logging.debug("Returned {} grids".format(len(grid_dict)))
+    return grid_dict
+
+#-Geometry---
+def get_bound_box(grid_bounds, oversize_factor):
+    logging.debug("get_grids")
+    
+    # Given a dict of l,r,t,b to grid elements
+    # Return a bonding box CurveLoop object
+    # With rectangle increased oversize_factor
+    
+    # Get the X and Y unscaled bounds
+    left_x = grid_bounds['left'].Curve.GetEndPoint(0).X
+    right_x = grid_bounds['right'].Curve.GetEndPoint(0).X
+    bot_y = grid_bounds['bot'].Curve.GetEndPoint(0).Y
+    top_y = grid_bounds['top'].Curve.GetEndPoint(0).Y
+    
+    # Temporarily create box lines, to get scale factor
+    top_line = Line.CreateBound(XYZ(left_x, top_y, 0), XYZ(right_x, top_y, 0))
+    right_line = Line.CreateBound(XYZ(right_x, top_y, 0), XYZ(right_x, bot_y, 0))
+    bot_line = Line.CreateBound(XYZ(right_x, bot_y, 0), XYZ(left_x, bot_y, 0))
+    left_line = Line.CreateBound(XYZ(left_x, bot_y, 0), XYZ(left_x, top_y, 0))
+    
+    # Calculate scale adjustments
+    X_scale = top_line.Length*oversize_factor
+    Y_scale = right_line.Length*oversize_factor
+    
+    # Apply the scaling
+    left_x = grid_bounds['left'].Curve.GetEndPoint(0).X - X_scale
+    right_x = grid_bounds['right'].Curve.GetEndPoint(0).X + X_scale
+    bot_y = grid_bounds['bot'].Curve.GetEndPoint(0).Y - Y_scale
+    top_y = grid_bounds['top'].Curve.GetEndPoint(0).Y + Y_scale
+
+    # Create the scaled box lines
+    top_line = Line.CreateBound(XYZ(left_x, top_y, 0), XYZ(right_x, top_y, 0))
+    right_line = Line.CreateBound(XYZ(right_x, top_y, 0), XYZ(right_x, bot_y, 0))
+    bot_line = Line.CreateBound(XYZ(right_x, bot_y, 0), XYZ(left_x, bot_y, 0))
+    left_line = Line.CreateBound(XYZ(left_x, bot_y, 0), XYZ(left_x, top_y, 0))
+        
+    # Create a loop object
+    bound_box = CurveLoop()    
+    # Need to APPEND the lines
+    bound_box.Append(top_line)
+    bound_box.Append(right_line)
+    bound_box.Append(bot_line)
+    bound_box.Append(left_line)    
+    
+    assert not bound_box.IsOpen(), "Box not closed"
+    
+    print("Created curve element box".format(grid_bounds))
+
+    return bound_box
+
+

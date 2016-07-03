@@ -1,9 +1,18 @@
+from __future__ import print_function
+
+
 import Autodesk.Revit.DB as rvt_db
 from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory 
 from Autodesk.Revit.DB import FamilyInstance, FamilySymbol
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.DB import Line, XYZ, CurveLoop
+
+
+
+
 import System
+import inspect
+
 
 import logging
 #from adodbapi.schema_table import names
@@ -46,6 +55,9 @@ import logging
 """
  
 #-Utility---
+def get_self():
+    return inspect.stack()[1][3]
+
 class Trans():
     def __init__(self, doc, msg):
         self.msg = msg
@@ -408,18 +420,153 @@ def get_sheets(doc):
     return(sheets)
 
 #-Selection---
-
-def selection(uidoc):
-    print(uidoc.Selection)
+def selection(uidoc,doc):
+    logging.debug(get_self())
+    #print(uidoc.Selection)
     for el_ID in uidoc.Selection.GetElementIds():
-        el = uidoc.GetElement(el_ID)
-        print(el_ID)
-        print(el)
-        #el.Duplicate( ViewDuplicateOption.WithDetailing )
+        el = doc.GetElement(el_ID)
+        logging.debug("Selected: {} {}".format(el_ID,el))        
+    
+def single_selection(uidoc,doc):
+    logging.debug(get_self())
+    selection = uidoc.Selection.GetElementIds()
+    assert len(selection) == 1, "*Must select one and only one element*"
+    for el_ID in selection:
+        el = doc.GetElement(el_ID)
+    logging.debug("Returning element: {} {}".format(el_ID,el))                
+    return el
 
+def change_parameter(doc, el, param_name, new_value):
+    logging.debug(get_self())
+    
+    target_param = None
+    for p in el.Parameters:
+        print(p.Definition.Name)
+        if p.Definition.Name == param_name:
+            target_param = p
+            break
+    assert target_param, "{} not found".format(param_name)
+    this_type = target_param.Definition.ParameterType
+    target_type = rvt_db.ParameterType.Text
+    assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
+  
+    with Trans(doc, "Change param"):
+        target_param.Set(new_value)
+        
+    logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
+                                                    target_param.AsString(),
+                                                    new_value,
+                                                    target_param.Element))  
+        
+def table_parameters(el):
+
+    logging.debug(get_self())
+
+    print("{:20}".format("-name-").encode('utf-8'), end="")
+    print("{:20}".format("-ParameterGroup-").encode('ascii'), end="")
+    print("{:30}".format("-ParameterType-").encode('ascii'), end="")
+    print("{:30}".format("-Value String-").encode('ascii'), end="")
+    print("{:30}".format("-String-").encode('ascii'), end="")
+    print("{:30}".format("-UnitType-").encode('ascii'), end="")
+    print("")
+
+    for param in el.Parameters:
+        print("{0!s:20}".format(param.Definition.Name), end="")
+        print("{0!s:20}".format(param.Definition.ParameterGroup), end="")
+        print("{0!s:30}".format(param.Definition.ParameterType), end="")
+        print("{0!s:30}".format(param.AsValueString()), end="")
+        print("{0!s:30}".format(param.AsString()), end="")
+        print("{0!s:30}".format(param.Definition.UnitType), end="")
+        print("")
+        
+def list_parameters(el):
+    logging.debug(get_self())
+    for param in el.Parameters:
+        print("Definition: {}".format(param.Definition))
+        print("Definition.Name: {}".format(param.Definition.Name))        
+        print("Definition.ParameterGroup: {}".format(param.Definition.ParameterGroup))        
+        print("Definition.ParameterType: {}".format(param.Definition.ParameterType))        
+        print("Definition.UnitType: {}".format(param.Definition.UnitType))
+        
+        print("param.AsString(): {}".format(param.AsString()))
+        print("param.AsValueString(): {}".format(param.AsValueString()))
+        print("param.AsElementId(): {}".format(param.AsElementId()))
+        
+        print("param: {}".format(param))
+        #print("DisplayUnitType: {}".format(param.DisplayUnitType))
+        print("Element: {}".format(param.Element))
+        #print("GUID: {}".format(param.GUID))
+        print("HasValue: {}".format(param.HasValue))
+        print("Id: {}".format(param.Id))
+        print("IsReadOnly: {}".format(param.IsReadOnly))
+        print("IsShared: {}".format(param.IsShared))
+        print("StorageType: {}".format(param.StorageType))
+       
+def inspect_selection(el):
+    print("Name {}".format(el.Name))
+    print("GetType {}".format(el.GetType()))
+    print("GetTypeId {}".format(el.GetTypeId()))
+    print("Parameter {}".format(el.Parameter))
+    print("Parameters {}".format(el.Parameters))
+    print("ParametersMap {}".format(el.ParametersMap))    
+    
+    print("GetOrderedParameters {}".format(el.GetOrderedParameters()))
+    print("GetParameters {} -NEEDS PARAM NAME- ".format(el.GetParameters))
+
+def project_parameters(doc):
+    #import clr
+    #from Autodesk.Revit.DB import InstanceBinding, TypeBinding, FilteredElementCollector, Transaction, ElementId
+
+    pm = doc.ParameterBindings
+    it = pm.ForwardIterator()
+    it.Reset()
+    
+    deflist = []
+    paramidlist = set()
+    while(it.MoveNext()):
+        p = it.Key
+        b = pm[ p ]
+    
+        if isinstance(b, rvt_db.InstanceBinding):
+            bind = 'Instance'
+        elif isinstance(b, rvt_db.TypeBinding):
+            bind = 'Type'
+        else:
+            bind = 'Unknown'
+    
+        print('\n')
+        print('-'*100)
+        print('PARAM: {0:<30} UNIT: {1:<10} TYPE: {2:<10} GROUP: {3:<20} BINDING: {4:<10} VISIBLE: {6}\nAPPLIED TO: {5}\n'.format(
+                p.Name,
+                str(p.UnitType),
+                str(p.ParameterType),
+                str(p.ParameterGroup),
+                bind,
+                [cat.Name for cat in b.Categories],
+                p.Visible
+                ))
+        deflist.append( p )
+
+def document_parameters(doc):
+    logging.debug(get_self())
+    params = FilteredElementCollector(doc).OfClass(rvt_db.ParameterElement)
+#   filteredparams = []
+    
+    for param in params:
+#        #Store parameters which has a name starting with "magi" or "MC"
+#         if param.Name.startswith(("magi", "MC")): #startswith method accept tuple
+#             filteredparams.append(param)            
+        print(param.Name)
+        
+
+
+#-Properties---
+def list_properties(doc,id):
+    print()
+    
 #-Get objects---
 def get_element_by_id(doc,id):
-    doc.GetElement(id)
+    return doc.GetElement(id)
 
 def get_element_OST_Walls_ActiveView(doc):
     fec = rvt_db.FilteredElementCollector(doc, doc.ActiveView.Id)

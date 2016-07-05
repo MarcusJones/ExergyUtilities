@@ -436,12 +436,34 @@ def single_selection(uidoc,doc):
     logging.debug("Returning element: {} {}".format(el_ID,el))                
     return el
 
+def parameter_exists(el, param_name):
+    #if p in el.Parameters: return True
+    #else: return False
+    for p in el.Parameters:
+        if p.Definition.Name == param_name:
+            return True
+    return False
+
+def get_parameter_value(el, param_name):
+    for p in el.Parameters:
+        if p.Definition.Name == param_name:
+            target_param = p
+            #this_name = p.AsString()
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
+            break
+            
+    #return_str = p.AsString()
+    #print("Returning {}")
+    return p.AsString()
+#        p.Definition.Name AsString 
+
 def change_parameter(doc, el, param_name, new_value):
     logging.debug(get_self())
     
     target_param = None
     for p in el.Parameters:
-        print(p.Definition.Name)
+        #print(p.Definition.Name)
         if p.Definition.Name == param_name:
             target_param = p
             break

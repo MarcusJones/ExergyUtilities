@@ -472,7 +472,7 @@ def change_parameter(doc, el, param_name, new_value):
     target_type = rvt_db.ParameterType.Text
     assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
   
-    with Trans(doc, "Change param"):
+    with Trans(doc, "Change param {} to {}".format(param_name,new_value)):
         target_param.Set(new_value)
         
     logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
@@ -609,7 +609,7 @@ def apply_crop(doc,view, bound_box):
         #assert crop_manager.Valid, "Crop manager invalid"
 
     with Trans(doc, "Adjust crop"):
-        crop_manager.SetCropRegionShape(bound_box)
+        #crop_manager.SetCropRegionShape(bound_box)
         crop_manager.SetCropShape(bound_box)
         logging.debug("Cropped {}".format(view))
 

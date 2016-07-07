@@ -71,6 +71,26 @@ class Trans():
 
 #-Family---
 
+def print_dir(item):
+    for member in dir(item):
+        print(member)
+
+
+def get_all_elements(doc):
+    
+    this_filter = rvt_db.LogicalOrFilter(
+      rvt_db.ElementIsElementTypeFilter( False ), 
+      rvt_db.ElementIsElementTypeFilter( True ) 
+      )
+    
+    elements = FilteredElementCollector(doc).WherePasses( this_filter)
+    
+    for el in elements:
+        print(el)
+    #for el in doc.Elements:
+    #    print(el.Name)
+
+
 def get_type(this_elem):
     raise
     this_elem.GetType() # For floorplans!

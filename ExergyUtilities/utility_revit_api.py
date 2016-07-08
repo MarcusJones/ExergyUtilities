@@ -10,50 +10,17 @@ from Autodesk.Revit.DB import Line, XYZ, CurveLoop
 import System
 import inspect
 
-
+from collections import defaultdict
+import time
 import logging
-#from adodbapi.schema_table import names
 
-#FilteredElementCollector, BuiltInCategory, View
-
-#uidoc = __revit__.ActiveUIDocument
-#doc = __revit__.ActiveUIDocument.Document
-
-# NOTES ----
-"""
-
-#A legend:
-# this_elem = util_ra.get_element_from_id(rvt_doc, 4703098)
-# print(this_elem.ViewType)
-# 
-# #A view:
-# this_elem = util_ra.get_element_from_id(rvt_doc, 5035828)
-# print(this_elem.ViewType)
-
-# Get all floorplans, sheets, titleblocks, legends---
-
-
-
-
-#     for v in floorplans:
-#         phasep = v.LookupParameter('Phase')
-#         sheetnum = v.LookupParameter('Sheet Number')
-#         detnum = v.LookupParameter('Detail Number')
-#         refsheet = v.LookupParameter('Referencing Sheet')
-#         refviewport = v.LookupParameter('Referencing Detail')
-# 
-#         print('TYPE: {1}ID: {2}PHASE:{4}  {0}'.format(
-#                 v.ViewName,
-#                 str( v.ViewType ).ljust(20),
-#                 str(v.Id).ljust(10),
-#                 str(v.IsTemplate).ljust(10),
-#                 phasep.AsValueString().ljust(25) if phasep else '---'.ljust(25),
-#             ))
-"""
- 
 #-Utility---
 def get_self():
     return inspect.stack()[1][3]
+
+def print_dir(item):
+    for member in dir(item):
+        print(member)
 
 class Trans():
     def __init__(self, doc, msg):
@@ -68,27 +35,95 @@ class Trans():
         logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
         self.t.Commit()
         
-
-#-Family---
-
-def print_dir(item):
-    for member in dir(item):
-        print(member)
-
+#-BOQ---
+def get_sort_all_elements(doc):
+    logging.info("{}".format(get_self()))
+    
+    start = time.time()
+        
+    elements = get_all_elements(doc)
+    
+    element_dict = defaultdict(list)
+    
+    for el in elements:
+        this_cat = el.Category
+        if this_cat:
+            this_cat_name = this_cat.Name
+            element_dict[this_cat_name].append(el)
+            
+    #for k in element_dict:
+    #    print("{} contains {} elements".format(k, len(element_dict[k])))
+        
+    end = time.time()
+        
+    logging.info("Returned element dictionary with {} categories of {} in time: {}s".format(len(element_dict), len(elements),end - start))
+    
+    return element_dict
 
 def get_all_elements(doc):
+    logging.info("{}".format(get_self()))
     
     this_filter = rvt_db.LogicalOrFilter(
       rvt_db.ElementIsElementTypeFilter( False ), 
       rvt_db.ElementIsElementTypeFilter( True ) 
       )
     
-    elements = FilteredElementCollector(doc).WherePasses( this_filter)
+    elements = FilteredElementCollector(doc).WherePasses( this_filter).ToElements()
     
-    for el in elements:
-        print(el)
-    #for el in doc.Elements:
-    #    print(el.Name)
+    logging.info("Returning {} elements".format(len(elements)))
+    
+    return elements
+
+
+def family_data_dict(doc,fam):
+    assert type(fam) == rvt_db.FamilyInstance, "Not an instance"
+    data = dict()
+    
+    
+    
+    data["Name"] = fam.Name
+    
+    #if fam.GetTypeId():
+    #    fam_type = doc.GetElement(fam.GetTypeId())
+    #    print(fam_type)
+    #    type_name = fam_type.Name.ToString()
+    #else:
+    #    type_name = "DNE"
+    
+    data["Type"] = fam.Symbol.ToString()
+    
+    data["Family"] = fam.Symbol.FamilyName
+    return data
+
+def print_family(fam):
+    #print(str(type(fam)))
+    #print(str(rvt_db.FamilySymbol))
+    #print(str(type(fam)) == str(rvt_db.FamilySymbol))
+    
+    
+    
+    if type(fam) == rvt_db.FamilySymbol:
+        fam_name = fam.FamilyName
+        parent = fam.Family
+    elif type(fam) == rvt_db.FamilyInstance:
+        fam_name = fam.Name
+        parent = fam.Symbol
+    else:
+        #print("Want", rvt_db.FamilySymbol)
+        #print("Got", type(fam))
+        #print()
+        raise
+
+    #print("Type: {}".format(type(fam)))
+    print("{} - {}".format(fam.Category.Name,fam_name))    
+    #print("Name: {}".format(str(fam_name)))
+    
+    
+
+    #print("Parent: {}".format(str(parent)))
+    
+
+#-Family---
 
 
 def get_type(this_elem):
@@ -164,31 +199,7 @@ def collector_category_class(doc):
     pass
 
 def get_family():
-    #Family Class - the overall Family
-    #Family Symbol - the types within the Family
-    #    - Use FamilyName instead of .Name
-    #Family Instance - Actual instances of a type
-    
-#     In a FilteredElementCollector; 
-#     OfClass restricts the collector to only, i.e., FamilyInstance elements
-#     OfCategory restricts the collector to i.e. 'doors'
-#     ToList converts the output of the collector into a list
-
-    
-    
-    """Family Class - This object gets the family symbols that belong to the family so that instances can be swapped from one symbol to another. 
-    Families within the Revit API represented by three objects - Family, FamilySymbol and FamilyInstance. 
-    Each object plays a significant part in the structure of Families. 
-    The Family object represents the entire family such as an 'I Beam'. 
-    You can think of that object as representing the entire family file on disk. 
-    The Family object contains a number of FamilySymbols. 
-    The FamilySymbol object represents a specific set of family settings within that Family 
-    and represents what is known in the Revit user interface as a Type, such as 'W14x32'. 
-    The FamilyInstance object represents an actual instance of that Type (FamilySymbol) within the Autodesk Revit project. 
-    For example the FamilyInstance would be a single instance of a W14x32 column within the project. 
-    Therefore: Each FamilyInstance has one FamilySymbol, e.g. an instance of a W14x32. Each FamilySymbol belongs to one Family,
-    e.g. the W14x32 symbol belongs to an 'I Beam' family. Each Family will contain one or more FamilySymbols, 
-    e.g. the 'I Beam' family contains a W14x32 symbol, a W12x32 symbol etc.    """
+    pass
 
 #-Views and Sheets---
 def get_view_templates(doc):
@@ -598,22 +609,7 @@ def document_parameters(doc):
         
 
 
-#-Properties---
-def list_properties(doc,id):
-    print()
-    
-#-Get objects---
-def get_element_by_id(doc,id):
-    return doc.GetElement(id)
-
-def get_element_OST_Walls_ActiveView(doc):
-    fec = rvt_db.FilteredElementCollector(doc, doc.ActiveView.Id)
-    fec.OfCategory(BuiltInCategory.OST_Walls);
-    
-def get_element_OST_Walls_Document(doc):
-    fec = rvt_db.FilteredElementCollector(doc)
-    fec.OfCategory(BuiltInCategory.OST_Walls);
-
+#-Geometry---
 def apply_crop(doc,view, bound_box):
     logging.debug("apply_crop")
     
@@ -629,6 +625,23 @@ def apply_crop(doc,view, bound_box):
         crop_manager.SetCropShape(bound_box)
         logging.debug("Cropped {}".format(view))
 
+
+
+#-Properties---
+def list_properties(doc,id):
+    print()
+    
+#-Get objects---
+def get_element_by_id(doc,id):
+    return doc.GetElement(id)
+
+def get_element_OST_Walls_ActiveView(doc):
+    fec = rvt_db.FilteredElementCollector(doc, doc.ActiveView.Id)
+    fec.OfCategory(BuiltInCategory.OST_Walls);
+    
+def get_element_OST_Walls_Document(doc):
+    fec = rvt_db.FilteredElementCollector(doc)
+    fec.OfCategory(BuiltInCategory.OST_Walls);
 
 
 def get_grids(doc):
@@ -699,6 +712,78 @@ def get_bound_box(grid_bounds, oversize_factor):
 
     return bound_box
 
+
+"""
+static FilteredElementCollector GetConnectorElements(
+  Document doc,
+  bool include_wires )
+{
+  // what categories of family instances
+  // are we interested in?
+ 
+  BuiltInCategory[] bics = new BuiltInCategory[] {
+    //BuiltInCategory.OST_CableTray,
+    BuiltInCategory.OST_CableTrayFitting,
+    //BuiltInCategory.OST_Conduit,
+    BuiltInCategory.OST_ConduitFitting,
+    //BuiltInCategory.OST_DuctCurves,
+    BuiltInCategory.OST_DuctFitting,
+    BuiltInCategory.OST_DuctTerminal,
+    BuiltInCategory.OST_ElectricalEquipment,
+    BuiltInCategory.OST_ElectricalFixtures,
+    BuiltInCategory.OST_LightingDevices,
+    BuiltInCategory.OST_LightingFixtures,
+    BuiltInCategory.OST_MechanicalEquipment,
+    //BuiltInCategory.OST_PipeCurves,
+    BuiltInCategory.OST_PipeFitting,
+    BuiltInCategory.OST_PlumbingFixtures,
+    BuiltInCategory.OST_SpecialityEquipment,
+    BuiltInCategory.OST_Sprinklers,
+    //BuiltInCategory.OST_Wire,
+  };
+ 
+  IList<ElementFilter> a
+    = new List<ElementFilter>( bics.Count() );
+ 
+  foreach( BuiltInCategory bic in bics )
+  {
+    a.Add( new ElementCategoryFilter( bic ) );
+  }
+ 
+  LogicalOrFilter categoryFilter
+    = new LogicalOrFilter( a );
+ 
+  LogicalAndFilter familyInstanceFilter
+    = new LogicalAndFilter( categoryFilter,
+      new ElementClassFilter(
+        typeof( FamilyInstance ) ) );
+ 
+  IList<ElementFilter> b
+    = new List<ElementFilter>( 6 );
+ 
+  b.Add( new ElementClassFilter( typeof( CableTray ) ) );
+  b.Add( new ElementClassFilter( typeof( Conduit ) ) );
+  b.Add( new ElementClassFilter( typeof( Duct ) ) );
+  b.Add( new ElementClassFilter( typeof( Pipe ) ) );
+ 
+  if( include_wires )
+  {
+    b.Add( new ElementClassFilter( typeof( Wire ) ) );
+  }
+
+  b.Add( familyInstanceFilter );
+ 
+  LogicalOrFilter classFilter
+    = new LogicalOrFilter( b );
+ 
+  FilteredElementCollector collector
+    = new FilteredElementCollector( doc );
+ 
+  collector.WherePasses( classFilter );
+ 
+  return collector;
+}
+"""
 
 REVIT_CATEGORIES = [
 # 'Zone Tags',

@@ -250,14 +250,14 @@ class ExtendedExcelBookAPI(object):
 #
 #        print
 #
-#        for sht in sheets:
+#        for sht in sheets_by_name:
 #            print sht.Name
-        sheets = [sht.Name for sht in sheetObjects]
-        #print sheets
+        sheets_by_name = [sht.Name for sht in sheetObjects]
+        #print sheets_by_name
 
-        logging.debug("Found {} sheet names".format(len(sheets)))
+        logging.debug("Found {} sheet names".format(len(sheets_by_name)))
 
-        return sheets
+        return sheets_by_name
 
     def scan_down_2(self, targetSheet, rowNumber, colNumber, searchString, limitScan=1000):
         """

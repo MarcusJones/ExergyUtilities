@@ -9,7 +9,7 @@ from Autodesk.Revit.DB import Line, XYZ, CurveLoop
 
 import System
 import inspect
-
+import csv
 from collections import defaultdict
 import time
 import logging
@@ -171,6 +171,7 @@ def get_table(path_excel_book):
     return data_table
 
 
+
 def set_instance_param(doc, category = BuiltInCategory.OST_Mass, inst_name = 'BoxFamily'):
     t = Transaction(doc, 'Modify existing family instances.')
      
@@ -203,17 +204,17 @@ def get_family():
 
 #-Views and Sheets---
 def get_view_templates(doc):
-    logging.debug("get_view_dict")
+    logging.info("{}".format(get_self()))
     floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
-    view_dict = dict()
+    view_template_dict = dict()
     
     for v in floorplans:
         if v.IsTemplate:
-            view_dict[v.ViewName] = v
+            view_template_dict[v.ViewName] = v
   
-    logging.debug("Returned {} view templates in dict".format(len(view_dict)))
+    logging.debug("Returned {} view templates in dict".format(len(view_template_dict)))
     
-    return view_dict    
+    return view_template_dict    
 
 def apply_template(doc, view):
     pass
@@ -236,7 +237,7 @@ def apply_template(doc, view):
 
 
 def get_all_views(doc):
-    logging.debug("get_all_views")
+    logging.info("{}".format(get_self()))
     floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
     view_dict = dict()
     
@@ -251,7 +252,7 @@ def get_all_views(doc):
 
 def get_views_by_type(doc, view_type):
 
-    logging.debug("get_view_dict")
+    logging.info("{}".format(get_self()))
     floorplans = FilteredElementCollector(doc).OfCategory(BuiltInCategory.OST_Views).WhereElementIsNotElementType().ToElements()
     view_dict = dict()
     
@@ -270,7 +271,7 @@ def get_views_by_type(doc, view_type):
 #     return collector 
 #     
 def get_title_blocks(doc):
-    logging.debug("get_title_block")
+    logging.info("{}".format(get_self()))
 
     this_category = BuiltInCategory.OST_TitleBlocks
     this_class = FamilySymbol
@@ -322,7 +323,7 @@ def get_title_blocks(doc):
     #print(collector.ToList())
 
 def add_view_sheet(doc, sheet, view, center_pt):
-    logging.debug("add_view_sheet")
+    logging.info("{}".format(get_self()))
     
     with Trans(doc, "Add view to sheet"):
         rvt_db.Viewport.Create(doc, sheet.Id, view.Id, center_pt)
@@ -366,11 +367,80 @@ def create_dependent(doc, active_view, part_name):
     return new_view
 
 
-def create_sheet(doc, title_block, name, number):
-    logging.debug("create_sheet")
+def get_data_csv(path_csv, this_delimiter=';'):
+    table_dict = list()
+    with open(path_csv) as csvfile:
+        
+        # First, open the file to get the header, skip one line
+        reader = csv.reader(csvfile,delimiter=this_delimiter)
+        skip_row = next(reader)
+        headers = next(reader)
+        #print(headers)
+        #print(type(headers))
+        #raise
+        # Use the header, re-read, and skip 2 lines
+        reader = csv.DictReader(csvfile,fieldnames=headers,delimiter=';')
+        skip_row = next(reader)
+        skip_row = next(reader)
+        
+        for row in reader:
+            #print("ROW START")
+            op_A = False
+            for k in row:
+                found = op_A or bool(row[k]) 
+                if found: 
+                    break
+            if not found:
+                break
+            #print(row)
+            table_dict.append(row)
+                #if bool(row[k]):
+                    
+                #    break
+                #print(row[k], bool(row[k]))
+            
+            
+            #print(row)
+    #print(reader[3])
+    logging.debug("Loaded {} sheet definitions with {} columns".format(len(table_dict), len(table_dict[0])))
+    
+    return table_dict
+
+
+
+def rename_sheets(data_dict, sheets_by_name):
+    raise "OBSELETE SEE CREATE SHEETS"    
+    logging.debug(util_ra.get_self())
+    
+    for i,row in enumerate(data_dict):
+        assert row['SOURCE'] == 'RVT', "Only works with RVT drawings, not [{}]".format(row['SOURCE'])
+        if row['OLD NAME']:
+            assert row['OLD NAME'] in sheets_by_name, "{} sheet not found in project".format(row['OLD NAME'])
+        else:
+            continue
+        
+        this_sheet = sheets_by_name[row['OLD NAME']]
+        
+        # Change OLD NAME to Sheet Name column
+        util_ra.change_parameter(rvt_doc, 
+                                 this_sheet, 
+                                 'Sheet Name', 
+                                 row['Sheet Name'])
+        
+        # Change OLD NUMBER to Sheet Number column
+        util_ra.change_parameter(rvt_doc, 
+                                 this_sheet, 
+                                 'Sheet Number', 
+                                 row['Sheet Number'])        
+        
+        logging.debug("Updated {}".format(row['OLD NAME']))
+
+
+def create_sheet(doc, title_block, number, name):
+    logging.info("{}".format(get_self()))
     
     title_block_id = title_block.Id
-    with Trans(doc, "Create sheet"):
+    with Trans(doc, "Create sheet {} {}".format(number,name)):
         new_sheet = rvt_db.ViewSheet.Create(doc, title_block_id)
         new_sheet.Name = name
         new_sheet.SheetNumber = number
@@ -411,32 +481,32 @@ def create_sheet(doc, title_block, name, number):
     #new_view.Name = new_name
     #t.Commit()
 
-def get_sheet_dict(doc):
-    logging.debug("get_sheet dict")
+def get_sheet_dict_by_names(doc):
+    logging.info("{}".format(get_self()))
     cl_sheets = FilteredElementCollector(doc)
     
-    sheets = cl_sheets.OfCategory(BuiltInCategory.OST_Sheets).WhereElementIsNotElementType().ToElements()
+    sheets_by_name = cl_sheets.OfCategory(BuiltInCategory.OST_Sheets).WhereElementIsNotElementType().ToElements()
     
     sheet_dict = dict()
-    for s in sheets:
+    for s in sheets_by_name:
         sheet_dict[s.Name] = s
         
     #logging.debug("Returned {} floorplans in dict".format(len(view_dict)))
     
-    logging.debug("Returned {} sheets in dictionary".format(len(sheets)))
+    logging.debug("Returned {} sheets_by_name in dictionary".format(len(sheets_by_name)))
     
     return sheet_dict
 
 def get_sheets(doc):
-    logging.debug("get_sheets")
+    logging.info("{}".format(get_self()))
     cl_sheets = FilteredElementCollector(doc)
     
     sheetsnotsorted = cl_sheets.OfCategory(BuiltInCategory.OST_Sheets).WhereElementIsNotElementType().ToElements()
-    sheets = sorted(sheetsnotsorted, key=lambda x: x.SheetNumber)
+    sheets_by_name = sorted(sheetsnotsorted, key=lambda x: x.SheetNumber)
     
-    logging.debug("Found {} sheets".format(len(sheets)))
+    logging.debug("Found {} sheets_by_name".format(len(sheets_by_name)))
     
-    for s in sheets:
+    for s in sheets_by_name:
         print(s)
         #print(s.Parameter['Sheet Number'])
         #print(s.Parameter['Sheet Number'].AsString())
@@ -444,7 +514,7 @@ def get_sheets(doc):
         #                s.Parameter['Sheet Name'].AsString().ljust(50),
         #    ))
         
-    return(sheets)
+    return(sheets_by_name)
 
 #-Selection---
 def selection(uidoc,doc):
@@ -1054,3 +1124,28 @@ REVIT_CATEGORIES = [
  'Air Terminals',
 # 'Adaptive Points',
                   ]
+
+
+
+
+#-OLD---
+  
+ 
+def check_sheets_exist(table_dict, sheets_by_name):
+    count_missing = 0
+    count_total = 0
+    for row in table_dict:
+        if row['SOURCE'] == 'RVT':
+#             print("{} {}".format(row['NUMBER ON SHEET'],
+#                                   row['NAME ON SHEET']))
+#             
+            try:
+                sheets_by_name[row['Sheet Name']]
+                count_total += 1
+            except:
+                logging.error("Missing sheet:{} {}".format(row['Sheet Number'],row['Sheet Name']))
+                count_missing += 1
+        if count_missing: 
+            raise Exception("{} missing sheets_by_name".format(count_missing))
+     
+    logging.debug("Checked {} RVT sheets_by_name by sheet name - all names exist.".format(count_total))

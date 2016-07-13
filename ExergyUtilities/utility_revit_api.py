@@ -2,7 +2,7 @@ from __future__ import print_function
 
 
 import Autodesk.Revit.DB as rvt_db
-from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory 
+from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, FamilyInstanceFilter 
 from Autodesk.Revit.DB import FamilyInstance, FamilySymbol
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.DB import Line, XYZ, CurveLoop
@@ -60,7 +60,55 @@ def get_sort_all_elements(doc):
     
     return element_dict
 
+
+def get_sort_all_FamilyInstance(doc):
+    logging.info("{}".format(get_self()))
+    
+    start = time.time()
+        
+    elements = get_all_FamilyInstance(doc)
+    
+    element_dict = defaultdict(list)
+    
+    for el in elements:
+        this_cat = el.Category
+        if this_cat:
+            this_cat_name = this_cat.Name
+            element_dict[this_cat_name].append(el)
+            
+    #for k in element_dict:
+    #    print("{} contains {} elements".format(k, len(element_dict[k])))
+        
+    end = time.time()
+        
+    logging.info("Returned element dictionary with {} categories of {} in time: {}s".format(len(element_dict), len(elements),end - start))
+    
+    return element_dict
+
+
+
+def get_all_FamilyInstance(doc):
+    """
+    Returns FamilyInstance category only.
+    """
+    logging.info("{}".format(get_self()))
+    
+    this_filter = rvt_db.LogicalOrFilter(
+      rvt_db.ElementIsElementTypeFilter( False ), 
+      rvt_db.ElementIsElementTypeFilter( True ) 
+      )
+    
+    elements = FilteredElementCollector(doc).WherePasses( this_filter).OfClass(FamilyInstance).ToElements()
+    
+    logging.info("Returning {} elements".format(len(elements)))
+    
+    return elements
+
+
 def get_all_elements(doc):
+    """
+    Returns FamilySymbol, FamilyInstance, ALL, etc.
+    """
     logging.info("{}".format(get_self()))
     
     this_filter = rvt_db.LogicalOrFilter(
@@ -74,13 +122,10 @@ def get_all_elements(doc):
     
     return elements
 
-
 def family_data_dict(doc,fam):
     assert type(fam) == rvt_db.FamilyInstance, "Not an instance"
     data = dict()
-    
-    
-    
+
     data["Name"] = fam.Name
     
     #if fam.GetTypeId():
@@ -95,6 +140,13 @@ def family_data_dict(doc,fam):
     data["Family"] = fam.Symbol.FamilyName
     return data
 
+def select_instances_by_type_id(doc, type_id):
+    this_filter = FamilyInstanceFilter(doc, type_id)
+    elems = FilteredElementCollector(doc).WherePasses(this_filter).ToElements()
+    return elems
+
+    #return [el for el in elems]
+    
 def print_family(fam):
     #print(str(type(fam)))
     #print(str(rvt_db.FamilySymbol))
@@ -322,13 +374,30 @@ def get_title_blocks(doc):
     
     #print(collector.ToList())
 
-def add_view_sheet(doc, sheet, view, center_pt):
+def add_view_sheet(doc, sheet, view, center_pt, viewport_ID=False):
+    """
+    
+    Add a view object to a sheet object given the center_pt
+    sheet : Autodesk.Revit.DB.ViewSheet
+    view : Autodesk.Revit.DB.ViewPlan 
+    center_pt: 
+    """
     logging.info("{}".format(get_self()))
     
+    #print(sheet)
+    #print(view)
+    #print(center_pt)
+    
     with Trans(doc, "Add view to sheet"):
-        rvt_db.Viewport.Create(doc, sheet.Id, view.Id, center_pt)
+        view_port = rvt_db.Viewport.Create(doc, sheet.Id, view.Id, center_pt)
+        
+        if viewport_ID:
+            view_port.ChangeTypeId(viewport_ID)
+
     
     logging.debug("View {} placed on sheet {} {} at {}".format(view.Name, sheet.Name, sheet.SheetNumber, center_pt))
+    return view_port
+
 
 def get_element_from_id(doc, id_int):
 
@@ -481,6 +550,22 @@ def create_sheet(doc, title_block, number, name):
     #new_view.Name = new_name
     #t.Commit()
 
+def get_viewports_dict_by_names(doc):
+    logging.info("{}".format(get_self()))
+    fec = FilteredElementCollector(doc)
+    
+    elem_collection = fec.OfCategory(BuiltInCategory.OST_Viewports).WhereElementIsNotElementType().ToElements()
+    
+    this_dict = dict()
+    for s in elem_collection:
+        this_dict[s.Name] = s
+        
+    #logging.debug("Returned {} floorplans in dict".format(len(view_dict)))
+    
+    logging.debug("Returned {} in dictionary".format(len(this_dict)))
+    
+    return this_dict
+
 def get_sheet_dict_by_names(doc):
     logging.info("{}".format(get_self()))
     cl_sheets = FilteredElementCollector(doc)
@@ -597,6 +682,11 @@ def table_parameters(el):
         print("{0!s:30}".format(param.AsString()), end="")
         print("{0!s:30}".format(param.Definition.UnitType), end="")
         print("")
+
+def all_params(el):
+    for param in el.Parameters:
+        print(param.Definition.Name, ":", param.AsValueString())
+
         
 def list_parameters(el):
     logging.debug(get_self())

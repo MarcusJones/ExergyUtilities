@@ -13,8 +13,74 @@ import csv
 from collections import defaultdict
 import time
 import logging
+from operator import itemgetter
+
 
 #-Utility---
+
+def format_as_table(data,
+                    keys,
+                    header=None,
+                    sort_by_key=None,
+                    sort_order_reverse=False):
+    """Takes a list of dictionaries, formats the data, and returns
+    the formatted data as a text table.
+
+    Required Parameters:
+        data - Data to process (list of dictionaries). (Type: List)
+        keys - List of keys in the dictionary. (Type: List)
+
+    Optional Parameters:
+        header - The table header. (Type: List)
+        sort_by_key - The key to sort by. (Type: String)
+        sort_order_reverse - Default sort order is ascending, if
+            True sort order will change to descending. (Type: Boolean)
+    """
+    # Sort the data if a sort key is specified (default sort order
+    # is ascending)
+    if sort_by_key:
+        data = sorted(data,
+                      key=itemgetter(sort_by_key),
+                      reverse=sort_order_reverse)
+
+    # If header is not empty, add header to data
+    if header:
+        # Get the length of each header and create a divider based
+        # on that length
+        header_divider = []
+        for name in header:
+            header_divider.append('-' * len(name))
+
+        # Create a list of dictionary from the keys and the header and
+        # insert it at the beginning of the list. Do the same for the
+        # divider and insert below the header.
+        header_divider = dict(zip(keys, header_divider))
+        data.insert(0, header_divider)
+        header = dict(zip(keys, header))
+        data.insert(0, header)
+
+    column_widths = []
+    for key in keys:
+        column_widths.append(max(len(str(column[key])) for column in data))
+
+    # Create a tuple pair of key and the associated column width for it
+    key_width_pair = zip(keys, column_widths)
+
+    format = ('%-*s ' * len(keys)).strip() + '\n'
+    formatted_data = ''
+    for element in data:
+        data_to_format = []
+        # Create a tuple that will be used for the formatting in
+        # width, value format
+        for pair in key_width_pair:
+            data_to_format.append(pair[1])
+            data_to_format.append(element[pair[0]])
+        formatted_data += format % tuple(data_to_format)
+    return formatted_data
+
+
+
+
 def get_self():
     return inspect.stack()[1][3]
 
@@ -75,7 +141,7 @@ def get_sort_all_FamilyInstance(doc):
         if this_cat:
             this_cat_name = this_cat.Name
             element_dict[this_cat_name].append(el)
-            
+         
     #for k in element_dict:
     #    print("{} contains {} elements".format(k, len(element_dict[k])))
         
@@ -188,12 +254,33 @@ def get_all_categories(doc):
     for cat in categories:
         print("{:40} | {:30} | {:30}".format(cat.Name, cat.Id, cat.Parent))
 
-def get_all_BuiltInCategory():
-    raise
-    builtIn = System.Enum.ToObject(BuiltInCategory)
+def get_elem_BuiltInCategory(elem):
+    print(BuiltInCategory)
+    #print_dir(BuiltInCategory)
+    #print(BuiltInCategory.GetValues(BuiltInCategory))
     
+    
+    for i,bic in enumerate(BuiltInCategory.GetValues(BuiltInCategory)):
+        print(i,bic)
+    print("*************")
+    print_dir(bic)
+    print("*************")
+    print(bic.ToString())
+    #print(bic.ToObject())
+    print(bic.ToInt16())
+    print(bic.ToInt64())
+    raise
+
+def get_all_BuiltInCategory(elem):
+    print(BuiltInCategory)
+    raise
+    #builtIn = System.Enum.ToObject(BuiltInCategory)
 #     for bic in BuiltInCategory.GetValue():
 #         print(bic)
+
+
+#degf
+
 
 def get_elements(doc,category):
     #category = BuiltInCategory.OST_Mass
@@ -626,18 +713,56 @@ def parameter_exists(el, param_name):
             return True
     return False
 
-def get_parameter_value(el, param_name):
+def get_parameter_value_float(el, param_name, flg_DNE=False):
+    
+    
+    flg_found = False
     for p in el.Parameters:
         if p.Definition.Name == param_name:
-            target_param = p
+            p_val = p.AsDouble()
+            flg_found = True
             #this_name = p.AsString()
             #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
             #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
             break
-            
+    
+    if flg_found:
+        return p_val
+    elif not flg_found and flg_DNE:
+        return "DNE"
+    else:
+        print("Can't find this parameter:")
+        print(el, el.Name, param_name, flg_DNE)
+        raise
     #return_str = p.AsString()
     #print("Returning {}")
-    return p.AsString()
+    #return p_val
+#        p.Definition.Name AsString 
+
+
+def get_parameter_value(el, param_name, flg_DNE=False):
+    
+    
+    flg_found = False
+    for p in el.Parameters:
+        if p.Definition.Name == param_name:
+            p_val = p.AsString()
+            flg_found = True
+            #this_name = p.AsString()
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
+            break
+    
+    if flg_found:
+        return p_val
+    elif not flg_found and flg_DNE:
+        return "DNE"
+    else:
+        print(el, el.Name, param_name, flg_DNE)
+        raise
+    #return_str = p.AsString()
+    #print("Returning {}")
+    #return p_val
 #        p.Definition.Name AsString 
 
 def change_parameter(doc, el, param_name, new_value):

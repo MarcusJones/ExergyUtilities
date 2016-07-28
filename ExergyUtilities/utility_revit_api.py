@@ -1,13 +1,20 @@
 from __future__ import print_function
 
-
+#===============================================================================
+# Import Revit
+#===============================================================================
 import Autodesk.Revit.DB as rvt_db
-from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory, FamilyInstanceFilter 
+from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory
+from Autodesk.Revit.DB import FamilyInstanceFilter, ElementCategoryFilter, ElementClassFilter
+from Autodesk.Revit.DB import LogicalAndFilter, LogicalOrFilter
 from Autodesk.Revit.DB import FamilyInstance, FamilySymbol
 from Autodesk.Revit.DB import Transaction
 from Autodesk.Revit.DB import Line, XYZ, CurveLoop
-
-import System
+from Autodesk.Revit.DB import MEPSystem
+#===============================================================================
+# Import Python
+#===============================================================================
+#import System
 import inspect
 import csv
 from collections import defaultdict
@@ -17,6 +24,48 @@ from operator import itemgetter
 
 
 #-Utility---
+
+def get_data_csv(path_csv, this_delimiter=';'):
+    table_dict = list()
+    with open(path_csv) as csvfile:
+        
+        # First, open the file to get the header, skip one line
+        reader = csv.reader(csvfile,delimiter=this_delimiter)
+        skip_row = next(reader)
+        headers = next(reader)
+        #print(headers)
+        #print(type(headers))
+        #raise
+        # Use the header, re-read, and skip 2 lines
+        reader = csv.DictReader(csvfile,fieldnames=headers,delimiter=';')
+        skip_row = next(reader)
+        skip_row = next(reader)
+        
+        for row in reader:
+            #print("ROW START")
+            op_A = False
+            for k in row:
+                found = op_A or bool(row[k]) 
+                if found: 
+                    break
+            if not found:
+                break
+            #print(row)
+            table_dict.append(row)
+                #if bool(row[k]):
+                    
+                #    break
+                #print(row[k], bool(row[k]))
+            
+            
+            #print(row)
+    #print(reader[3])
+    logging.debug("Loaded {} rows with {} columns".format(len(table_dict), len(table_dict[0])))
+    
+    return table_dict
+
+
+
 
 def format_as_table(data,
                     keys,
@@ -79,7 +128,26 @@ def format_as_table(data,
     return formatted_data
 
 
-
+def get_table(path_excel_book):
+    """
+    
+    end_row = 4
+    
+    with util_excel.ExtendedExcelBookAPI(path_excel_book) as xl:
+        print(xl)
+        table = xl.get_table_2("REGISTER",2,end_row,1,40)
+    
+    headers = table.pop(0)
+    data = table
+    
+    data_table = list()
+    for row in data:
+        data_table.append(dict(zip(headers, row)))
+        
+    logging.info("Got {} rows from {}".format(len(data_table),path_excel_book))
+    
+    return data_table
+    """
 
 def get_self():
     return inspect.stack()[1][3]
@@ -100,7 +168,7 @@ class Trans():
     def __exit__(self, exception_type, exception_value, traceback):
         logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
         self.t.Commit()
-        
+
 #-BOQ---
 def get_sort_all_elements(doc):
     logging.info("{}".format(get_self()))
@@ -151,11 +219,138 @@ def get_sort_all_FamilyInstance(doc):
     
     return element_dict
 
+def get_linear_MEP(doc):
+    # Now, add (logical OR) additionally the MEP classes (which are not categories!)
+    mep_class_filters = list()
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.CableTray))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.Wire))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.Conduit))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Mechanical.Duct))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Plumbing.Pipe))
 
+    merged_filter = LogicalOrFilter(mep_class_filters)
+
+    elements = FilteredElementCollector(doc).WherePasses(merged_filter).ToElements()
+
+    logging.info("Returning {} elements ".format(len(elements)))
+    
+    return elements
+    
+def get_BOQ_elements(doc):
+    
+    # General categories
+    cat_filters = list()
+    for this_bic in REVIT_CATEGORIES_BIC:
+        cat_filters.append(ElementCategoryFilter(this_bic))
+        
+    # This selects all elements in the Built-Ins
+    filter_over_cats = LogicalOrFilter(cat_filters)
+    
+    # From the Built-Ins, make sure we only take the Instances
+    filter_cats_instances = LogicalAndFilter(filter_over_cats,ElementClassFilter(FamilyInstance)) 
+
+    # Now, add (logical OR) additionally the MEP classes (which are not categories!)
+    mep_class_filters = list()
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.CableTray))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.Wire))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.Conduit))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Mechanical.Duct))
+    mep_class_filters.append(ElementClassFilter(rvt_db.Plumbing.Pipe))
+
+    merged_filter = LogicalOrFilter([filter_cats_instances]+mep_class_filters)
+    
+    elements = FilteredElementCollector(doc).WherePasses(merged_filter).ToElements()
+    
+    logging.info("Returning {} elements over {} Built-In-Categories and {} classes".format(len(elements),
+                                                                            len(REVIT_CATEGORIES_BIC),
+                                                                            len(mep_class_filters),
+                                                                            ))
+    
+    return elements
+
+def get_all_MEP_elements(doc):
+    
+    systems_list = FilteredElementCollector(doc).OfClass( MEPSystem ).ToElements()
+    
+    all_elements = list()
+    for i, sys in enumerate(systems_list):
+        
+        #print(i,sys,sys.Name)
+        
+        #print(type(sys),"=", rvt_db.Plumbing.PipingSystem)
+        
+        # Skip the spares and spaces in a DB
+        if type(sys) == rvt_db.Electrical.ElectricalSystem:
+            if str(sys.CircuitType) == "Spare":
+                continue
+            if str(sys.CircuitType) == "Space":
+                continue
+        # Just checking
+        if type(sys) == rvt_db.Plumbing.PipingSystem:
+            pass 
+
+                    
+        for el in sys.Elements:
+            #print("\t\t",el.Name)
+            
+            try:
+                these_elems = sys.Elements
+            except:
+                logging.error("Trying access to elements in system {} {}".format(sys,sys.Name))
+                #print(sys.CircuitNumber)
+                #print(sys.CircuitType)
+                raise
+        all_elements.append(these_elems)
+        
+    logging.info("Returning {} MEP elements".format(len(all_elements)))
+    
+    return all_elements
+
+
+
+def get_all_MEP_element_IDs(doc):
+
+    systems_list = FilteredElementCollector(doc).OfClass( MEPSystem ).ToElements()
+    
+    all_elements = list()
+    for i, sys in enumerate(systems_list):
+        
+        #print(i,sys,sys.Name)
+        
+        #print(type(sys),"=", rvt_db.Plumbing.PipingSystem)
+        
+        # Skip the spares and spaces in a DB
+        if type(sys) == rvt_db.Electrical.ElectricalSystem:
+            if str(sys.CircuitType) == "Spare":
+                continue
+            if str(sys.CircuitType) == "Space":
+                continue
+        # Just checking
+        if type(sys) == rvt_db.Plumbing.PipingSystem:
+            pass 
+
+                    
+        for el in sys.Elements:
+            #print("\t\t",el.Name)
+            
+            try:
+                these_elems = sys.Elements
+            except:
+                logging.error("Trying access to elements in system {} {}".format(sys,sys.Name))
+                #print(sys.CircuitNumber)
+                #print(sys.CircuitType)
+                raise
+            
+            
+            all_elements.append(el.Id)
+        
+    logging.info("Returning {} MEP element IDs".format(len(all_elements)))
+    
+    return all_elements
 
 def get_all_FamilyInstance(doc):
     """
-    Returns FamilyInstance category only.
+    Returns FamilyInstance objects only.
     """
     logging.info("{}".format(get_self()))
     
@@ -171,7 +366,65 @@ def get_all_FamilyInstance(doc):
     return elements
 
 
-def get_all_elements(doc):
+def get_all_elements_IDs(doc):
+    """
+    Returns FamilySymbol, FamilyInstance, ALL, etc.
+    """
+    logging.info("{}".format(get_self()))
+    
+    this_filter = rvt_db.LogicalOrFilter(
+      rvt_db.ElementIsElementTypeFilter( False ), 
+      rvt_db.ElementIsElementTypeFilter( True ) 
+      )
+    
+    element_ids = FilteredElementCollector(doc).WherePasses( this_filter).ToElementIds()
+    
+    logging.info("Returning {} element IDs".format(len(element_ids)))
+    
+    return element_ids
+
+def get_all_elements_IDs_Filter(doc):
+    """
+    System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+watch.Restart();
+ 
+IList<Element> elements = new List<Element>();
+FilteredElementCollector finalCollector = new FilteredElementCollector(CachedDoc);
+ 
+finalCollector.WherePasses(
+    new LogicalOrFilter(
+        new List<ElementFilter>
+        {
+            new ElementCategoryFilter(BuiltInCategory.OST_Doors),
+            new ElementCategoryFilter(BuiltInCategory.OST_Windows),
+            new ElementCategoryFilter(BuiltInCategory.OST_CeilingOpening),
+            new ElementCategoryFilter(BuiltInCategory.OST_FloorOpening),
+            new ElementCategoryFilter(BuiltInCategory.OST_RoofOpening)
+        }));
+ 
+elements = finalCollector.ToElements();
+ 
+watch.Stop();
+using (StreamWriter sw = new StreamWriter(@"c:\temp\Output.txt", true))
+{
+    sw.WriteLine(string.Format("{0} doors/windows/openings were found in {1} milli-seconds.", elements.Count, watch.Elapsed.Milliseconds));
+}
+    """
+    logging.info("{}".format(get_self()))
+    
+    this_filter = rvt_db.LogicalOrFilter(
+      rvt_db.ElementIsElementTypeFilter( False ), 
+      rvt_db.ElementIsElementTypeFilter( True ) 
+      )
+    
+    element_ids = FilteredElementCollector(doc).WherePasses( this_filter).OfCategory().ToElementIds()
+
+    logging.info("Returning {} element IDs".format(len(element_ids)))
+    
+    return element_ids
+
+
+def get_all_elements(doc, ):
     """
     Returns FamilySymbol, FamilyInstance, ALL, etc.
     """
@@ -254,21 +507,27 @@ def get_all_categories(doc):
     for cat in categories:
         print("{:40} | {:30} | {:30}".format(cat.Name, cat.Id, cat.Parent))
 
-def get_elem_BuiltInCategory(elem):
-    print(BuiltInCategory)
+def get_elem_BuiltInCategory(doc, elem):
+    #print(BuiltInCategory)
     #print_dir(BuiltInCategory)
     #print(BuiltInCategory.GetValues(BuiltInCategory))
     
     
     for i,bic in enumerate(BuiltInCategory.GetValues(BuiltInCategory)):
-        print(i,bic)
+        print(i,bic, bic.Id)
+        
     print("*************")
-    print_dir(bic)
+    #print_dir(bic)
+    #print_dir(elem)
+    print_dir(elem.Category)
     print("*************")
-    print(bic.ToString())
+    
+    print_dir(elem.Category.GetCategory(doc, elem.Id))
+    #print("*************")
+    #print(bic.ToString())
     #print(bic.ToObject())
-    print(bic.ToInt16())
-    print(bic.ToInt64())
+    #print(bic.ToInt16())
+    #print(bic.ToInt64())
     raise
 
 def get_all_BuiltInCategory(elem):
@@ -289,25 +548,6 @@ def get_elements(doc,category):
     collector.OfCategory(category)
     return collector
 
-
-def get_table(path_excel_book):
-    
-    end_row = 4
-    
-    with util_excel.ExtendedExcelBookAPI(path_excel_book) as xl:
-        print(xl)
-        table = xl.get_table_2("REGISTER",2,end_row,1,40)
-    
-    headers = table.pop(0)
-    data = table
-    
-    data_table = list()
-    for row in data:
-        data_table.append(dict(zip(headers, row)))
-        
-    logging.info("Got {} rows from {}".format(len(data_table),path_excel_book))
-    
-    return data_table
 
 
 
@@ -479,6 +719,7 @@ def add_view_sheet(doc, sheet, view, center_pt, viewport_ID=False):
         view_port = rvt_db.Viewport.Create(doc, sheet.Id, view.Id, center_pt)
         
         if viewport_ID:
+            #print(viewport_ID)
             view_port.ChangeTypeId(viewport_ID)
 
     
@@ -523,49 +764,10 @@ def create_dependent(doc, active_view, part_name):
     return new_view
 
 
-def get_data_csv(path_csv, this_delimiter=';'):
-    table_dict = list()
-    with open(path_csv) as csvfile:
-        
-        # First, open the file to get the header, skip one line
-        reader = csv.reader(csvfile,delimiter=this_delimiter)
-        skip_row = next(reader)
-        headers = next(reader)
-        #print(headers)
-        #print(type(headers))
-        #raise
-        # Use the header, re-read, and skip 2 lines
-        reader = csv.DictReader(csvfile,fieldnames=headers,delimiter=';')
-        skip_row = next(reader)
-        skip_row = next(reader)
-        
-        for row in reader:
-            #print("ROW START")
-            op_A = False
-            for k in row:
-                found = op_A or bool(row[k]) 
-                if found: 
-                    break
-            if not found:
-                break
-            #print(row)
-            table_dict.append(row)
-                #if bool(row[k]):
-                    
-                #    break
-                #print(row[k], bool(row[k]))
-            
-            
-            #print(row)
-    #print(reader[3])
-    logging.debug("Loaded {} sheet definitions with {} columns".format(len(table_dict), len(table_dict[0])))
-    
-    return table_dict
-
-
 
 def rename_sheets(data_dict, sheets_by_name):
     raise "OBSELETE SEE CREATE SHEETS"    
+    """
     logging.debug(util_ra.get_self())
     
     for i,row in enumerate(data_dict):
@@ -590,7 +792,7 @@ def rename_sheets(data_dict, sheets_by_name):
                                  row['Sheet Number'])        
         
         logging.debug("Updated {}".format(row['OLD NAME']))
-
+    """
 
 def create_sheet(doc, title_block, number, name):
     logging.info("{}".format(get_self()))
@@ -714,8 +916,6 @@ def parameter_exists(el, param_name):
     return False
 
 def get_parameter_value_float(el, param_name, flg_DNE=False):
-    
-    
     flg_found = False
     for p in el.Parameters:
         if p.Definition.Name == param_name:
@@ -740,13 +940,11 @@ def get_parameter_value_float(el, param_name, flg_DNE=False):
 #        p.Definition.Name AsString 
 
 
-def get_parameter_value(el, param_name, flg_DNE=False):
-    
-    
+def get_parameter_value_str(el, param_name, flg_DNE=False):
     flg_found = False
     for p in el.Parameters:
         if p.Definition.Name == param_name:
-            p_val = p.AsString()
+            p_val = p.AsValueString()
             flg_found = True
             #this_name = p.AsString()
             #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
@@ -758,6 +956,7 @@ def get_parameter_value(el, param_name, flg_DNE=False):
     elif not flg_found and flg_DNE:
         return "DNE"
     else:
+        print("Can't find this parameter:")
         print(el, el.Name, param_name, flg_DNE)
         raise
     #return_str = p.AsString()
@@ -765,8 +964,58 @@ def get_parameter_value(el, param_name, flg_DNE=False):
     #return p_val
 #        p.Definition.Name AsString 
 
-def change_parameter(doc, el, param_name, new_value):
-    logging.debug(get_self())
+
+def get_parameter_value(el, param_name, flg_DNE=False):
+    
+    
+    flg_found = False
+    for pi in el.Parameters:
+        if pi.Definition.Name == param_name:
+            p_val = pi.AsString()
+            flg_found = True
+            #this_name = p.AsString()
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
+            #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
+            break
+    
+    
+    if not flg_found and type(el) == FamilyInstance:
+        for pf in el.Symbol.Parameters:
+            if pf.Definition.Name == param_name:
+                p_val = pf.AsString()
+                flg_found = True
+                break
+            
+    if not flg_found and type(el) == FamilyInstance:
+        for pf in el.Symbol.Family.Parameters:
+            if pf.Definition.Name == param_name:
+                p_val = pf.AsString()
+                flg_found = True
+                break
+        
+    if flg_found:
+        if p_val == None:
+            return ""
+        else:
+            return p_val
+        
+    elif not flg_found and flg_DNE:
+        return "DNE"
+    else:
+        logging.error("Parameter {} not found in {} {} not found".format(param_name,el, el.Name, flg_DNE))
+        #print()
+        raise
+    #return_str = p.AsString()
+    #print("Returning {}")
+    #return p_val
+#        p.Definition.Name AsString 
+
+def change_parameter(doc, el, param_name, new_value, verbose = True):
+    
+    logger = logging.getLogger()
+    
+    if not verbose:
+        logger.setLevel(logging.INFO)
     
     target_param = None
     for p in el.Parameters:
@@ -778,10 +1027,13 @@ def change_parameter(doc, el, param_name, new_value):
     this_type = target_param.Definition.ParameterType
     target_type = rvt_db.ParameterType.Text
     assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
-  
+
     with Trans(doc, "Change param {} to {}".format(param_name,new_value)):
         target_param.Set(new_value)
-        
+    
+    logger.setLevel(logging.DEBUG)
+            
+    
     logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
                                                     target_param.AsString(),
                                                     new_value,
@@ -1070,7 +1322,7 @@ static FilteredElementCollector GetConnectorElements(
 }
 """
 
-REVIT_CATEGORIES = [
+REVIT_CATEGORIES_TEXT = [
 # 'Zone Tags',
 # 'Wire Tags',
 # 'Window Tags',
@@ -1339,6 +1591,158 @@ REVIT_CATEGORIES = [
  'Air Terminals',
 # 'Adaptive Points',
                   ]
+
+REVIT_CATEGORIES_BIC = [
+BuiltInCategory.OST_DuctTerminal                             ,
+#BuiltInCategory.OST_BeamAnalytical                          ,
+#BuiltInCategory.OST_BraceAnalytical                         ,
+#BuiltInCategory.OST_ColumnAnalytical                        ,
+#BuiltInCategory.OST_FloorAnalytical                         ,
+#BuiltInCategory.OST_FoundationSlabAnalytical                ,
+#BuiltInCategory.OST_IsolatedFoundationAnalytical            ,
+#BuiltInCategory.OST_AnalyticalNodes                         ,
+#BuiltInCategory.OST_WallFoundationAnalytical                ,
+#BuiltInCategory.OST_WallAnalytical                          ,
+#BuiltInCategory.OST_AreaLoads                               ,
+#BuiltInCategory.OST_AreaSchemes                             ,
+#BuiltInCategory.OST_Areas                                   ,
+#BuiltInCategory.OST_Assemblies                              ,
+BuiltInCategory.OST_CableTrayFitting                         ,
+BuiltInCategory.OST_CableTrayRun                             ,
+BuiltInCategory.OST_CableTray                                ,
+#BuiltInCategory.OST_Casework                                ,
+#BuiltInCategory.OST_Ceilings                                ,
+#BuiltInCategory.OST_Columns                                 ,
+BuiltInCategory.OST_CommunicationDevices                     ,
+BuiltInCategory.OST_ConduitFitting                           ,
+BuiltInCategory.OST_ConduitRun                               ,
+BuiltInCategory.OST_Conduit                                  ,
+#BuiltInCategory.OST_CurtainWallPanels                       ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_CurtaSystem                             ,
+#BuiltInCategory.OST_CurtainWallMullions                     ,
+BuiltInCategory.OST_DataDevices                              ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_DetailComponents                        ,
+#BuiltInCategory.OST_FilledRegion                            ,
+#BuiltInCategory.OST_MaskingRegion                           ,
+#BuiltInCategory.OST_Doors                                   ,
+BuiltInCategory.OST_DuctAccessory                            ,
+BuiltInCategory.OST_DuctFitting                              ,
+BuiltInCategory.OST_DuctInsulations                          ,
+BuiltInCategory.OST_DuctLinings                              ,
+#BuiltInCategory.OST_PlaceHolderDucts                        ,
+BuiltInCategory.OST_DuctSystem                               ,
+BuiltInCategory.OST_DuctCurves                               ,
+BuiltInCategory.OST_ElectricalCircuit                        ,
+BuiltInCategory.OST_ElectricalEquipment                      ,
+BuiltInCategory.OST_ElectricalFixtures                       ,
+#BuiltInCategory.OST_Entourage                               ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_FabricationParts                        ,
+#BuiltInCategory.OST_Fascia                                  ,
+BuiltInCategory.OST_FireAlarmDevices                         ,
+BuiltInCategory.OST_FlexDuctCurves                           ,
+BuiltInCategory.OST_FlexPipeCurves                           ,
+#BuiltInCategory.OST_Floors                                  ,
+#BuiltInCategory.OST_Furniture                               ,
+#BuiltInCategory.OST_FurnitureSystems                        ,
+#BuiltInCategory.OST_GenericAnnotation                       ,
+#BuiltInCategory.OST_GenericModel                            ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_Grids                                   ,
+#BuiltInCategory.OST_Gutter                                  ,
+#BuiltInCategory.OST_HVAC_Zones                              ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_ImportObjectStyles                      ,
+#BuiltInCategory.OST_InternalAreaLoads                       ,
+#BuiltInCategory.OST_InternalLineLoads                       ,
+#BuiltInCategory.OST_InternalPointLoads                      ,
+#BuiltInCategory.OST_Levels                                  ,
+#BuiltInCategory.                                            ,
+BuiltInCategory.OST_LightingDevices                          ,
+BuiltInCategory.OST_LightingFixtures                         ,
+#BuiltInCategory.OST_Lines                                   ,
+#BuiltInCategory.OST_Lines                                   ,
+#BuiltInCategory.OST_LineLoads                               ,
+#BuiltInCategory.OST_MassFloor                               ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_Mass                                    ,
+#BuiltInCategory.OST_Materials                               ,
+BuiltInCategory.OST_MechanicalEquipment                      ,
+#BuiltInCategory.OST_ModelText                               ,
+BuiltInCategory.OST_NurseCallDevices                         ,
+#BuiltInCategory.OST_BuildingPad                             ,
+#BuiltInCategory.OST_Parking                                 ,
+#BuiltInCategory.OST_Parts                                   ,
+BuiltInCategory.OST_PipeAccessory                            ,
+BuiltInCategory.OST_PipeFitting                              ,
+BuiltInCategory.OST_PipeInsulations                          ,
+BuiltInCategory.OST_PlaceHolderPipes                         ,
+BuiltInCategory.OST_PipeCurves                               ,
+BuiltInCategory.OST_PipingSystem                             ,
+#BuiltInCategory.OST_Planting                                ,
+BuiltInCategory.OST_PlumbingFixtures                         ,
+#BuiltInCategory.OST_PointClouds                             ,
+#BuiltInCategory.OST_PointLoads                              ,
+#BuiltInCategory.OST_ProjectInformation                      ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_SitePropertyLineSegment                 ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_StairsRailing                           ,
+#BuiltInCategory.OST_RailingSupport                          ,
+#BuiltInCategory.OST_RailingTermination                      ,
+#BuiltInCategory.OST_Ramps                                   ,
+#BuiltInCategory.OST_RasterImages                            ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_RevisionClouds                          ,
+#BuiltInCategory.OST_Revisions                               ,
+#BuiltInCategory.OST_Roads                                   ,
+#BuiltInCategory.OST_Roofs                                   ,
+#BuiltInCategory.OST_RoofSoffit                              ,
+#BuiltInCategory.OST_Rooms                                   ,
+#BuiltInCategory.OST_RvtLinks                                ,
+#BuiltInCategory.OST_SecurityDevices                         ,
+#BuiltInCategory.OST_ShaftOpening                            ,
+#BuiltInCategory.OST_Sheets                                  ,
+#BuiltInCategory.OST_Site                                    ,
+#BuiltInCategory.OST_EdgeSlab                                ,
+#BuiltInCategory.OST_MEPSpaces                               ,
+BuiltInCategory.OST_SpecialityEquipment                      ,
+BuiltInCategory.OST_Sprinklers                               ,
+#BuiltInCategory.OST_Stairs                                  ,
+#BuiltInCategory.OST_Stairs                                  ,
+#BuiltInCategory.OST_StairsRuns                              ,
+#BuiltInCategory.OST_StairsSupports                          ,
+#BuiltInCategory.OST_StairsLandings                          ,
+#BuiltInCategory.OST_AreaRein                                ,
+#BuiltInCategory.OST_StructuralFramingSystem                 ,
+#BuiltInCategory.OST_StructuralColumns                       ,
+#BuiltInCategory.OST_StructuralConnectionHandler             ,
+#BuiltInCategory.OST_StructConnections                       ,
+#BuiltInCategory.OST_FabricAreas                             ,
+#BuiltInCategory.OST_FabricReinforcement                     ,
+#BuiltInCategory.OST_StructuralFoundation                    ,
+#BuiltInCategory.OST_StructuralFraming                       ,
+#BuiltInCategory.OST_PathRein                                ,
+#BuiltInCategory.OST_Rebar                                   ,
+#BuiltInCategory.OST_StructuralStiffener                     ,
+#BuiltInCategory.OST_StructuralTruss                         ,
+#BuiltInCategory.                                            ,
+BuiltInCategory.OST_SwitchSystem                             ,
+BuiltInCategory.OST_TelephoneDevices                         ,
+#BuiltInCategory.OST_Topography                              ,
+#BuiltInCategory.OST_Cornices                                ,
+#BuiltInCategory.OST_Walls                                   ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.                                            ,
+#BuiltInCategory.OST_Windows                                 ,
+BuiltInCategory.OST_Wire                                     ,
+]
+
+
 
 
 

@@ -1023,7 +1023,16 @@ def change_parameter(doc, el, param_name, new_value, verbose = True):
         if p.Definition.Name == param_name:
             target_param = p
             break
-    assert target_param, "{} not found".format(param_name)
+    
+    if not target_param:
+        print(el)
+        print(el.Name)
+        print("{} not found".format(param_name))
+        table_parameters(el)
+        raise
+    
+    #assert target_param, 
+    
     this_type = target_param.Definition.ParameterType
     target_type = rvt_db.ParameterType.Text
     assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
@@ -1031,16 +1040,67 @@ def change_parameter(doc, el, param_name, new_value, verbose = True):
     with Trans(doc, "Change param {} to {}".format(param_name,new_value)):
         target_param.Set(new_value)
     
-    logger.setLevel(logging.DEBUG)
             
     
     logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
                                                     target_param.AsString(),
                                                     new_value,
-                                                    target_param.Element))  
+                                                    target_param.Element))
+      
+    logger.setLevel(logging.DEBUG)
+
+
+
+def change_parameter_multiple(doc, el_list, param_name, new_value_list):
+    #doc
+    #el_list : N Elements
+    #param_name : One parameter at a time
+    #new_value_list : N New values
+
+    #logging.debug("Overwriting {} {} parameters in {} elements".format(len(new_value_list),param_name,len(el_list)))
+
+    logger = logging.getLogger()
+
+    target_param_list = list()
+    for el in el_list:
+        target_param = None
+        
+        # Get the parameter
+        for p in el.Parameters:
+            #print(p.Definition.Name)
+            if p.Definition.Name == param_name:
+                target_param = p
+                break
+        
+        # Ensure that it exists
+        if not target_param:
+            print(el)
+            print(el.Name)
+            print("{} not found".format(param_name))
+            table_parameters(el)
+            raise
+        
+        # Assert that the parameter is TEXT
+        this_type = target_param.Definition.ParameterType
+        target_type = rvt_db.ParameterType.Text
+        assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
+        
+        # Add this parameter
+        target_param_list.append(target_param)
+    
+    # Built the changes, now commit all
+    logger.setLevel(logging.INFO)
+    with Trans(doc, "Change param".format()):
+        for target_param, new_value in zip(target_param_list, new_value_list):
+            target_param.Set(new_value)
+    
+    logger.setLevel(logging.DEBUG)
+        
+    logging.debug("Overwrote {} {} parameters in {} elements".format(len(new_value_list),param_name,len(el_list)))
+          
         
 def table_parameters(el):
-
+    
     logging.debug(get_self())
 
     print("{:20}".format("-name-").encode('utf-8'), end="")

@@ -22,6 +22,8 @@ import shlex
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+sys.path.insert(0, os.path.abspath('.'))
+print(sys.path)
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -30,7 +32,29 @@ import shlex
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+#extensions = []
+extensions = ['sphinx.ext.todo', 'sphinx.ext.viewcode', 'sphinx.ext.autodoc']
+
+
+autodoc_mock_imports = [
+    'Autodesk',
+	'Autodesk.Revit',
+	'Autodesk.Revit.DB',
+
+]
+
+# import sys
+# from unittest.mock import MagicMock
+
+# class Mock(MagicMock):
+    # @classmethod
+    # def __getattr__(cls, name):
+            # return Mock()
+
+# MOCK_MODULES = ['Autodesk.Revit.DB']
+# sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

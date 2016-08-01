@@ -38,7 +38,6 @@ import logging
 
 import utility as util 
 
-
 def family_data_dict(doc,fam):
     assert type(fam) == rvt_db.FamilyInstance, "Not an instance"
     data = dict()

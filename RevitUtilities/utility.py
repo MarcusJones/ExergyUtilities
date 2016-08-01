@@ -6,7 +6,9 @@ from __future__ import print_function
 #===============================================================================
 try:
     import Autodesk.Revit.DB as rvt_db
-    #from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory
+    from Autodesk.Revit.DB import BuiltInCategory
+
+    #from Autodesk.Revit.DB import FilteredElementCollector, 
     #from Autodesk.Revit.DB import FamilyInstanceFilter, ElementCategoryFilter, ElementClassFilter
     #from Autodesk.Revit.DB import LogicalAndFilter, LogicalOrFilter
     #from Autodesk.Revit.DB import FamilyInstance, FamilySymbol
@@ -162,6 +164,34 @@ class Trans():
     def __exit__(self, exception_type, exception_value, traceback):
         logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
         self.t.Commit()
+
+def print_family(fam):
+    #print(str(type(fam)))
+    #print(str(rvt_db.FamilySymbol))
+    #print(str(type(fam)) == str(rvt_db.FamilySymbol))
+    
+    
+    
+    if type(fam) == rvt_db.FamilySymbol:
+        fam_name = fam.FamilyName
+        parent = fam.Family
+    elif type(fam) == rvt_db.FamilyInstance:
+        fam_name = fam.Name
+        parent = fam.Symbol
+    else:
+        #print("Want", rvt_db.FamilySymbol)
+        #print("Got", type(fam))
+        #print()
+        raise
+
+    #print("Type: {}".format(type(fam)))
+    print("{} - {}".format(fam.Category.Name,fam_name))    
+    #print("Name: {}".format(str(fam_name)))
+    
+    
+
+    #print("Parent: {}".format(str(parent)))
+    
 
 #-Static globals---
 

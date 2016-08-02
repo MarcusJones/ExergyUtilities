@@ -1,4 +1,6 @@
-"""This module does blah blah."""
+"""Functions for selecting and changing parameters on elements. 
+
+"""
 from __future__ import print_function
 
 #===============================================================================
@@ -41,6 +43,8 @@ import utility as util
 #-XXX---
 
 def parameter_exists(el, param_name):
+    """Return TRUE if this *param_name* (string) exists on *element*.
+    """
     #if p in el.Parameters: return True
     #else: return False
     for p in el.Parameters:
@@ -49,14 +53,17 @@ def parameter_exists(el, param_name):
     return False
 
 def get_parameter_value_float(el, param_name, flg_DNE=False):
+    """Wrapper on param.AsDouble()
+    
+    Return as float, *param_name* (string) value *el*.
+     
+    If flg_DNE, return a string "DNE" instead, otherwise raise error. 
+    """    
     flg_found = False
     for p in el.Parameters:
         if p.Definition.Name == param_name:
             p_val = p.AsDouble()
             flg_found = True
-            #this_name = p.AsString()
-            #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
-            #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
             break
     
     if flg_found:
@@ -67,21 +74,20 @@ def get_parameter_value_float(el, param_name, flg_DNE=False):
         print("Can't find this parameter:")
         print(el, el.Name, param_name, flg_DNE)
         raise
-    #return_str = p.AsString()
-    #print("Returning {}")
-    #return p_val
-#        p.Definition.Name AsString 
 
 
 def get_parameter_value_str(el, param_name, flg_DNE=False):
+    """Wrapper on param.AsValueString()
+    
+    Return as str, *param_name* (string) value *el*.
+     
+    If flg_DNE, return a string "DNE" instead, otherwise raise error. 
+    """        
     flg_found = False
     for p in el.Parameters:
         if p.Definition.Name == param_name:
             p_val = p.AsValueString()
             flg_found = True
-            #this_name = p.AsString()
-            #print("{} matches {} = {}".format(p.Definition.Name,param_name,p.AsString()))
-            #print("{} matches {} = {}".format(p.Definition.Name,param_name,this_name))
             break
     
     if flg_found:
@@ -92,15 +98,13 @@ def get_parameter_value_str(el, param_name, flg_DNE=False):
         print("Can't find this parameter:")
         print(el, el.Name, param_name, flg_DNE)
         raise
-    #return_str = p.AsString()
-    #print("Returning {}")
-    #return p_val
-#        p.Definition.Name AsString 
 
 
-def get_parameter_value(el, param_name, flg_DNE=False):
-    
-    
+def get_parameter_value_OBSELETE(el, param_name, flg_DNE=False):
+    """
+    .. todo:: 
+        Remove    
+    """        
     flg_found = False
     for pi in el.Parameters:
         if pi.Definition.Name == param_name:
@@ -138,13 +142,15 @@ def get_parameter_value(el, param_name, flg_DNE=False):
         logging.error("Parameter {} not found in {} {} not found".format(param_name,el, el.Name, flg_DNE))
         #print()
         raise
-    #return_str = p.AsString()
-    #print("Returning {}")
-    #return p_val
-#        p.Definition.Name AsString 
 
 def change_parameter(doc, el, param_name, new_value, verbose = True):
+    """Find *param_name* in *element*. Overwrite to *new_value*.
     
+    ONLY works on rvt_db.ParameterType.Text. (Asserted)
+    
+    .. todo::
+        Support other parameter types
+    """         
     logger = logging.getLogger()
     
     if not verbose:
@@ -163,17 +169,13 @@ def change_parameter(doc, el, param_name, new_value, verbose = True):
         print("{} not found".format(param_name))
         table_parameters(el)
         raise
-    
-    #assert target_param, 
-    
+
     this_type = target_param.Definition.ParameterType
     target_type = rvt_db.ParameterType.Text
     assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
 
     with Trans(doc, "Change param {} to {}".format(param_name,new_value)):
         target_param.Set(new_value)
-    
-            
     
     logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
                                                     target_param.AsString(),
@@ -185,13 +187,15 @@ def change_parameter(doc, el, param_name, new_value, verbose = True):
 
 
 def change_parameter_multiple(doc, el_list, param_name, new_value_list):
-    #doc
-    #el_list : N Elements
-    #param_name : One parameter at a time
-    #new_value_list : N New values
-
-    #logging.debug("Overwriting {} {} parameters in {} elements".format(len(new_value_list),param_name,len(el_list)))
-
+    """Optimized :func:`change_parameter` for overwriting large numbers of parameters. 
+    
+    Find *param_name* in a list of *element*. Overwrite to *new_value*.
+    
+    Commit in one single *Transaction*
+    
+    .. todo::
+        Support other parameter types
+    """   
     logger = logging.getLogger()
 
     target_param_list = list()
@@ -233,7 +237,8 @@ def change_parameter_multiple(doc, el_list, param_name, new_value_list):
           
         
 def table_parameters(el):
-    
+    """Given an element, print a formatted table of the parameters atttached, 
+    and the properties of these parameters."""
     logging.debug(util.get_self())
 
     print("{:20}".format("-name-").encode('utf-8'), end="")
@@ -253,11 +258,18 @@ def table_parameters(el):
         print("{0!s:30}".format(param.Definition.UnitType), end="")
         print("")
 
-def all_params(el):
+def print_all_params(el):
+    """Prints a list of the parameters attached to the element.
+    """
     for param in el.Parameters:
         print(param.Definition.Name, ":", param.AsValueString())
         
-def list_parameters(el):
+def list_parameters_OBSELETE(el):
+    """Prints a list of the parameters attached to the element.
+    
+    .. todo:: 
+        Remove    
+    """    
     logging.debug(util.get_self())
     for param in el.Parameters:
         print("Definition: {}".format(param.Definition))
@@ -281,7 +293,11 @@ def list_parameters(el):
         print("StorageType: {}".format(param.StorageType))
 
 def project_parameters(doc):
-
+    """Prints table of project parameters. 
+    
+    .. todo:: 
+        Update    
+    """
     pm = doc.ParameterBindings
     it = pm.ForwardIterator()
     it.Reset()
@@ -315,6 +331,11 @@ def project_parameters(doc):
 
 
 def document_parameters(doc):
+    """Prints table of documents parameters. 
+    
+    .. todo:: 
+        Update
+    """    
     logging.debug(util.get_self())
     params = FilteredElementCollector(doc).OfClass(rvt_db.ParameterElement)
 #   filteredparams = []

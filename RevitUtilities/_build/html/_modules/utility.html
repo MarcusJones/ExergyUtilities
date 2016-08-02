@@ -38,15 +38,17 @@
           <div class="body" role="main">
             
   <h1>Source code for utility</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This module contains some tools for using the Revit API&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;Various utilities used in other modules&quot;&quot;&quot;</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 
 <span class="c1">#===============================================================================</span>
 <span class="c1"># Import Revit API</span>
 <span class="c1">#===============================================================================</span>
-<span class="k">try</span><span class="p">:</span>
+<span class="k">try</span><span class="p">:</span> <span class="c1"># For Sphinx</span>
     <span class="kn">import</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">as</span> <span class="nn">rvt_db</span>
-    <span class="c1">#from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">BuiltInCategory</span>
+
+    <span class="c1">#from Autodesk.Revit.DB import FilteredElementCollector, </span>
     <span class="c1">#from Autodesk.Revit.DB import FamilyInstanceFilter, ElementCategoryFilter, ElementClassFilter</span>
     <span class="c1">#from Autodesk.Revit.DB import LogicalAndFilter, LogicalOrFilter</span>
     <span class="c1">#from Autodesk.Revit.DB import FamilyInstance, FamilySymbol</span>
@@ -70,7 +72,7 @@
 
 <span class="c1">#-Utility---</span>
 
-<div class="viewcode-block" id="get_data_csv"><a class="viewcode-back" href="../TEST.html#utility.get_data_csv">[docs]</a><span class="k">def</span> <span class="nf">get_data_csv</span><span class="p">(</span><span class="n">path_csv</span><span class="p">,</span> <span class="n">this_delimiter</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="get_data_csv"><a class="viewcode-back" href="../index.html#utility.get_data_csv">[docs]</a><span class="k">def</span> <span class="nf">get_data_csv</span><span class="p">(</span><span class="n">path_csv</span><span class="p">,</span> <span class="n">this_delimiter</span><span class="o">=</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Import csv file in a very specific format</span>
 <span class="sd">    Line 1: SKIP</span>
 <span class="sd">    Line 2: Headers</span>
@@ -115,7 +117,7 @@
     
     <span class="k">return</span> <span class="n">table_dict</span>
 </div>
-<div class="viewcode-block" id="format_as_table"><a class="viewcode-back" href="../TEST.html#utility.format_as_table">[docs]</a><span class="k">def</span> <span class="nf">format_as_table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
+<div class="viewcode-block" id="format_as_table"><a class="viewcode-back" href="../index.html#utility.format_as_table">[docs]</a><span class="k">def</span> <span class="nf">format_as_table</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
                     <span class="n">keys</span><span class="p">,</span>
                     <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
                     <span class="n">sort_by_key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
@@ -177,18 +179,18 @@
         <span class="n">formatted_data</span> <span class="o">+=</span> <span class="n">format</span> <span class="o">%</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">data_to_format</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">formatted_data</span>
 </div>
-<div class="viewcode-block" id="get_self"><a class="viewcode-back" href="../TEST.html#utility.get_self">[docs]</a><span class="k">def</span> <span class="nf">get_self</span><span class="p">():</span>
+<div class="viewcode-block" id="get_self"><a class="viewcode-back" href="../index.html#utility.get_self">[docs]</a><span class="k">def</span> <span class="nf">get_self</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Wrapper for returning string of calling object, for logging.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span>
 </div>
-<div class="viewcode-block" id="print_dir"><a class="viewcode-back" href="../TEST.html#utility.print_dir">[docs]</a><span class="k">def</span> <span class="nf">print_dir</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+<div class="viewcode-block" id="print_dir"><a class="viewcode-back" href="../index.html#utility.print_dir">[docs]</a><span class="k">def</span> <span class="nf">print_dir</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wrapper for dir()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
         <span class="k">print</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Trans"><a class="viewcode-back" href="../TEST.html#utility.Trans">[docs]</a><span class="k">class</span> <span class="nc">Trans</span><span class="p">():</span>
+<div class="viewcode-block" id="Trans"><a class="viewcode-back" href="../index.html#utility.Trans">[docs]</a><span class="k">class</span> <span class="nc">Trans</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Context manager for Revit API transactions. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
@@ -201,7 +203,461 @@
     
     <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;TRANSACTION COMPLETE - {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">Commit</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">Commit</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="print_family"><a class="viewcode-back" href="../index.html#utility.print_family">[docs]</a><span class="k">def</span> <span class="nf">print_family</span><span class="p">(</span><span class="n">fam</span><span class="p">):</span>
+    <span class="c1">#print(str(type(fam)))</span>
+    <span class="c1">#print(str(rvt_db.FamilySymbol))</span>
+    <span class="c1">#print(str(type(fam)) == str(rvt_db.FamilySymbol))</span>
+    
+    
+    
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">fam</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">FamilySymbol</span><span class="p">:</span>
+        <span class="n">fam_name</span> <span class="o">=</span> <span class="n">fam</span><span class="o">.</span><span class="n">FamilyName</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">fam</span><span class="o">.</span><span class="n">Family</span>
+    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">fam</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">FamilyInstance</span><span class="p">:</span>
+        <span class="n">fam_name</span> <span class="o">=</span> <span class="n">fam</span><span class="o">.</span><span class="n">Name</span>
+        <span class="n">parent</span> <span class="o">=</span> <span class="n">fam</span><span class="o">.</span><span class="n">Symbol</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1">#print(&quot;Want&quot;, rvt_db.FamilySymbol)</span>
+        <span class="c1">#print(&quot;Got&quot;, type(fam))</span>
+        <span class="c1">#print()</span>
+        <span class="k">raise</span>
+
+    <span class="c1">#print(&quot;Type: {}&quot;.format(type(fam)))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{} - {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fam</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span><span class="n">fam_name</span><span class="p">))</span>    
+    <span class="c1">#print(&quot;Name: {}&quot;.format(str(fam_name)))</span>
+    
+    
+
+    <span class="c1">#print(&quot;Parent: {}&quot;.format(str(parent)))</span>
+    
+
+<span class="c1">#-Static globals---</span></div>
+<span class="k">try</span><span class="p">:</span> <span class="c1"># For Sphinx</span>
+    <span class="n">REVIT_CATEGORIES_BIC</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctTerminal</span>                             <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_BeamAnalytical                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_BraceAnalytical                         ,</span>
+    <span class="c1">#BuiltInCategory.OST_ColumnAnalytical                        ,</span>
+    <span class="c1">#BuiltInCategory.OST_FloorAnalytical                         ,</span>
+    <span class="c1">#BuiltInCategory.OST_FoundationSlabAnalytical                ,</span>
+    <span class="c1">#BuiltInCategory.OST_IsolatedFoundationAnalytical            ,</span>
+    <span class="c1">#BuiltInCategory.OST_AnalyticalNodes                         ,</span>
+    <span class="c1">#BuiltInCategory.OST_WallFoundationAnalytical                ,</span>
+    <span class="c1">#BuiltInCategory.OST_WallAnalytical                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_AreaLoads                               ,</span>
+    <span class="c1">#BuiltInCategory.OST_AreaSchemes                             ,</span>
+    <span class="c1">#BuiltInCategory.OST_Areas                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_Assemblies                              ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_CableTrayFitting</span>                         <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_CableTrayRun</span>                             <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_CableTray</span>                                <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Casework                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_Ceilings                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_Columns                                 ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_CommunicationDevices</span>                     <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_ConduitFitting</span>                           <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_ConduitRun</span>                               <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Conduit</span>                                  <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_CurtainWallPanels                       ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_CurtaSystem                             ,</span>
+    <span class="c1">#BuiltInCategory.OST_CurtainWallMullions                     ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DataDevices</span>                              <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_DetailComponents                        ,</span>
+    <span class="c1">#BuiltInCategory.OST_FilledRegion                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_MaskingRegion                           ,</span>
+    <span class="c1">#BuiltInCategory.OST_Doors                                   ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctAccessory</span>                            <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctFitting</span>                              <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctInsulations</span>                          <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctLinings</span>                              <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_PlaceHolderDucts                        ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctSystem</span>                               <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_DuctCurves</span>                               <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_ElectricalCircuit</span>                        <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_ElectricalEquipment</span>                      <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_ElectricalFixtures</span>                       <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Entourage                               ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_FabricationParts                        ,</span>
+    <span class="c1">#BuiltInCategory.OST_Fascia                                  ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_FireAlarmDevices</span>                         <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_FlexDuctCurves</span>                           <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_FlexPipeCurves</span>                           <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Floors                                  ,</span>
+    <span class="c1">#BuiltInCategory.OST_Furniture                               ,</span>
+    <span class="c1">#BuiltInCategory.OST_FurnitureSystems                        ,</span>
+    <span class="c1">#BuiltInCategory.OST_GenericAnnotation                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_GenericModel                            ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_Grids                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_Gutter                                  ,</span>
+    <span class="c1">#BuiltInCategory.OST_HVAC_Zones                              ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_ImportObjectStyles                      ,</span>
+    <span class="c1">#BuiltInCategory.OST_InternalAreaLoads                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_InternalLineLoads                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_InternalPointLoads                      ,</span>
+    <span class="c1">#BuiltInCategory.OST_Levels                                  ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_LightingDevices</span>                          <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_LightingFixtures</span>                         <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Lines                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_Lines                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_LineLoads                               ,</span>
+    <span class="c1">#BuiltInCategory.OST_MassFloor                               ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_Mass                                    ,</span>
+    <span class="c1">#BuiltInCategory.OST_Materials                               ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_MechanicalEquipment</span>                      <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_ModelText                               ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_NurseCallDevices</span>                         <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_BuildingPad                             ,</span>
+    <span class="c1">#BuiltInCategory.OST_Parking                                 ,</span>
+    <span class="c1">#BuiltInCategory.OST_Parts                                   ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PipeAccessory</span>                            <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PipeFitting</span>                              <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PipeInsulations</span>                          <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PlaceHolderPipes</span>                         <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PipeCurves</span>                               <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PipingSystem</span>                             <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Planting                                ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_PlumbingFixtures</span>                         <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_PointClouds                             ,</span>
+    <span class="c1">#BuiltInCategory.OST_PointLoads                              ,</span>
+    <span class="c1">#BuiltInCategory.OST_ProjectInformation                      ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_SitePropertyLineSegment                 ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_StairsRailing                           ,</span>
+    <span class="c1">#BuiltInCategory.OST_RailingSupport                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_RailingTermination                      ,</span>
+    <span class="c1">#BuiltInCategory.OST_Ramps                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_RasterImages                            ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_RevisionClouds                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_Revisions                               ,</span>
+    <span class="c1">#BuiltInCategory.OST_Roads                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_Roofs                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_RoofSoffit                              ,</span>
+    <span class="c1">#BuiltInCategory.OST_Rooms                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_RvtLinks                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_SecurityDevices                         ,</span>
+    <span class="c1">#BuiltInCategory.OST_ShaftOpening                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_Sheets                                  ,</span>
+    <span class="c1">#BuiltInCategory.OST_Site                                    ,</span>
+    <span class="c1">#BuiltInCategory.OST_EdgeSlab                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_MEPSpaces                               ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_SpecialityEquipment</span>                      <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Sprinklers</span>                               <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Stairs                                  ,</span>
+    <span class="c1">#BuiltInCategory.OST_Stairs                                  ,</span>
+    <span class="c1">#BuiltInCategory.OST_StairsRuns                              ,</span>
+    <span class="c1">#BuiltInCategory.OST_StairsSupports                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_StairsLandings                          ,</span>
+    <span class="c1">#BuiltInCategory.OST_AreaRein                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralFramingSystem                 ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralColumns                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralConnectionHandler             ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructConnections                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_FabricAreas                             ,</span>
+    <span class="c1">#BuiltInCategory.OST_FabricReinforcement                     ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralFoundation                    ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralFraming                       ,</span>
+    <span class="c1">#BuiltInCategory.OST_PathRein                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_Rebar                                   ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralStiffener                     ,</span>
+    <span class="c1">#BuiltInCategory.OST_StructuralTruss                         ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_SwitchSystem</span>                             <span class="p">,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_TelephoneDevices</span>                         <span class="p">,</span>
+    <span class="c1">#BuiltInCategory.OST_Topography                              ,</span>
+    <span class="c1">#BuiltInCategory.OST_Cornices                                ,</span>
+    <span class="c1">#BuiltInCategory.OST_Walls                                   ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.                                            ,</span>
+    <span class="c1">#BuiltInCategory.OST_Windows                                 ,</span>
+    <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Wire</span>                                     <span class="p">,</span>
+    <span class="p">]</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+
+
+<span class="n">REVIT_CATEGORIES_TEXT</span> <span class="o">=</span> <span class="p">[</span>
+<span class="c1"># &#39;Zone Tags&#39;,</span>
+<span class="c1"># &#39;Wire Tags&#39;,</span>
+<span class="c1"># &#39;Window Tags&#39;,</span>
+<span class="c1"># &#39;Wall Tags&#39;,</span>
+<span class="c1"># &#39;Telephone Device Tags&#39;,</span>
+<span class="c1"># &#39;Structural Truss Tags&#39;,</span>
+<span class="c1"># &#39;Structural Stiffener Tags&#39;,</span>
+<span class="c1"># &#39;Structural Rebar Tags&#39;,</span>
+<span class="c1"># &#39;Structural Path Reinforcement Tags&#39;,</span>
+<span class="c1"># &#39;Structural Framing Tags&#39;,</span>
+<span class="c1"># &#39;Structural Foundation Tags&#39;,</span>
+<span class="c1"># &#39;Structural Fabric Reinforcement Tags&#39;,</span>
+<span class="c1"># &#39;Structural Connection Tags&#39;,</span>
+<span class="c1"># &#39;Structural Column Tags&#39;,</span>
+<span class="c1"># &#39;Structural Beam System Tags&#39;,</span>
+<span class="c1"># &#39;Structural Area Reinforcement Tags&#39;,</span>
+<span class="c1"># &#39;Stair Tags&#39;,</span>
+<span class="c1"># &#39;Stair Support Tags&#39;,</span>
+<span class="c1"># &#39;Stair Run Tags&#39;,</span>
+<span class="c1"># &#39;Stair Landing Tags&#39;,</span>
+<span class="c1"># &#39;Sprinkler Tags&#39;,</span>
+<span class="c1"># &#39;Specialty Equipment Tags&#39;,</span>
+<span class="c1"># &#39;Space Tags&#39;,</span>
+<span class="c1"># &#39;Site Tags&#39;,</span>
+<span class="c1"># &#39;Security Device Tags&#39;,</span>
+<span class="c1"># &#39;Room Tags&#39;,</span>
+<span class="c1"># &#39;Roof Tags&#39;,</span>
+<span class="c1"># &#39;Revision Cloud Tags&#39;,</span>
+<span class="c1"># &#39;Railing Tags&#39;,</span>
+<span class="c1"># &#39;Property Tags&#39;,</span>
+<span class="c1"># &#39;Property Line Segment Tags&#39;,</span>
+<span class="c1"># &#39;Point Load Tags&#39;,</span>
+<span class="c1"># &#39;Plumbing Fixture Tags&#39;,</span>
+<span class="c1"># &#39;Planting Tags&#39;,</span>
+<span class="c1"># &#39;Pipe Tags&#39;,</span>
+<span class="c1"># &#39;Pipe Insulation Tags&#39;,</span>
+<span class="c1"># &#39;Pipe Fitting Tags&#39;,</span>
+<span class="c1"># &#39;Pipe Accessory Tags&#39;,</span>
+<span class="c1"># &#39;Part Tags&#39;,</span>
+<span class="c1"># &#39;Parking Tags&#39;,</span>
+<span class="c1"># &#39;Nurse Call Device Tags&#39;,</span>
+<span class="c1"># &#39;Multi-Category Tags&#39;,</span>
+<span class="c1"># &#39;Mechanical Equipment Tags&#39;,</span>
+<span class="c1"># &#39;Material Tags&#39;,</span>
+<span class="c1"># &#39;Mass Tags&#39;,</span>
+<span class="c1"># &#39;Mass Floor Tags&#39;,</span>
+<span class="c1"># &#39;Line Load Tags&#39;,</span>
+<span class="c1"># &#39;Lighting Fixture Tags&#39;,</span>
+<span class="c1"># &#39;Lighting Device Tags&#39;,</span>
+<span class="c1"># &#39;Keynote Tags&#39;,</span>
+<span class="c1"># &#39;Internal Point Load Tags&#39;,</span>
+<span class="c1"># &#39;Internal Line Load Tags&#39;,</span>
+<span class="c1"># &#39;Internal Area Load Tags&#39;,</span>
+<span class="c1"># &#39;Generic Model Tags&#39;,</span>
+<span class="c1"># &#39;Furniture Tags&#39;,</span>
+<span class="c1"># &#39;Furniture System Tags&#39;,</span>
+<span class="c1"># &#39;Floor Tags&#39;,</span>
+<span class="c1"># &#39;Flex Pipe Tags&#39;,</span>
+<span class="c1"># &#39;Flex Duct Tags&#39;,</span>
+<span class="c1"># &#39;Fire Alarm Device Tags&#39;,</span>
+<span class="c1"># &#39;Fabrication Part Tags&#39;,</span>
+<span class="c1"># &#39;Electrical Fixture Tags&#39;,</span>
+<span class="c1"># &#39;Electrical Equipment Tags&#39;,</span>
+<span class="c1"># &#39;Duct Tags&#39;,</span>
+<span class="c1"># &#39;Duct Lining Tags&#39;,</span>
+<span class="c1"># &#39;Duct Insulation Tags&#39;,</span>
+<span class="c1"># &#39;Duct Fitting Tags&#39;,</span>
+<span class="c1"># &#39;Duct Accessory Tags&#39;,</span>
+<span class="c1"># &#39;Door Tags&#39;,</span>
+<span class="c1"># &#39;Detail Item Tags&#39;,</span>
+<span class="c1"># &#39;Data Device Tags&#39;,</span>
+<span class="c1"># &#39;Curtain System Tags&#39;,</span>
+<span class="c1"># &#39;Curtain Panel Tags&#39;,</span>
+<span class="c1"># &#39;Conduit Tags&#39;,</span>
+<span class="c1"># &#39;Conduit Fitting Tags&#39;,</span>
+<span class="c1"># &#39;Communication Device Tags&#39;,</span>
+<span class="c1"># &#39;Ceiling Tags&#39;,</span>
+<span class="c1"># &#39;Casework Tags&#39;,</span>
+<span class="c1"># &#39;Cable Tray Tags&#39;,</span>
+<span class="c1"># &#39;Cable Tray Fitting Tags&#39;,</span>
+<span class="c1"># &#39;Assembly Tags&#39;,</span>
+<span class="c1"># &#39;Area Tags&#39;,</span>
+<span class="c1"># &#39;Area Load Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Wall Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Wall Foundation Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Slab Foundation Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Node Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Link Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Isolated Foundation Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Floor Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Column Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Brace Tags&#39;,</span>
+<span class="c1"># &#39;Analytical Beam Tags&#39;,</span>
+<span class="c1"># &#39;Air Terminal Tags&#39;,</span>
+ <span class="s1">&#39;Wires&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Windows&#39;,</span>
+<span class="c1"># &#39;Walls&#39;,</span>
+<span class="c1"># &#39;Views&#39;,</span>
+<span class="c1"># &#39;Viewports&#39;,</span>
+<span class="c1"># &#39;View Titles&#39;,</span>
+<span class="c1"># &#39;View Reference&#39;,</span>
+<span class="c1"># &#39;Topography&#39;,</span>
+<span class="c1"># &#39;Title Blocks&#39;,</span>
+<span class="c1"># &#39;Text Notes&#39;,</span>
+ <span class="s1">&#39;Telephone Devices&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Switch System&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Structural Trusses&#39;,</span>
+<span class="c1"># &#39;Structural Stiffeners&#39;,</span>
+<span class="c1"># &#39;Structural Rebar&#39;,</span>
+<span class="c1"># &#39;Structural Path Reinforcement Symbols&#39;,</span>
+<span class="c1"># &#39;Structural Path Reinforcement&#39;,</span>
+<span class="c1"># &#39;Structural Loads&#39;,</span>
+<span class="c1"># &#39;Structural Load Cases&#39;,</span>
+<span class="c1"># &#39;Structural Internal Loads&#39;,</span>
+<span class="c1"># &#39;Structural Framing&#39;,</span>
+<span class="c1"># &#39;Structural Foundations&#39;,</span>
+<span class="c1"># &#39;Structural Fabric Reinforcement Symbols&#39;,</span>
+<span class="c1"># &#39;Structural Fabric Reinforcement&#39;,</span>
+<span class="c1"># &#39;Structural Fabric Areas&#39;,</span>
+<span class="c1"># &#39;Structural Connections&#39;,</span>
+<span class="c1"># &#39;Structural Connection Handlers&#39;,</span>
+<span class="c1"># &#39;Structural Columns&#39;,</span>
+<span class="c1"># &#39;Structural Beam Systems&#39;,</span>
+<span class="c1"># &#39;Structural Area Reinforcement Symbols&#39;,</span>
+<span class="c1"># &#39;Structural Area Reinforcement&#39;,</span>
+<span class="c1"># &#39;Structural Annotations&#39;,</span>
+<span class="c1"># &#39;Stairs&#39;,</span>
+<span class="c1"># &#39;Stair Tread/Riser Numbers&#39;,</span>
+<span class="c1"># &#39;Stair Paths&#39;,</span>
+ <span class="s1">&#39;Sprinklers&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Spot Slopes&#39;,</span>
+<span class="c1"># &#39;Spot Elevations&#39;,</span>
+<span class="c1"># &#39;Spot Elevation Symbols&#39;,</span>
+<span class="c1"># &#39;Spot Coordinates&#39;,</span>
+ <span class="s1">&#39;Specialty Equipment&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Span Direction Symbol&#39;,</span>
+<span class="c1"># &#39;Spaces&#39;,</span>
+<span class="c1"># &#39;Site&#39;,</span>
+<span class="c1"># &#39;Sheets&#39;,</span>
+<span class="c1"># &#39;Shaft Openings&#39;,</span>
+ <span class="s1">&#39;Security Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Sections&#39;,</span>
+<span class="c1"># &#39;Section Marks&#39;,</span>
+<span class="c1"># &#39;Section Line&#39;,</span>
+<span class="c1"># &#39;Section Boxes&#39;,</span>
+<span class="c1"># &#39;Scope Boxes&#39;,</span>
+<span class="c1"># &#39;Schedule Graphics&#39;,</span>
+<span class="c1"># &#39;Routing Preferences&#39;,</span>
+<span class="c1"># &#39;Rooms&#39;,</span>
+<span class="c1"># &#39;Roofs&#39;,</span>
+<span class="c1"># &#39;Roads&#39;,</span>
+<span class="c1"># &#39;Revision Clouds&#39;,</span>
+<span class="c1"># &#39;Render Regions&#39;,</span>
+<span class="c1"># &#39;Reference Points&#39;,</span>
+<span class="c1"># &#39;Reference Planes&#39;,</span>
+<span class="c1"># &#39;Reference Lines&#39;,</span>
+<span class="c1"># &#39;Rebar Shape&#39;,</span>
+<span class="c1"># &#39;Rebar Set Toggle&#39;,</span>
+<span class="c1"># &#39;Rebar Cover References&#39;,</span>
+<span class="c1"># &#39;Raster Images&#39;,</span>
+<span class="c1"># &#39;Ramps&#39;,</span>
+<span class="c1"># &#39;Railings&#39;,</span>
+<span class="c1"># &#39;Project Information&#39;,</span>
+<span class="c1"># &#39;Point Clouds&#39;,</span>
+ <span class="s1">&#39;Plumbing Fixtures&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Planting&#39;,</span>
+<span class="c1"># &#39;Plan Region&#39;,</span>
+ <span class="s1">&#39;Piping Systems&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Pipes&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Pipe Segments&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Pipe Placeholders&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Pipe Insulations&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Pipe Fittings&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Pipe Color Fill Legends&#39;,</span>
+<span class="c1"># &#39;Pipe Color Fill&#39;,</span>
+ <span class="s1">&#39;Pipe Accessories&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Parts&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Parking&#39;,</span>
+<span class="c1"># &#39;Panel Schedule Graphics&#39;,</span>
+ <span class="s1">&#39;Nurse Call Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Multi-Rebar Annotations&#39;,</span>
+ <span class="s1">&#39;Mechanical Equipment&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Materials&#39;,</span>
+<span class="c1"># &#39;Matchline&#39;,</span>
+<span class="c1"># &#39;Mass&#39;,</span>
+<span class="c1"># &#39;Masking Region&#39;,</span>
+<span class="c1"># &#39;Lines&#39;,</span>
+ <span class="s1">&#39;Lighting Fixtures&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Lighting Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Levels&#39;,</span>
+<span class="c1"># &#39;Level Heads&#39;,</span>
+<span class="c1"># &#39;Imports in Families&#39;,</span>
+<span class="c1"># &#39;HVAC Zones&#39;,</span>
+<span class="c1"># &#39;Guide Grid&#39;,</span>
+<span class="c1"># &#39;Grids&#39;,</span>
+<span class="c1"># &#39;Grid Heads&#39;,</span>
+ <span class="s1">&#39;Generic Models&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Generic Annotations&#39;,</span>
+<span class="c1"># &#39;Furniture Systems&#39;,</span>
+<span class="c1"># &#39;Furniture&#39;,</span>
+<span class="c1"># &#39;Foundation Span Direction Symbol&#39;,</span>
+<span class="c1"># &#39;Floors&#39;,</span>
+ <span class="s1">&#39;Flex Pipes&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Flex Ducts&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Fire Alarm Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Filled region&#39;,</span>
+ <span class="s1">&#39;Fabrication Parts&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Entourage&#39;,</span>
+<span class="c1"># &#39;Elevations&#39;,</span>
+<span class="c1"># &#39;Elevation Marks&#39;,</span>
+ <span class="s1">&#39;Electrical Fixtures&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Electrical Equipment&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Ducts&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Duct Systems&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Duct Placeholders&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Duct Linings&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Duct Insulations&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Duct Fittings&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Duct Color Fill Legends&#39;,</span>
+<span class="c1"># &#39;Duct Color Fill&#39;,</span>
+ <span class="s1">&#39;Duct Accessories&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Doors&#39;,</span>
+<span class="c1"># &#39;Displacement Path&#39;,</span>
+<span class="c1"># &#39;Dimensions&#39;,</span>
+<span class="c1"># &#39;Detail Items&#39;,</span>
+ <span class="s1">&#39;Data Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Curtain Wall Mullions&#39;,</span>
+<span class="c1"># &#39;Curtain Systems&#39;,</span>
+<span class="c1"># &#39;Curtain Panels&#39;,</span>
+<span class="c1"># &#39;Curtain Grids&#39;,</span>
+<span class="c1"># &#39;Contour Labels&#39;,</span>
+<span class="c1"># &#39;Connection Symbols&#39;,</span>
+ <span class="s1">&#39;Conduits&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Conduit Runs&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Conduit Fittings&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Communication Devices&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Columns&#39;,</span>
+<span class="c1"># &#39;Color Fill Legends&#39;,</span>
+<span class="c1"># &#39;Ceilings&#39;,</span>
+<span class="c1"># &#39;Casework&#39;,</span>
+<span class="c1"># &#39;Cameras&#39;,</span>
+<span class="c1"># &#39;Callouts&#39;,</span>
+<span class="c1"># &#39;Callout Heads&#39;,</span>
+<span class="c1"># &#39;Callout Boundary&#39;,</span>
+ <span class="s1">&#39;Cable Trays&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Cable Tray Runs&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;Cable Tray Fittings&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Brace in Plan View Symbols&#39;,</span>
+<span class="c1"># &#39;Boundary Conditions&#39;,</span>
+ <span class="s1">&#39;Assemblies&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Areas&#39;,</span>
+<span class="c1"># &#39;Analytical Walls&#39;,</span>
+<span class="c1"># &#39;Analytical Wall Foundations&#39;,</span>
+<span class="c1"># &#39;Analytical Surfaces&#39;,</span>
+<span class="c1"># &#39;Analytical Spaces&#39;,</span>
+<span class="c1"># &#39;Analytical Nodes&#39;,</span>
+<span class="c1"># &#39;Analytical Links&#39;,</span>
+<span class="c1"># &#39;Analytical Isolated Foundations&#39;,</span>
+<span class="c1"># &#39;Analytical Foundation Slabs&#39;,</span>
+<span class="c1"># &#39;Analytical Floors&#39;,</span>
+<span class="c1"># &#39;Analytical Columns&#39;,</span>
+<span class="c1"># &#39;Analytical Braces&#39;,</span>
+<span class="c1"># &#39;Analytical Beams&#39;,</span>
+<span class="c1"># &#39;Analysis Results&#39;,</span>
+<span class="c1"># &#39;Analysis Display Style&#39;,</span>
+ <span class="s1">&#39;Air Terminals&#39;</span><span class="p">,</span>
+<span class="c1"># &#39;Adaptive Points&#39;,</span>
+                  <span class="p">]</span>
 </pre></div>
 
           </div>

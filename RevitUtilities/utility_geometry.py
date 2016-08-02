@@ -1,4 +1,4 @@
-"""This module does blah blah."""
+"""For manipulation of geometric objects in Revit"""
 from __future__ import print_function
 
 #===============================================================================

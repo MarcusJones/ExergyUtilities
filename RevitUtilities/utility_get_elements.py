@@ -1,4 +1,10 @@
-"""This module does blah blah."""
+"""Wrappers over FilteredElementCollector
+
+Functions return lists of elements, element ID's or a dictionary mapping 
+the names of elements to the elements
+
+"""
+
 from __future__ import print_function
 
 #===============================================================================

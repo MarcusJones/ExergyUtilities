@@ -1,0 +1,594 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>utility_get_elements &mdash; Revit API Utilities 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="Revit API Utilities 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for utility_get_elements</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Wrappers over FilteredElementCollector</span>
+
+<span class="sd">Functions return lists of elements, element ID&#39;s or a dictionary mapping </span>
+<span class="sd">the names of elements to the elements</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+
+<span class="c1">#===============================================================================</span>
+<span class="c1"># Import Revit</span>
+<span class="c1">#===============================================================================</span>
+<span class="c1"># import Autodesk.Revit.DB as rvt_db</span>
+<span class="c1"># from Autodesk.Revit.DB import FilteredElementCollector, BuiltInCategory</span>
+<span class="c1"># from Autodesk.Revit.DB import FamilyInstanceFilter, ElementCategoryFilter, ElementClassFilter</span>
+<span class="c1"># from Autodesk.Revit.DB import LogicalAndFilter, LogicalOrFilter</span>
+<span class="c1"># from Autodesk.Revit.DB import FamilyInstance, FamilySymbol</span>
+<span class="c1"># from Autodesk.Revit.DB import Transaction</span>
+<span class="c1"># from Autodesk.Revit.DB import Line, XYZ, CurveLoop</span>
+<span class="c1"># from Autodesk.Revit.DB import MEPSystem</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">as</span> <span class="nn">rvt_db</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">FilteredElementCollector</span><span class="p">,</span> <span class="n">BuiltInCategory</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">FamilyInstanceFilter</span><span class="p">,</span> <span class="n">ElementCategoryFilter</span><span class="p">,</span> <span class="n">ElementClassFilter</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">LogicalAndFilter</span><span class="p">,</span> <span class="n">LogicalOrFilter</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">FamilyInstance</span><span class="p">,</span> <span class="n">FamilySymbol</span>
+    <span class="c1">#from Autodesk.Revit.DB import Transaction</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">Line</span><span class="p">,</span> <span class="n">XYZ</span><span class="p">,</span> <span class="n">CurveLoop</span>
+    <span class="kn">from</span> <span class="nn">Autodesk.Revit.DB</span> <span class="kn">import</span> <span class="n">MEPSystem</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+
+<span class="c1">#===============================================================================</span>
+<span class="c1"># Import Python</span>
+<span class="c1">#===============================================================================</span>
+<span class="c1">#import System</span>
+<span class="c1">#import inspect</span>
+<span class="c1">#import csv</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="c1">#from operator import itemgetter</span>
+
+<span class="kn">import</span> <span class="nn">utility</span> <span class="kn">as</span> <span class="nn">util</span> 
+
+<span class="c1">#-Get objects---</span>
+<div class="viewcode-block" id="get_element_by_id"><a class="viewcode-back" href="../index.html#utility_get_elements.get_element_by_id">[docs]</a><span class="k">def</span> <span class="nf">get_element_by_id</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span><span class="nb">id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">GetElement</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="get_element_OST_Walls_ActiveView"><a class="viewcode-back" href="../index.html#utility_get_elements.get_element_OST_Walls_ActiveView">[docs]</a><span class="k">def</span> <span class="nf">get_element_OST_Walls_ActiveView</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">fec</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">doc</span><span class="o">.</span><span class="n">ActiveView</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+    <span class="n">fec</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Walls</span><span class="p">);</span>
+    </div>
+<div class="viewcode-block" id="get_element_OST_Walls_Document"><a class="viewcode-back" href="../index.html#utility_get_elements.get_element_OST_Walls_Document">[docs]</a><span class="k">def</span> <span class="nf">get_element_OST_Walls_Document</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">fec</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="n">fec</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Walls</span><span class="p">);</span>
+</div>
+<div class="viewcode-block" id="get_grids"><a class="viewcode-back" href="../index.html#utility_get_elements.get_grids">[docs]</a><span class="k">def</span> <span class="nf">get_grids</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;get_grids&quot;</span><span class="p">)</span>
+    <span class="c1"># Collect all grids in entire project to a name:element Dict</span>
+    <span class="n">collector</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="n">collector</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Grids</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span>
+    <span class="n">collect_grids</span> <span class="o">=</span> <span class="n">collector</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+
+    <span class="n">grid_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">grid</span> <span class="ow">in</span> <span class="n">collect_grids</span><span class="p">:</span>
+        <span class="n">grid_name</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">GetParameters</span><span class="p">(</span><span class="s1">&#39;Name&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">AsString</span><span class="p">()</span>
+        <span class="n">grid_dict</span><span class="p">[</span><span class="n">grid_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">grid</span>
+    
+    <span class="c1">#for k,v in grid_dict.items():</span>
+        <span class="c1">#    print(k,v)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} grids&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">grid_dict</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">grid_dict</span>
+</div>
+<div class="viewcode-block" id="get_all_views"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_views">[docs]</a><span class="k">def</span> <span class="nf">get_all_views</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    <span class="n">floorplans</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Views</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    <span class="n">view_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">floorplans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">IsTemplate</span><span class="p">:</span>
+            <span class="c1">#print(v.ViewName,v.ViewType,v.IsTemplate)</span>
+            <span class="n">view_dict</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">ViewName</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} views in dict (no view templates)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">view_dict</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">view_dict</span>
+</div>
+<div class="viewcode-block" id="get_views_by_type"><a class="viewcode-back" href="../index.html#utility_get_elements.get_views_by_type">[docs]</a><span class="k">def</span> <span class="nf">get_views_by_type</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">view_type</span><span class="p">):</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    <span class="n">floorplans</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Views</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    <span class="n">view_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">floorplans</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">IsTemplate</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">ViewType</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span> <span class="o">==</span> <span class="n">view_type</span><span class="p">:</span>
+            <span class="n">view_dict</span><span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">ViewName</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} {} in dict (no view templates)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">view_dict</span><span class="p">),</span> <span class="n">view_type</span><span class="p">))</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">view_dict</span><span class="p">)</span>
+
+<span class="c1"># def get_all_title_blocks(doc):</span>
+<span class="c1">#     logging.debug(&quot;get_sheet_types&quot;)</span>
+<span class="c1">#     </span>
+<span class="c1">#     </span>
+<span class="c1">#     return collector </span>
+<span class="c1">#     </span></div>
+<div class="viewcode-block" id="get_title_blocks"><a class="viewcode-back" href="../index.html#utility_get_elements.get_title_blocks">[docs]</a><span class="k">def</span> <span class="nf">get_title_blocks</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+
+    <span class="n">this_category</span> <span class="o">=</span> <span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_TitleBlocks</span>
+    <span class="n">this_class</span> <span class="o">=</span> <span class="n">FamilySymbol</span>
+    
+    <span class="n">collector</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="n">collector</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">this_category</span><span class="p">)</span>
+    <span class="n">collector</span><span class="o">.</span><span class="n">OfClass</span><span class="p">(</span><span class="n">this_class</span><span class="p">)</span>
+    
+    <span class="c1">#collector = get_all_title_blocks(doc)</span>
+    
+    <span class="n">title_block_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">collector</span><span class="p">:</span>
+        <span class="n">title_block_dict</span><span class="p">[</span><span class="n">elem</span><span class="o">.</span><span class="n">FamilyName</span><span class="p">]</span><span class="o">=</span><span class="n">elem</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} title blocks&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">title_block_dict</span><span class="p">)))</span>
+    
+    <span class="k">return</span><span class="p">(</span><span class="n">title_block_dict</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="get_viewports_dict_by_names"><a class="viewcode-back" href="../index.html#utility_get_elements.get_viewports_dict_by_names">[docs]</a><span class="k">def</span> <span class="nf">get_viewports_dict_by_names</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    <span class="n">fec</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="n">elem_collection</span> <span class="o">=</span> <span class="n">fec</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Viewports</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">this_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">elem_collection</span><span class="p">:</span>
+        <span class="n">this_dict</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">Name</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+        
+    <span class="c1">#logging.debug(&quot;Returned {} floorplans in dict&quot;.format(len(view_dict)))</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} in dictionary&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">this_dict</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">this_dict</span>
+</div>
+<div class="viewcode-block" id="get_sheet_dict_by_names"><a class="viewcode-back" href="../index.html#utility_get_elements.get_sheet_dict_by_names">[docs]</a><span class="k">def</span> <span class="nf">get_sheet_dict_by_names</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    <span class="n">cl_sheets</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="n">sheets_by_name</span> <span class="o">=</span> <span class="n">cl_sheets</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Sheets</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">sheet_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sheets_by_name</span><span class="p">:</span>
+        <span class="n">sheet_dict</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">Name</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+        
+    <span class="c1">#logging.debug(&quot;Returned {} floorplans in dict&quot;.format(len(view_dict)))</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Returned {} sheets_by_name in dictionary&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sheets_by_name</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">sheet_dict</span>
+</div>
+<div class="viewcode-block" id="get_sheets"><a class="viewcode-back" href="../index.html#utility_get_elements.get_sheets">[docs]</a><span class="k">def</span> <span class="nf">get_sheets</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    <span class="n">cl_sheets</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="n">sheetsnotsorted</span> <span class="o">=</span> <span class="n">cl_sheets</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">OST_Sheets</span><span class="p">)</span><span class="o">.</span><span class="n">WhereElementIsNotElementType</span><span class="p">()</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    <span class="n">sheets_by_name</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sheetsnotsorted</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">SheetNumber</span><span class="p">)</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Found {} sheets_by_name&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">sheets_by_name</span><span class="p">)))</span>
+    
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sheets_by_name</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="c1">#print(s.Parameter[&#39;Sheet Number&#39;])</span>
+        <span class="c1">#print(s.Parameter[&#39;Sheet Number&#39;].AsString())</span>
+        <span class="c1">#print(&#39;NUMBER: {0}   NAME:{1}&#39;.format(    s.Parameter[&#39;Sheet Number&#39;].AsString().rjust(10),</span>
+        <span class="c1">#                s.Parameter[&#39;Sheet Name&#39;].AsString().ljust(50),</span>
+        <span class="c1">#    ))</span>
+        
+    <span class="k">return</span><span class="p">(</span><span class="n">sheets_by_name</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_elements"><a class="viewcode-back" href="../index.html#utility_get_elements.get_elements">[docs]</a><span class="k">def</span> <span class="nf">get_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span><span class="n">category</span><span class="p">):</span>
+    <span class="c1">#category = BuiltInCategory.OST_Mass</span>
+    
+    <span class="n">collector</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="n">collector</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">collector</span>
+
+
+<span class="c1">#-Get Categories--- </span></div>
+<div class="viewcode-block" id="get_all_categories"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_categories">[docs]</a><span class="k">def</span> <span class="nf">get_all_categories</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">categories</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">Settings</span><span class="o">.</span><span class="n">Categories</span><span class="p">;</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:40} | {:30} | {:30}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;cat.Name&quot;</span><span class="p">,</span> <span class="s2">&quot;cat.Id&quot;</span><span class="p">,</span> <span class="s2">&quot;cat.Parent&quot;</span><span class="p">))</span>    
+    <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="n">categories</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;{:40} | {:30} | {:30}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cat</span><span class="o">.</span><span class="n">Name</span><span class="p">,</span> <span class="n">cat</span><span class="o">.</span><span class="n">Id</span><span class="p">,</span> <span class="n">cat</span><span class="o">.</span><span class="n">Parent</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="get_elem_BuiltInCategory"><a class="viewcode-back" href="../index.html#utility_get_elements.get_elem_BuiltInCategory">[docs]</a><span class="k">def</span> <span class="nf">get_elem_BuiltInCategory</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">elem</span><span class="p">):</span>
+    <span class="c1">#print(BuiltInCategory)</span>
+    <span class="c1">#print_dir(BuiltInCategory)</span>
+    <span class="c1">#print(BuiltInCategory.GetValues(BuiltInCategory))</span>
+    
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">bic</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="o">.</span><span class="n">GetValues</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="p">)):</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">bic</span><span class="p">,</span> <span class="n">bic</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+        
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;*************&quot;</span><span class="p">)</span>
+    <span class="c1">#print_dir(bic)</span>
+    <span class="c1">#print_dir(elem)</span>
+    <span class="n">print_dir</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">Category</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;*************&quot;</span><span class="p">)</span>
+    
+    <span class="n">print_dir</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">Category</span><span class="o">.</span><span class="n">GetCategory</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">Id</span><span class="p">))</span>
+    <span class="c1">#print(&quot;*************&quot;)</span>
+    <span class="c1">#print(bic.ToString())</span>
+    <span class="c1">#print(bic.ToObject())</span>
+    <span class="c1">#print(bic.ToInt16())</span>
+    <span class="c1">#print(bic.ToInt64())</span>
+    <span class="k">raise</span>
+</div>
+<div class="viewcode-block" id="get_all_BuiltInCategory"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_BuiltInCategory">[docs]</a><span class="k">def</span> <span class="nf">get_all_BuiltInCategory</span><span class="p">(</span><span class="n">elem</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">BuiltInCategory</span><span class="p">)</span>
+    <span class="k">raise</span>
+    <span class="c1">#builtIn = System.Enum.ToObject(BuiltInCategory)</span>
+<span class="c1">#     for bic in BuiltInCategory.GetValue():</span>
+<span class="c1">#         print(bic)</span>
+
+
+<span class="c1">#degf</span>
+
+
+
+
+
+<span class="c1">#-BOQ---</span></div>
+<div class="viewcode-block" id="get_sort_all_elements"><a class="viewcode-back" href="../index.html#utility_get_elements.get_sort_all_elements">[docs]</a><span class="k">def</span> <span class="nf">get_sort_all_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">get_all_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="n">element_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="n">this_cat</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">Category</span>
+        <span class="k">if</span> <span class="n">this_cat</span><span class="p">:</span>
+            <span class="n">this_cat_name</span> <span class="o">=</span> <span class="n">this_cat</span><span class="o">.</span><span class="n">Name</span>
+            <span class="n">element_dict</span><span class="p">[</span><span class="n">this_cat_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            
+    <span class="c1">#for k in element_dict:</span>
+    <span class="c1">#    print(&quot;{} contains {} elements&quot;.format(k, len(element_dict[k])))</span>
+        
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returned element dictionary with {} categories of {} in time: {}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_dict</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">element_dict</span>
+
+</div>
+<div class="viewcode-block" id="get_sort_all_FamilyInstance"><a class="viewcode-back" href="../index.html#utility_get_elements.get_sort_all_FamilyInstance">[docs]</a><span class="k">def</span> <span class="nf">get_sort_all_FamilyInstance</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">get_all_FamilyInstance</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    
+    <span class="n">element_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="n">this_cat</span> <span class="o">=</span> <span class="n">el</span><span class="o">.</span><span class="n">Category</span>
+        <span class="k">if</span> <span class="n">this_cat</span><span class="p">:</span>
+            <span class="n">this_cat_name</span> <span class="o">=</span> <span class="n">this_cat</span><span class="o">.</span><span class="n">Name</span>
+            <span class="n">element_dict</span><span class="p">[</span><span class="n">this_cat_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+         
+    <span class="c1">#for k in element_dict:</span>
+    <span class="c1">#    print(&quot;{} contains {} elements&quot;.format(k, len(element_dict[k])))</span>
+        
+    <span class="n">end</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returned element dictionary with {} categories of {} in time: {}s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_dict</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span><span class="n">end</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">element_dict</span>
+</div>
+<div class="viewcode-block" id="get_linear_MEP"><a class="viewcode-back" href="../index.html#utility_get_elements.get_linear_MEP">[docs]</a><span class="k">def</span> <span class="nf">get_linear_MEP</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="c1"># Now, add (logical OR) additionally the MEP classes (which are not categories!)</span>
+    <span class="n">mep_class_filters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">CableTray</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">Wire</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">Conduit</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Mechanical</span><span class="o">.</span><span class="n">Duct</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Plumbing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">))</span>
+
+    <span class="n">merged_filter</span> <span class="o">=</span> <span class="n">LogicalOrFilter</span><span class="p">(</span><span class="n">mep_class_filters</span><span class="p">)</span>
+
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span><span class="n">merged_filter</span><span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} elements &quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">elements</span>
+    </div>
+<div class="viewcode-block" id="get_BOQ_elements"><a class="viewcode-back" href="../index.html#utility_get_elements.get_BOQ_elements">[docs]</a><span class="k">def</span> <span class="nf">get_BOQ_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    
+    <span class="c1"># General categories</span>
+    <span class="n">cat_filters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">this_bic</span> <span class="ow">in</span> <span class="n">util</span><span class="o">.</span><span class="n">REVIT_CATEGORIES_BIC</span><span class="p">:</span>
+        <span class="n">cat_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementCategoryFilter</span><span class="p">(</span><span class="n">this_bic</span><span class="p">))</span>
+        
+    <span class="c1"># This selects all elements in the Built-Ins</span>
+    <span class="n">filter_over_cats</span> <span class="o">=</span> <span class="n">LogicalOrFilter</span><span class="p">(</span><span class="n">cat_filters</span><span class="p">)</span>
+    
+    <span class="c1"># From the Built-Ins, make sure we only take the Instances</span>
+    <span class="n">filter_cats_instances</span> <span class="o">=</span> <span class="n">LogicalAndFilter</span><span class="p">(</span><span class="n">filter_over_cats</span><span class="p">,</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">FamilyInstance</span><span class="p">))</span> 
+
+    <span class="c1"># Now, add (logical OR) additionally the MEP classes (which are not categories!)</span>
+    <span class="n">mep_class_filters</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">CableTray</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">Wire</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">Conduit</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Mechanical</span><span class="o">.</span><span class="n">Duct</span><span class="p">))</span>
+    <span class="n">mep_class_filters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ElementClassFilter</span><span class="p">(</span><span class="n">rvt_db</span><span class="o">.</span><span class="n">Plumbing</span><span class="o">.</span><span class="n">Pipe</span><span class="p">))</span>
+
+    <span class="n">merged_filter</span> <span class="o">=</span> <span class="n">LogicalOrFilter</span><span class="p">([</span><span class="n">filter_cats_instances</span><span class="p">]</span><span class="o">+</span><span class="n">mep_class_filters</span><span class="p">)</span>
+    
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span><span class="n">merged_filter</span><span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} elements over {} Built-In-Categories and {} classes&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">),</span>
+                                                                            <span class="nb">len</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">REVIT_CATEGORIES_BIC</span><span class="p">),</span>
+                                                                            <span class="nb">len</span><span class="p">(</span><span class="n">mep_class_filters</span><span class="p">),</span>
+                                                                            <span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">elements</span>
+</div>
+<div class="viewcode-block" id="get_all_MEP_elements"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_MEP_elements">[docs]</a><span class="k">def</span> <span class="nf">get_all_MEP_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    
+    <span class="n">systems_list</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">OfClass</span><span class="p">(</span> <span class="n">MEPSystem</span> <span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">all_elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sys</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">systems_list</span><span class="p">):</span>
+        
+        <span class="c1">#print(i,sys,sys.Name)</span>
+        
+        <span class="c1">#print(type(sys),&quot;=&quot;, rvt_db.Plumbing.PipingSystem)</span>
+        
+        <span class="c1"># Skip the spares and spaces in a DB</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">ElectricalSystem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">CircuitType</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Spare&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">CircuitType</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="c1"># Just checking</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">Plumbing</span><span class="o">.</span><span class="n">PipingSystem</span><span class="p">:</span>
+            <span class="k">pass</span> 
+
+                    
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">Elements</span><span class="p">:</span>
+            <span class="c1">#print(&quot;\t\t&quot;,el.Name)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">these_elems</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">Elements</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying access to elements in system {} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span><span class="n">sys</span><span class="o">.</span><span class="n">Name</span><span class="p">))</span>
+                <span class="c1">#print(sys.CircuitNumber)</span>
+                <span class="c1">#print(sys.CircuitType)</span>
+                <span class="k">raise</span>
+        <span class="n">all_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">these_elems</span><span class="p">)</span>
+        
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} MEP elements&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_elements</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">all_elements</span>
+
+
+</div>
+<div class="viewcode-block" id="get_all_MEP_element_IDs"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_MEP_element_IDs">[docs]</a><span class="k">def</span> <span class="nf">get_all_MEP_element_IDs</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+
+    <span class="n">systems_list</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">OfClass</span><span class="p">(</span> <span class="n">MEPSystem</span> <span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">all_elements</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sys</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">systems_list</span><span class="p">):</span>
+        
+        <span class="c1">#print(i,sys,sys.Name)</span>
+        
+        <span class="c1">#print(type(sys),&quot;=&quot;, rvt_db.Plumbing.PipingSystem)</span>
+        
+        <span class="c1"># Skip the spares and spaces in a DB</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">Electrical</span><span class="o">.</span><span class="n">ElectricalSystem</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">CircuitType</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Spare&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">CircuitType</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Space&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+        <span class="c1"># Just checking</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">sys</span><span class="p">)</span> <span class="o">==</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">Plumbing</span><span class="o">.</span><span class="n">PipingSystem</span><span class="p">:</span>
+            <span class="k">pass</span> 
+
+                    
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">Elements</span><span class="p">:</span>
+            <span class="c1">#print(&quot;\t\t&quot;,el.Name)</span>
+            
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">these_elems</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">Elements</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Trying access to elements in system {} {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">sys</span><span class="p">,</span><span class="n">sys</span><span class="o">.</span><span class="n">Name</span><span class="p">))</span>
+                <span class="c1">#print(sys.CircuitNumber)</span>
+                <span class="c1">#print(sys.CircuitType)</span>
+                <span class="k">raise</span>
+            
+            
+            <span class="n">all_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">Id</span><span class="p">)</span>
+        
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} MEP element IDs&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">all_elements</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">all_elements</span>
+</div>
+<div class="viewcode-block" id="get_all_FamilyInstance"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_FamilyInstance">[docs]</a><span class="k">def</span> <span class="nf">get_all_FamilyInstance</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns FamilyInstance objects only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">this_filter</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">LogicalOrFilter</span><span class="p">(</span>
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">False</span> <span class="p">),</span> 
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">True</span> <span class="p">)</span> 
+      <span class="p">)</span>
+    
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span> <span class="n">this_filter</span><span class="p">)</span><span class="o">.</span><span class="n">OfClass</span><span class="p">(</span><span class="n">FamilyInstance</span><span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} elements&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">elements</span>
+
+</div>
+<div class="viewcode-block" id="get_all_elements_IDs"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_elements_IDs">[docs]</a><span class="k">def</span> <span class="nf">get_all_elements_IDs</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns FamilySymbol, FamilyInstance, ALL, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">this_filter</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">LogicalOrFilter</span><span class="p">(</span>
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">False</span> <span class="p">),</span> 
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">True</span> <span class="p">)</span> 
+      <span class="p">)</span>
+    
+    <span class="n">element_ids</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span> <span class="n">this_filter</span><span class="p">)</span><span class="o">.</span><span class="n">ToElementIds</span><span class="p">()</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} element IDs&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_ids</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">element_ids</span>
+</div>
+<div class="viewcode-block" id="get_all_elements_IDs_Filter"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_elements_IDs_Filter">[docs]</a><span class="k">def</span> <span class="nf">get_all_elements_IDs_Filter</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();</span>
+<span class="sd">watch.Restart();</span>
+<span class="sd"> </span>
+<span class="sd">IList&lt;Element&gt; elements = new List&lt;Element&gt;();</span>
+<span class="sd">FilteredElementCollector finalCollector = new FilteredElementCollector(CachedDoc);</span>
+<span class="sd"> </span>
+<span class="sd">finalCollector.WherePasses(</span>
+<span class="sd">    new LogicalOrFilter(</span>
+<span class="sd">        new List&lt;ElementFilter&gt;</span>
+<span class="sd">        {</span>
+<span class="sd">            new ElementCategoryFilter(BuiltInCategory.OST_Doors),</span>
+<span class="sd">            new ElementCategoryFilter(BuiltInCategory.OST_Windows),</span>
+<span class="sd">            new ElementCategoryFilter(BuiltInCategory.OST_CeilingOpening),</span>
+<span class="sd">            new ElementCategoryFilter(BuiltInCategory.OST_FloorOpening),</span>
+<span class="sd">            new ElementCategoryFilter(BuiltInCategory.OST_RoofOpening)</span>
+<span class="sd">        }));</span>
+<span class="sd"> </span>
+<span class="sd">elements = finalCollector.ToElements();</span>
+<span class="sd"> </span>
+<span class="sd">watch.Stop();</span>
+<span class="sd">using (StreamWriter sw = new StreamWriter(@&quot;c:\temp\Output.txt&quot;, true))</span>
+<span class="sd">{</span>
+<span class="sd">    sw.WriteLine(string.Format(&quot;{0} doors/windows/openings were found in {1} milli-seconds.&quot;, elements.Count, watch.Elapsed.Milliseconds));</span>
+<span class="sd">}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">this_filter</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">LogicalOrFilter</span><span class="p">(</span>
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">False</span> <span class="p">),</span> 
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">True</span> <span class="p">)</span> 
+      <span class="p">)</span>
+    
+    <span class="n">element_ids</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span> <span class="n">this_filter</span><span class="p">)</span><span class="o">.</span><span class="n">OfCategory</span><span class="p">()</span><span class="o">.</span><span class="n">ToElementIds</span><span class="p">()</span>
+
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} element IDs&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">element_ids</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">element_ids</span>
+
+</div>
+<div class="viewcode-block" id="get_all_elements"><a class="viewcode-back" href="../index.html#utility_get_elements.get_all_elements">[docs]</a><span class="k">def</span> <span class="nf">get_all_elements</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns FamilySymbol, FamilyInstance, ALL, etc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;{}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">util</span><span class="o">.</span><span class="n">get_self</span><span class="p">()))</span>
+    
+    <span class="n">this_filter</span> <span class="o">=</span> <span class="n">rvt_db</span><span class="o">.</span><span class="n">LogicalOrFilter</span><span class="p">(</span>
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">False</span> <span class="p">),</span> 
+      <span class="n">rvt_db</span><span class="o">.</span><span class="n">ElementIsElementTypeFilter</span><span class="p">(</span> <span class="bp">True</span> <span class="p">)</span> 
+      <span class="p">)</span>
+    
+    <span class="n">elements</span> <span class="o">=</span> <span class="n">FilteredElementCollector</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span><span class="o">.</span><span class="n">WherePasses</span><span class="p">(</span> <span class="n">this_filter</span><span class="p">)</span><span class="o">.</span><span class="n">ToElements</span><span class="p">()</span>
+    
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Returning {} elements&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">)))</span>
+    
+    <span class="k">return</span> <span class="n">elements</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, M. Jones.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -8,6 +8,36 @@ Welcome to Revit API Utilities's documentation!
 
 Contents:
 
+utility module
+==============
+.. automodule:: utility
+   :members:
+   :undoc-members:
+
+geometry module
+===============
+.. automodule:: utility_geometry
+   :members:
+   :undoc-members:
+
+get elements
+===============
+.. automodule:: utility_get_elements
+   :members:
+   :undoc-members:
+
+parameters
+===============
+.. automodule:: utility_parameters
+   :members:
+   :undoc-members:
+
+sheets and views
+================
+.. automodule:: utility_sheetview
+   :members:
+   :undoc-members:
+
 
 .. toctree::
 

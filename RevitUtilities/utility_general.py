@@ -31,7 +31,6 @@ from operator import itemgetter
 
 
 #-Utility---
-
 def get_data_csv(path_csv, this_delimiter=';'):
     """Import csv file in a very specific format
     Line 1: SKIP

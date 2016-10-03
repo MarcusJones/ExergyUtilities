@@ -36,7 +36,7 @@ import time
 import logging
 #from operator import itemgetter
 
-import utility as util 
+import utility_general as util 
 
 def family_data_dict(doc,fam):
     assert type(fam) == rvt_db.FamilyInstance, "Not an instance"

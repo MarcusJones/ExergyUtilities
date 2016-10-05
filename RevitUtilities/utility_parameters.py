@@ -2,6 +2,7 @@
 
 """
 from __future__ import print_function
+#from RevitUtilities import utility_general as
 
 #===============================================================================
 # Import Revit
@@ -38,7 +39,7 @@ import time
 import logging
 #from operator import itemgetter
 
-import utility_general as util 
+import utility_general as util_gen
 
 #-XXX---
 
@@ -76,6 +77,33 @@ def get_parameter_value_float(el, param_name, flg_DNE=False):
         raise
 
 
+
+def get_parameter_plain_string(el, param_name, flg_DNE=False):
+    """Wrapper on param.AsDouble()
+    
+    Return as string, *param_name* 
+     
+    If flg_DNE, return a string "DNE" instead, otherwise raise error. 
+    """    
+    flg_found = False
+    for p in el.Parameters:
+        if p.Definition.Name == param_name:
+            p_val = p.AsString()
+            flg_found = True
+            break
+    
+    if flg_found:
+        return p_val
+    
+    elif not flg_found and flg_DNE:
+        return "DNE"
+    else:
+        print("Can't find this parameter:")
+        print(el, el.Name, param_name, flg_DNE)
+        raise
+
+
+
 def get_parameter_value_str(el, param_name, flg_DNE=False):
     """Wrapper on param.AsValueString()
     
@@ -92,8 +120,10 @@ def get_parameter_value_str(el, param_name, flg_DNE=False):
     
     if flg_found:
         return p_val
+    
     elif not flg_found and flg_DNE:
         return "DNE"
+    
     else:
         print("Can't find this parameter:")
         print(el, el.Name, param_name, flg_DNE)
@@ -143,7 +173,7 @@ def get_parameter_value_OBSELETE(el, param_name, flg_DNE=False):
         #print()
         raise
 
-def change_parameter(doc, el, param_name, new_value, verbose = True):
+def change_parameter(doc, el, param_name, new_value, verbose = True, flg_error_prone=False):
     """Find *param_name* in *element*. Overwrite to *new_value*.
     
     ONLY works on rvt_db.ParameterType.Text. (Asserted)
@@ -174,10 +204,14 @@ def change_parameter(doc, el, param_name, new_value, verbose = True):
     target_type = rvt_db.ParameterType.Text
     assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
 
-    with Trans(doc, "Change param {} to {}".format(param_name,new_value)):
-        target_param.Set(new_value)
+    if flg_error_prone:
+        with util_gen.ErrorProneTrans(doc, "Change param {} to {}".format(param_name,new_value)):
+            target_param.Set(new_value)
+    else: 
+        with util_gen.Trans(doc, "Change param {} to {}".format(param_name,new_value)):
+            target_param.Set(new_value)
     
-    logging.debug("Overwrite {} from {} to {} in ".format(target_param.Definition.Name,
+    logging.debug("Overwrite {} from {} to {} in {}".format(target_param.Definition.Name,
                                                     target_param.AsString(),
                                                     new_value,
                                                     target_param.Element))
@@ -239,7 +273,7 @@ def change_parameter_multiple(doc, el_list, param_name, new_value_list):
 def table_parameters(el):
     """Given an element, print a formatted table of the parameters atttached, 
     and the properties of these parameters."""
-    logging.debug(util.get_self())
+    logging.debug(util_gen.get_self())
 
     print("{:20}".format("-name-").encode('utf-8'), end="")
     print("{:20}".format("-ParameterGroup-").encode('ascii'), end="")
@@ -270,7 +304,7 @@ def list_parameters_OBSELETE(el):
     .. todo:: 
         Remove    
     """    
-    logging.debug(util.get_self())
+    logging.debug(util_gen.get_self())
     for param in el.Parameters:
         print("Definition: {}".format(param.Definition))
         print("Definition.Name: {}".format(param.Definition.Name))        
@@ -336,7 +370,7 @@ def document_parameters(doc):
     .. todo:: 
         Update
     """    
-    logging.debug(util.get_self())
+    logging.debug(util_gen.get_self())
     params = FilteredElementCollector(doc).OfClass(rvt_db.ParameterElement)
 #   filteredparams = []
     

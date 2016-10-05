@@ -164,6 +164,26 @@ class Trans():
         logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
         self.t.Commit()
 
+class ErrorProneTrans():
+    """Context manager for Revit API transactions. 
+    """
+    def __init__(self, doc, msg):
+        
+        self.msg = msg
+        try:
+            self.t = rvt_db.Transaction(doc, msg)
+        except: 
+            print("*** Skipped transaction due to error: {}".format(msg))
+        
+    def __enter__(self):
+        logging.debug("TRANSACTION INITATIATED - {}".format(self.msg))
+        self.t.Start()
+    
+    def __exit__(self, exception_type, exception_value, traceback):
+        logging.debug("TRANSACTION COMPLETE - {}".format(self.msg))
+        self.t.Commit()
+
+
 def print_family(fam):
     #print(str(type(fam)))
     #print(str(rvt_db.FamilySymbol))

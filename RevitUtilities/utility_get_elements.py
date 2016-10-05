@@ -304,7 +304,8 @@ def get_linear_MEP(doc):
     
 def get_BOQ_elements(doc):
     
-    # General categories
+    # General categories, of the form 'BuiltInCategory.OST_DuctTerminal', etc...
+    # See the constant REVIT_CATEGORIES_BIC, which selects MEP items
     cat_filters = list()
     for this_bic in util.REVIT_CATEGORIES_BIC:
         cat_filters.append(ElementCategoryFilter(this_bic))
@@ -322,9 +323,11 @@ def get_BOQ_elements(doc):
     mep_class_filters.append(ElementClassFilter(rvt_db.Electrical.Conduit))
     mep_class_filters.append(ElementClassFilter(rvt_db.Mechanical.Duct))
     mep_class_filters.append(ElementClassFilter(rvt_db.Plumbing.Pipe))
-
+    
+    # Combine both
     merged_filter = LogicalOrFilter([filter_cats_instances]+mep_class_filters)
     
+    # Get elements
     elements = FilteredElementCollector(doc).WherePasses(merged_filter).ToElements()
     
     logging.info("Returning {} elements over {} Built-In-Categories and {} classes".format(len(elements),

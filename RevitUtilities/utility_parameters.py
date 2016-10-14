@@ -293,17 +293,18 @@ def table_parameters(el):
         print("")
 
 def print_built_in_params(el):
-    Array bips = Enum.GetValues(typeof(BuiltInParameter));
-    
-    for bip in bips:
-        
-      try:
-          p = el.get_Parameter(bip)
-      except:
-          pass
-      
-    print(p)
-    
+    pass
+#     Array bips = Enum.GetValues(typeof(BuiltInParameter));
+#     
+#     for bip in bips:
+#         
+#       try:
+#           p = el.get_Parameter(bip)
+#       except:
+#           pass
+#       
+#     print(p)
+#     
     
 def print_all_params(el):
     """Prints a list of the parameters attached to the element.

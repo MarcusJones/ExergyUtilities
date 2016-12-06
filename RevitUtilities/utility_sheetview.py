@@ -158,7 +158,7 @@ def apply_template(doc, view):
 #         select v)
 #         .First();
 # 
-#     using (Transaction t = new Transaction(doc,"Set View Template"))
+#     using (Transaction t = new Transaction(doc,"Set View util_python_path"))
 #     {
 #         t.Start();           
 #         doc.ActiveView.ViewTemplateId = viewTemplate.Id;

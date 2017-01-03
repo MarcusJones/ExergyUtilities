@@ -1,12 +1,19 @@
 import bibtexparser
 
-full_path = r"C:\Dropbox\00 Literature\Main.bib"
-full_path = r"C:\Dropbox\Doktorat\LiteratureReview\Main.bib"
+#full_path = r"C:\Dropbox\00 Literature\Main.bib"
+full_path = r"C:\Dropbox\00 Literature\Main_test.bib"
 
 with open(full_path) as bibtex_file:
     bibtex_str = bibtex_file.read()
 
 bib_database = bibtexparser.loads(bibtex_str)
+
+print_states = [
+    "To print",    
+    "Printed",
+    "Not available",
+    ]
+
 
 for i,entry in enumerate(bib_database.entries):
     

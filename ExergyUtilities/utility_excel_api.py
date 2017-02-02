@@ -20,7 +20,7 @@ For xlrd/xlwt methods, see utility_excel module.
 """
 
 
-#from win32com.client import Dispatch
+from win32com.client import Dispatch
 import logging.config
 import os
 import re
@@ -63,6 +63,7 @@ class ExtendedExcelBookAPI(object):
             logging.debug("Created file Excel file at: {}, exists={}".format(self.excelPath,self.exists))
         else:
             self.book = self.xl.Workbooks.Open(self.excelPath)
+            logging.debug("Excel book {}".format(self.book))
     
     def closeAll(self):
         #self.book.Close(0)
@@ -231,24 +232,40 @@ class ExtendedExcelBookAPI(object):
     def exists(self):
         return os.path.exists(self.excelPath)
 
-
+    def get_sheet(self, sheet_name):
+        logging.debug("Returning {} sheet".format(sheet_name))
+        
+        return self.book.Sheets(sheet_name)
+    
     def get_sheet_names(self):
-        xl = Dispatch('Excel.Application')
-
-
         sheetObjects = self.book.Worksheets
-#
-#        print
-#
-#        for sht in sheets_by_name:
-#            print sht.Name
         sheets_by_name = [sht.Name for sht in sheetObjects]
-        #print sheets_by_name
 
         logging.debug("Found {} sheet names".format(len(sheets_by_name)))
 
         return sheets_by_name
-
+    
+    def table_insert(self):
+        pass
+    
+        #new_row = table_villages.ListRows.Add(11)
+        #new_row.Range.Cells(1,1).Value="Value For New cell"
+        
+    
+    def get_table(self, sheet_name, table_name):
+        
+        this_sheet = self.get_sheet(sheet_name)
+        #print("Sheet:",this_sheet.Name)
+        this_table = this_sheet.ListObjects(table_name)
+        logging.debug("Got table object: {}".format(this_table.Name))
+        
+        #this_table
+        
+        return this_table
+        #raise
+        #for table in this_sheet.ListObjects:
+        #    print(table)
+    
     def scan_down_2(self, targetSheet, rowNumber, colNumber, searchString, limitScan=1000):
         """
         Pass in searchString="None" to find the next empty cell
@@ -289,7 +306,6 @@ class ExtendedExcelBookAPI(object):
             return foundRow
         else:
             raise Exception("{} not found".format(searchString))
-
 
 
     def scan_down(self, targetSheet, rowNumber, colNumber, searchString, limitScan=1000):

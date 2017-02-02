@@ -280,3 +280,7 @@ circles(kml, (15.039622, -14.506272), 13, 2000 )
 save_path = path_kml + "\\Villages4.kml"
 print(save_path)
 kml.save(save_path)
+
+
+
+

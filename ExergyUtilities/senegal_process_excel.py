@@ -103,9 +103,24 @@ def number_clusters(dict_clusters,village_row_dict,data_headers,table_villages):
             tgt_row = village_row_dict[village]
             tgt_col = data_headers["CLUSTER_NUMBER"]
             
-
             table_villages.ListRows(tgt_row).Range(1,tgt_col).Value = cluster_num
             logging.info("Wrote cluster {} to village {} [{},{}]".format(cluster_num,village,tgt_row,tgt_col))
+
+def average_for_coords(coord_list):
+    return sum(coord_list)/len(coord_list)
+
+def process_column(rows, tgt_col, new_row, function):
+    """
+    Update ROW list for the function applied to all source row
+    """
+    collector_list = list()
+    for row in rows:
+        #print(row)
+        collector_list.append(row(1,tgt_col).Value)
+        
+    # Re-index -1 for python
+    new_row[tgt_col-1] = function(collector_list)
+    return new_row
 
 def group_clusters(table_villages):
     col_headers = get_column_index_dict(table_villages)
@@ -119,34 +134,44 @@ def group_clusters(table_villages):
         cluster_num = table_villages.ListRows(idx_xl).Range(tgt_col).Value
         if cluster_num:
             cluster_num = int(cluster_num)
-            print(cluster_num)
+            #print(cluster_num)
             cluster_rows[cluster_num].append(this_row)
 
     for k in cluster_rows:
-        print(k)
+        #print(k)
         number_villages = len(cluster_rows[k])
-        eastings = list()
-        northings = list()        
+#         eastings = list()
+#         northings = list()
+#         
+#         population = list()
+#         menage = list()    
+#         conncession = list()
+          
         logging.info("Processing cluster {} with {} villages".format(k,number_villages))
         
         for row in cluster_rows[k]:
-            print(row)
-            # Collect 
-            tgt_col = col_headers["X_COORD"]
-            eastings.append(row(1,tgt_col).Value)
-            tgt_col = col_headers["Y_COORD"]
-            northings.append(row(1,tgt_col).Value)
-        #-0 Calculate center of mass
-        #print(eastings)
-        avg_easting = sum(eastings)/number_villages
-        #print(avg_eastings)
-        
-        #print(northings)
-        avg_northing = sum(northings)/number_villages
-        #print(avg_northings)
 
+            new_row = [None for i in range(len(row))]
         
+        
+        new_row[col_headers["VILLAGE"] -1 ] = "Cluster {} with {} villages".format(k,number_villages)
 
+        #---Calculate center of mass
+        new_row = process_column(cluster_rows[k], col_headers["X_COORD"], new_row, average_for_coords)
+        new_row = process_column(cluster_rows[k], col_headers["Y_COORD"], new_row, average_for_coords)
+        
+        # Population
+        new_row = process_column(cluster_rows[k], col_headers["POPULATION_ACTUELLE"], new_row, sum)
+        
+        # Menage
+        new_row = process_column(cluster_rows[k], col_headers["NOMBRE DE MENAGE"], new_row, sum)
+        
+        # Conncession
+        new_row = process_column(cluster_rows[k], col_headers["NOMBRE DE CONCESSION"], new_row, sum)
+        
+        print(new_row)
+        raise
+        
 def get_villages(xl):
     pass
     
@@ -168,7 +193,6 @@ def main():
         
         if 0:
             number_clusters(dict_clusters,village_row_dict,data_headers,table_villages)
-            
         
         group_clusters(table_villages)
         
@@ -192,3 +216,47 @@ if __name__ == "__main__":
     main()
     
         
+
+#---- OLD
+#         
+#         #print(eastings)
+#         avg_easting = sum(eastings)/number_villages
+#         #print(avg_eastings)
+#         
+#         #print(northings)
+#         avg_northing = sum(northings)/number_villages
+#         #print(avg_northings)
+#         
+#         #---Sum population
+#         total_pop = sum(population) 
+#         print(total_pop)
+#         
+#         #---Sum menage
+#         total_menage = sum(menage)
+#         print(total_menage)
+#         
+#         #---Sum concession
+#         #print(conncession)
+#         total_conncession = sum(conncession)
+#         print(total_conncession)
+# 
+#             # Collect coordinates 
+#             tgt_col = col_headers["X_COORD"]
+#             eastings.append(row(1,tgt_col).Value)
+#             tgt_col = col_headers["Y_COORD"]
+#             northings.append(row(1,tgt_col).Value)
+#             
+#             # Collect Population
+#             tgt_col = col_headers["POPULATION_ACTUELLE"]
+#             population.append(row(1,tgt_col).Value)
+#             
+#             # Collect Menage
+#             tgt_col = col_headers["NOMBRE DE MENAGE"]
+#             this_menage = row(1,tgt_col).Value
+#             menage.append(this_menage)
+#             
+#             # Collect conncession
+#             tgt_col = col_headers["NOMBRE DE CONCESSION"]
+#             this_conncession = row(1,tgt_col).Value
+#             if this_conncession:
+#                 conncession.append(this_conncession)

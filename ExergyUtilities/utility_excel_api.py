@@ -247,10 +247,7 @@ class ExtendedExcelBookAPI(object):
     
     def table_insert(self):
         pass
-    
-        #new_row = table_villages.ListRows.Add(11)
-        #new_row.Range.Cells(1,1).Value="Value For New cell"
-        
+
     
     def get_table(self, sheet_name, table_name):
         

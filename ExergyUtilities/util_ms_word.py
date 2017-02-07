@@ -26,15 +26,24 @@ import unittest
 #from config import *
 from docx.shared import Inches
 from docx import Document
+import docx as docx_import
+from docx.enum.style import WD_STYLE_TYPE
 import shutil
-path_folder = r"C:\Users\Admin\Desktop\\"
+
+#path_folder = r"C:\Users\Admin\Desktop\\"
+path_folder = r"C:\CesCloud Senegal PV\10 Tender Dossier\03 Dossier\\"
+
 file_name = r"test.docx"
+file_name = r"MASTER r12.docx"
+
 full_path = os.path.join(path_folder,file_name)
 
-def main():
+
+def test1():
     print("Hello")
     
-    document = Document()
+    doc = Document()
+    print(doc)
     
     document.add_heading('Document Title', 0)
     
@@ -71,6 +80,52 @@ def main():
     #raise
     document.save(full_path)
 
+def replace_links():
+    doc = Document(full_path)
+    print("***PARAGRAPHS")
+    for para in doc.paragraphs:
+        #print(para, para.style.name)
+        if para.style.name == "00 LINK":
+            for run in para.runs:
+                pass
+                #print("\t",run, run.style.name)
+                #print(run.style.name,repr(run.text))
+                
+            print("".join([run.text for run in para.runs]))
+        
+
+
+def test2():
+    doc = Document(full_path)
+    print(doc)
+    print("***SECTIONS***")
+    for sect in doc.sections:
+        #print(sect.name ,)
+        print(sect.start_type,sect.orientation, sect.page_width, sect.page_height)
+
+    print("***STYLES***")
+    for style in doc.styles:
+        print(style.name)
+    
+    paragraph_styles = [s for s in doc.styles if s.type == WD_STYLE_TYPE.PARAGRAPH]
+    
+    print("***PARA STYLES***")
+    for style in paragraph_styles:
+        print(style, style.name)
+            
+    print(style.font.name, style.font.size)
+    
+    print("***PARAGRAPHS")
+    for para in doc.paragraphs:
+        print(para, para.style.name)
+        for run in para.runs:
+            print("\t",run, run.style.name)
+            print(run.text)
+        
+def main():
+    #test2()
+    replace_links()
+    
 if __name__ == "__main__":
     main()
     

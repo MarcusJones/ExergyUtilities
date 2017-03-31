@@ -29,12 +29,18 @@ from docx import Document
 import docx as docx_import
 from docx.enum.style import WD_STYLE_TYPE
 import shutil
+from util_pretty_print import print_table
+
 
 #path_folder = r"C:\Users\Admin\Desktop\\"
 path_folder = r"C:\CesCloud Senegal PV\10 Tender Dossier\03 Dossier\\"
 
+path_folder = r"C:\Users\jon\Desktop"
+
 file_name = r"test.docx"
 file_name = r"MASTER r12.docx"
+file_name = r"P02 S05 Cahier des Clauses Techniques et Services (CCTS) r15.docx"
+
 
 full_path = os.path.join(path_folder,file_name)
 
@@ -92,9 +98,63 @@ def replace_links():
                 #print(run.style.name,repr(run.text))
                 
             print("".join([run.text for run in para.runs]))
-        
 
+def list_para_styles(doc):
 
+    builtin_paragraph_styles = [s for s in doc.styles if s.type == WD_STYLE_TYPE.PARAGRAPH and s.builtin == True]
+    not_builtin_paragraph_styles = [s for s in doc.styles if s.type == WD_STYLE_TYPE.PARAGRAPH and s.builtin == False]
+
+    print("***BUILTIN PARA STYLES***")
+    header= ["i", "Name", "Object", "Base", "Hidden"]
+    separate = ["-" * len(head) for head in header]
+    rows = list()
+    rows.append(header)
+    rows.append(separate)
+    for i,style in enumerate(builtin_paragraph_styles):
+        try:
+            base = str(style.base_style.name)
+        except: 
+            base = "***None***"
+        row = [i, style.name, str(style), base, style.hidden]
+        rows.append(row)
+
+    print_table(rows)
+
+    print("***CUSTOM PARA STYLES***")
+    header= ["i", "Name", "Object", "Base", "Hidden"]
+    separate = ["-" * len(head) for head in header]
+    rows = list()
+    rows.append(header)
+    rows.append(separate)
+    for i,style in enumerate(not_builtin_paragraph_styles):
+        try:
+            base = str(style.base_style.name)
+        except: 
+            base = "***None***"
+        row = [i, style.name, str(style), base, style.hidden]
+        rows.append(row)
+
+    print_table(rows)
+
+           
+def return_para_styles(doc):
+    return [s for s in doc.styles if s.type == WD_STYLE_TYPE.PARAGRAPH]
+    
+
+           
+def list_styles():
+    doc = Document(full_path)
+    print(doc)    
+    
+    print("***STYLES***")
+    for i,style in enumerate(doc.styles):
+        try:
+            base = style.base_style
+        except: 
+            base = "None"
+        print("{:5} {:50} {:70} {:20} {}".format(i,str(type(style)),str(style),style.name,base))
+        #print("{:5}|{:30}|{:30}|{:30}".format(i,type(style),style,style.name))
+    
 def test2():
     doc = Document(full_path)
     print(doc)
@@ -103,10 +163,7 @@ def test2():
         #print(sect.name ,)
         print(sect.start_type,sect.orientation, sect.page_width, sect.page_height)
 
-    print("***STYLES***")
-    for style in doc.styles:
-        print(style.name)
-    
+
     paragraph_styles = [s for s in doc.styles if s.type == WD_STYLE_TYPE.PARAGRAPH]
     
     print("***PARA STYLES***")
@@ -121,10 +178,23 @@ def test2():
         for run in para.runs:
             print("\t",run, run.style.name)
             print(run.text)
+
+def list_paras(doc):
+    print("***PARAGRAPHS")
+    for i,para in enumerate(doc.paragraphs):
+        print(i,para, para.style.name)
+        for run in para.runs:
+            print("\t {:30} {}".format(run.style.name, run.text))
+            #print(run.text)
+
+
         
 def main():
-    #test2()
-    replace_links()
+    doc = Document(full_path)
+    print(doc)
+    list_paras(doc)
+    #list_para_styles(doc)
+    #replace_links()
     
 if __name__ == "__main__":
     main()

@@ -32,7 +32,7 @@ import logging.config
 import unittest
 
 import wx
-from ExergyUtilities.utility_path import filter_files_dir
+from utility_path import filter_files_dir
 
 #===============================================================================
 # Code

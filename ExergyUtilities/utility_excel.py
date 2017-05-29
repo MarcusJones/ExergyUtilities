@@ -18,7 +18,6 @@
 """The :mod:`xx` module is a utility and notebook module to interface with Excel. The two xlrd/xlwt  
 """
 
-
 from win32com.client import Dispatch
 import logging.config
 import os

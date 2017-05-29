@@ -32,7 +32,7 @@ import unittest
 from win32com.client import Dispatch
 import clr
 #from Autodesk.Revit.DB import *
-from exergy_frame.tests.utility_inspect import get_self, get_parent, listObject
+from exergy_frame.tests.utility_inspect import get_self, get_parent, list_object
 import sys
 
 sys.path.append(r'D:\Apps\Autocad Plant 3D\Revit 2015')

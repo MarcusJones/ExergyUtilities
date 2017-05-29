@@ -135,21 +135,21 @@ class runDirectory(wx.Frame):
         #self.lbox.SetItems(self.choices)
         
     def EvtText(self, event):
-        print("Hit {} - {}".format(whoami(), event.GetString()))
+        print("Hit {} - {}".format(get_self(), event.GetString()))
         self.update()        
         #self.log.WriteText('EvtText: %s\n' % event.GetString())
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
 
     def EvtTextEnter(self, event):
         #self.log.WriteText('EvtTextEnter\n')
-        print("Hit {}; {}".format(whoami(), event.GetString()))
+        print("Hit {}; {}".format(get_self(), event.GetString()))
         self.update()        
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
         
         #event.Skip()
 
     def EvtChar(self, event):
-        print("Hit {}".format(whoami()))
+        print("Hit {}".format(get_self()))
         self.update()
         #self.log.WriteText('EvtChar: %d\n' % event.GetKeyCode())
         #print "Update: dir {}, ext {} ".format(self.dirName, self.extensionSearch)
@@ -158,12 +158,12 @@ class runDirectory(wx.Frame):
 
         
     def change_ctrl_ext(self,event):
-        print("Hit {}".format(whoami()))
+        print("Hit {}".format(get_self()))
         self.update()
              
     def onRun(self, event):
         logging.debug("Run function {}".format(self.dirName))
-        print("Hit {}".format(whoami()))
+        print("Hit {}".format(get_self()))
         self.runFunction(self.dirName)
         self.update()
         

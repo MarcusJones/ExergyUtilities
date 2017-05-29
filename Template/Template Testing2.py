@@ -1,12 +1,12 @@
 # TEST MODULE
 #===============================================================================
-# SETUP Config
+#--- SETUP Config
 #===============================================================================
 from config import *
 import unittest
 
 #===============================================================================
-# SETUP Logging
+#--- SETUP Logging
 #===============================================================================
 import logging.config
 print(ABSOLUTE_LOGGING_PATH)
@@ -16,7 +16,7 @@ myLogger.setLevel("DEBUG")
 
 
 #===============================================================================
-# SETUP Add parent module
+#--- SETUP Add parent module
 #===============================================================================
 from os import sys, path
 # Add parent to path
@@ -27,20 +27,44 @@ if __name__ == '__main__' and __package__ is None:
 
 
 #===============================================================================
-# SETUP Standard modules
+#--- SETUP Standard modules
 #===============================================================================
 from utility_inspect import get_self
 
 #===============================================================================
-# SETUP Custom modules
+#--- SETUP Custom modules
 #===============================================================================
 from utility_inspect import get_self
 
 #===============================================================================
-# Directories and files
+#--- Directories and files
 #===============================================================================
-curr_dir = path.dirname(path.abspath(__file__))
-DIR_SAMPLE_IDF = path.abspath(curr_dir + "\..\.." + "\SampleIDFs")
+#curr_dir = path.dirname(path.abspath(__file__))
+#DIR_SAMPLE_IDF = path.abspath(curr_dir + "\..\.." + "\SampleIDFs")
 #print(DIR_SAMPLE_IDF)
 
+#===============================================================================
+#--- Unit testing
+#===============================================================================
+print("Test")
+class BasicTest(unittest.TestCase):
+    def setUp(self):
+        #print "**** TEST {} ****".format(get_self())
+        myLogger.setLevel("CRITICAL")
+        print("Setup")
+         
+        curr_path = os.path.dirname(os.path.realpath(__file__))
+        curr_path = os.path.abspath(curr_path + "\..\..\ExcelTemplates\Table test.xlsx")
+         
+        myLogger.setLevel("DEBUG")
+         
+         
+    def test010_SimpleCreation(self):
+        print("**** TEST {} ****".format(get_self()))
+         
+
+#--- This line makes is more clear how to run in Eclipse
+#--- Check to make sure this runs first (Run as -> python)
+if __name__ == '__main__': 
+    unittest.main()
 

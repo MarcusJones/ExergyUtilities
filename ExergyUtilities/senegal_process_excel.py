@@ -24,7 +24,7 @@ def get_clusters_dict(xl):
     """
     Return a dictionary of cluster_number : [village names]
     """
-    table_clusters = xl.get_table("Clusters", "tab_Clusters")
+    table_clusters = xl.get_table_literal("Clusters", "tab_Clusters")
     dict_cluster = defaultdict(list)
     for i,row in enumerate(table_clusters.ListRows):
         cluster, village = (table_clusters.ListRows(i+1).Range)
@@ -255,7 +255,7 @@ def main():
         dict_clusters = get_clusters_dict(xl)
 
         # Get villages table
-        table_villages = xl.get_table("Villages", "tab_Villages")
+        table_villages = xl.get_table_literal("Villages", "tab_Villages")
         data_headers = get_column_index_dict(table_villages)
         # Get village name : rows
         village_row_dict = get_village_row_dict(table_villages)

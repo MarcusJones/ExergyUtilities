@@ -40,10 +40,15 @@ class ExtendedExcelBookAPI(object):
 
     def __exit__(self, type, value, traceback):
         logging.debug("***Exit ExtendedExcelBookAPI ***".format())
+        #raise
+        
+        self.xl.DisplayAlerts = False
+        
         if self.autosave:
             self.save_and_close()
         else:
             self.closeAll()
+        self.xl.DisplayAlerts = True
             
     def __init__(self, excelPath, autocreate = False, autosave = False):
         self.excelPath = os.path.abspath(excelPath)
@@ -66,7 +71,7 @@ class ExtendedExcelBookAPI(object):
             logging.debug("Excel book {}".format(self.book))
     
     def closeAll(self):
-        #self.book.Close(0)
+        self.book.Close(1)
         self.xl.Quit()
 
     def saveAs(self):
@@ -104,22 +109,22 @@ class ExtendedExcelBookAPI(object):
         
         logging.debug("Wrote {} to {} {} {}".format(value,sheet_name,rownum,colnum))
         
-    def write(self,sheetName,rows,x=0,y=0):
+    def write(self,sheet_name,rows,x=0,y=0):
 
         assert( type(rows[0]) == list or type(rows[0]) == tuple), "Need a 2D array {} = {}".format(type(rows[0]), rows[0])
         LIMIT_SHEET_NAME = 20
-        if len(sheetName) > LIMIT_SHEET_NAME:
-            sheetName = sheetName[0:LIMIT_SHEET_NAME]
-        sheetName = sheetName.replace(":", " ")
+        if len(sheet_name) > LIMIT_SHEET_NAME:
+            sheet_name = sheet_name[0:LIMIT_SHEET_NAME]
+        sheet_name = sheet_name.replace(":", " ")
 
-        #print self.sheet_exists(sheetName)
+        #print self.sheet_exists(sheet_name)
         #print [name.Name for name in self.book.Sheets]
         #print [name.Name for name in self.book.Worksheets]
         #prin
-        if self.sheet_exists(sheetName):
+        if self.sheet_exists(sheet_name):
             # Use the existing
-            sh = self.book.Sheets[sheetName]
-            logging.debug("Sheet {} exists".format(sheetName))
+            sh = self.book.Sheets[sheet_name]
+            logging.debug("Sheet {} exists".format(sheet_name))
 
         else:
             # Create a new, rename it
@@ -127,13 +132,13 @@ class ExtendedExcelBookAPI(object):
             #lastSheet = self.book.Sheets.Count
             #sh = self.book.Sheets[lastSheet-1]
             try:
-                sh.Name = sheetName
+                sh.Name = sheet_name
             except:
-                print(sheetName)
-                print(sheetName.__str__)
+                print(sheet_name)
+                print(sheet_name.__str__)
                 raise
-            sh = self.book.Sheets[sheetName]
-            logging.debug("Sheet {} created".format(sheetName))
+            sh = self.book.Sheets[sheet_name]
+            logging.debug("Sheet {} created".format(sheet_name))
 
 
         # Iterate over data
@@ -221,7 +226,7 @@ class ExtendedExcelBookAPI(object):
 #
 
         self.save()
-        logging.debug("Wrote {} rows to Excel file at: {}, sheet {}, starting at row {}".format(len(rows),self.excelPath,sheetName,x))
+        logging.debug("Wrote {} rows to Excel file at: {}, sheet {}, starting at row {}".format(len(rows),self.excelPath,sheet_name,x))
 
 
     def clone(self,new_path):
@@ -249,7 +254,7 @@ class ExtendedExcelBookAPI(object):
         pass
 
     
-    def get_table(self, sheet_name, table_name):
+    def get_table_literal(self, sheet_name, table_name):
         
         this_sheet = self.get_sheet(sheet_name)
         #print("Sheet:",this_sheet.Name)
@@ -431,7 +436,31 @@ class ExtendedExcelBookAPI(object):
         return thisVal
 
 
-    def get_table_2(self, targetSheet, startRow, endRow, startCol, endCol):
+    def get_table_all(self, target_sheet, dataType="str"):
+        sheet = self.get_sheet(target_sheet)
+        
+        #get_last_row(self,sheetName):
+        #sh = self.book.Sheets[sheetName]
+        print(sheet.cell(0, 0).value)
+        print(sheet.get_rows())
+        
+        
+        data = list()
+        for i in range(sheet.nrows):
+            if dataType == "str":
+                data.append(sheet.row_values(i)) #drop all the values in the rows into data
+            else:
+                raise Exception("Unsupported data type")
+
+        logging.debug("Got data table from {}, {} rows, {} columns".format(target_sheet,len(data),len(data[0])))
+
+        return data
+
+
+
+
+    def get_table_box(self, targetSheet, startRow, endRow, startCol, endCol):
+        
         """
         startRow, Starts at 1, not 0!
         endRow, Inclusive
@@ -439,7 +468,7 @@ class ExtendedExcelBookAPI(object):
         endCol Inclusive
         """
         logging.debug("Loading table on {}".format(targetSheet))
-
+        raise
         # Attach the excel COM object
 
         xl = Dispatch('Excel.Application')
@@ -463,8 +492,8 @@ class ExtendedExcelBookAPI(object):
 
         return rows
 
-#     def get_table(self,sheetName):
-#         table = ExcelBookRead(self.excelPath).get_table(sheetName)
+#     def get_table_literal(self,sheetName):
+#         table = ExcelBookRead(self.excelPath).get_table_literal(sheetName)
 # 
 #         logging.debug("Got table len {} from sheet {}".format(len(table),sheetName))
 # 

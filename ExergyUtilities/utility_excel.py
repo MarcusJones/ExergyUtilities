@@ -18,6 +18,8 @@
 """The :mod:`xx` module is a utility and notebook module to interface with Excel. The two xlrd/xlwt  
 """
 
+#raise Exception, "OBSELETE?>>?>"
+
 from win32com.client import Dispatch
 import logging.config
 import os
@@ -119,7 +121,7 @@ class ExcelBookRead2(object):
         logging.debug("Found {} sheet names: {}".format(len(sheetNames),sheetNames))
         return sheetNames
 
-    def get_table(self, target_sheet, startRow = 0, endRow=None, startCol=0, endCol=None):
+    def get_table_literal(self, target_sheet, startRow = 0, endRow=None, startCol=0, endCol=None):
 
         if target_sheet not in self.get_sheet_names():
             return False
@@ -206,7 +208,7 @@ class ExcelBookRead(object):
         logging.debug("Found {} sheet names: {}".format(len(sheetNames),sheetNames))
         return sheetNames
 
-    def get_table(self, targetSheet, startRow = 0, endRow=None, startCol=0, endCol=None):
+    def get_table_literal(self, targetSheet, startRow = 0, endRow=None, startCol=0, endCol=None):
 
         wb = xlrd.open_workbook(self.excelPath)
 

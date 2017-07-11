@@ -22,8 +22,28 @@ def print_table(table, width=None):
     
     s = [[str(e) for e in row] for row in table]
     lens = [max(map(len, col)) for col in zip(*s)]
+    
+    #print(lens)
+    
     fmt = '\t'.join('{{:{}}}'.format(x) for x in lens)
-    table = [fmt.format(*row) for row in s]
+    #for row in s:
+    #    print(row)
+    
+    #print(fmt)
+    
+    table = list()
+    for row in s:
+        print(fmt)
+        print(*row)
+        #row = 
+        #new_row = *row 
+        print(fmt.format())
+        
+        print(fmt.format(*row))
+        table.append(fmt.format(*row))
+        
+    #table = [fmt.format(*row) for row in s]
+    
     print('\n'.join(table))
     #print()
     #if not width:

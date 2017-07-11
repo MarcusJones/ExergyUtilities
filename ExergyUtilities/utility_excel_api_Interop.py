@@ -113,22 +113,22 @@ class ExtendedExcelBookAPI(object):
         
         logging.debug("Wrote {} to {} {} {}".format(value,sheet_name,rownum,colnum))
         
-    def write(self,sheetName,rows,x=0,y=0):
+    def write(self,sheet_name,rows,x=0,y=0):
 
         assert( type(rows[0]) == list or type(rows[0]) == tuple), "Need a 2D array {} = {}".format(type(rows[0]), rows[0])
         LIMIT_SHEET_NAME = 20
-        if len(sheetName) > LIMIT_SHEET_NAME:
-            sheetName = sheetName[0:LIMIT_SHEET_NAME]
-        sheetName = sheetName.replace(":", " ")
+        if len(sheet_name) > LIMIT_SHEET_NAME:
+            sheet_name = sheet_name[0:LIMIT_SHEET_NAME]
+        sheet_name = sheet_name.replace(":", " ")
 
-        #print self.sheet_exists(sheetName)
+        #print self.sheet_exists(sheet_name)
         #print [name.Name for name in self.book.Sheets]
         #print [name.Name for name in self.book.Worksheets]
         #prin
-        if self.sheet_exists(sheetName):
+        if self.sheet_exists(sheet_name):
             # Use the existing
-            sh = self.book.Sheets[sheetName]
-            logging.debug("Sheet {} exists".format(sheetName))
+            sh = self.book.Sheets[sheet_name]
+            logging.debug("Sheet {} exists".format(sheet_name))
 
         else:
             # Create a new, rename it
@@ -136,13 +136,13 @@ class ExtendedExcelBookAPI(object):
             #lastSheet = self.book.Sheets.Count
             #sh = self.book.Sheets[lastSheet-1]
             try:
-                sh.Name = sheetName
+                sh.Name = sheet_name
             except:
-                print(sheetName)
-                print(sheetName.__str__)
+                print(sheet_name)
+                print(sheet_name.__str__)
                 raise
-            sh = self.book.Sheets[sheetName]
-            logging.debug("Sheet {} created".format(sheetName))
+            sh = self.book.Sheets[sheet_name]
+            logging.debug("Sheet {} created".format(sheet_name))
 
 
         # Iterate over data
@@ -230,7 +230,7 @@ class ExtendedExcelBookAPI(object):
 #
 
         self.save()
-        logging.debug("Wrote {} rows to Excel file at: {}, sheet {}, starting at row {}".format(len(rows),self.excelPath,sheetName,x))
+        logging.debug("Wrote {} rows to Excel file at: {}, sheet {}, starting at row {}".format(len(rows),self.excelPath,sheet_name,x))
 
 
     def clone(self,new_path):
@@ -428,14 +428,14 @@ class ExtendedExcelBookAPI(object):
         return thisVal
 
 
-    def get_table(self, targetSheet, startRow, endRow, startCol, endCol):
+    def get_table_literal(self, targetSheet, startRow, endRow, startCol, endCol):
         """
         startRow, Starts at 1, not 0!
         endRow, Inclusive
         startCol, Starts at 1
         endCol Inclusive
         """
-        logging.debug("get_table".format())
+        logging.debug("get_table_literal".format())
         
         #logging.debug("Loading table on sheet {}, {} rows X {} cols".format(targetSheet, endRow - startRow, endCol-startCol))
 
@@ -468,8 +468,8 @@ class ExtendedExcelBookAPI(object):
         
         return rows
 
-#     def get_table(self,sheetName):
-#         table = ExcelBookRead(self.excelPath).get_table(sheetName)
+#     def get_table_literal(self,sheetName):
+#         table = ExcelBookRead(self.excelPath).get_table_literal(sheetName)
 # 
 #         logging.debug("Got table len {} from sheet {}".format(len(table),sheetName))
 # 

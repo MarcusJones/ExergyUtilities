@@ -18,35 +18,11 @@
 """The :mod:`xx` module 
 """
 
+
 def print_table(table, width=None):
     
     s = [[str(e) for e in row] for row in table]
     lens = [max(map(len, col)) for col in zip(*s)]
     fmt = '\t'.join('{{:<{}}}'.format(x) for x in lens)
     table = [fmt.format(*row) for row in s]
-    print('\n'.join(table))
-    
-
-def print_table_x(table, width=None):
-    
-    data_table = [[str(e) for e in row] for row in table]
-
-    lengths = [max(map(len, col)) for col in zip(*data_table)]
-    numbering = [num for num in range(len(lengths))]
-    numbered_lengths = list(zip(numbering,lengths))
-    
-    #print(numbering)
-    #print(numbered_lengths)
-    
-    format_string = '\t'.join('{{{}:<{}}}'.format(*x) for x in numbered_lengths)
-    #print(lengths)
-    
-    #for row in data_table:
-    #    print(row)
-    #    print(format_string)
-    #    print(format_string.format(*row))
-    #    raise
-    #raise
-    print(format_string)
-    table = [format_string.format(*row) for row in data_table]
     print('\n'.join(table))

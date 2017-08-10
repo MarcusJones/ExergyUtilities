@@ -1,21 +1,22 @@
 """This is a regular module
 """
 
-#===============================================================================
-# Set up
-#===============================================================================
-# Standard:
+#--- SETUP Config
+from config import *
+#import unittest
 
+#--- SETUP Logging
+import logging.config
+print(ABSOLUTE_LOGGING_PATH)
+logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+myLogger = logging.getLogger()
+myLogger.setLevel("DEBUG")
 
+#--- SETUP Standard modules
 
-# Logging
-import logging
+#--- SETUP 3rd party modules
 
-# External 
-#import xxx
-
-# Own
-#from utility_inspect import get_self, get_parent
+#--- SETUP Custom modules
 
 #===============================================================================
 # Code

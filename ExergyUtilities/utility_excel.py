@@ -29,7 +29,7 @@ import xlwt
 from openpyxl import Workbook
 from openpyxl.cell import get_column_letter
 #from ExergyUtilities.utility_inspect import get_self, get_parent
-from utility_inspect import get_self, get_parent
+from ExergyUtilities.utility_inspect import get_self, get_parent
 import unittest
 from config import *
 

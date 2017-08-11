@@ -1,2 +1,2 @@
 #print("TEST")
-from config.config_ces_laptop import *
+from config.config.config_ces_laptop import *

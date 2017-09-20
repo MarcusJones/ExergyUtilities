@@ -437,15 +437,20 @@ class ExtendedExcelBookAPI(object):
 
 
     def get_table_all(self, target_sheet, dataType="str"):
+        """ Get table"""
         sheet = self.get_sheet(target_sheet)
         
         #get_last_row(self,sheetName):
         #sh = self.book.Sheets[sheetName]
-        print(sheet.cell(0, 0).value)
-        print(sheet.get_rows())
+        #print(sheet.cell(0, 0).value)
+        #print(sheet.get_rows())
         
         
         data = list()
+        #for item in dir(sheet):
+        #    print(item)
+        print(sheet.Rows)
+        raise
         for i in range(sheet.nrows):
             if dataType == "str":
                 data.append(sheet.row_values(i)) #drop all the values in the rows into data

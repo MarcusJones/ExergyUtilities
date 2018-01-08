@@ -28,12 +28,12 @@ if __name__ == '__main__' and __package__ is None:
 #===============================================================================
 #--- SETUP Standard modules
 #===============================================================================
-from utility_inspect import get_self
+from util_inspect import get_self
 
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from utility_inspect import get_self
+from util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files

@@ -88,7 +88,10 @@ if __name__ == "__main__":
     print("ss")
     #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
     #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
+    
     this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
+    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
     
     #this_file = r"LP 01 - Lesson.ipynb"
     #this_file =r"Lecture-1-Introduction-to-Python-Programming.ipynb"

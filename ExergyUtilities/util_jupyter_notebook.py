@@ -74,7 +74,7 @@ if __name__ == "__main__":
     
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
     this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
-    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    this_dir = r"C:\DSR GIT courses\pandas-tutorial"
     
     #Jupyter config file is located here:
     #"C:\Users\jon\.jupyter"
@@ -84,14 +84,3 @@ if __name__ == "__main__":
     this_file = None
     
     run_notebook(this_dir,this_file)
-    #print(os.path)
-    #import sys
-    #for it in sys.path:
-    #    print(it)
-    print("\nPYTHONPATH")
-    for it in os.environ['PYTHONPATH'].split(';'):
-        print(it)
-    print("\nPATH")
-    for it in os.environ['PATH'].split(';'):
-        print(it)            
-    

@@ -13,29 +13,12 @@ logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
 
-#import matplotlib
-#import sys
-#sys.path.append('C:\Apps\Anaconda\Library\bin')
-#import matplotlib.pyplot
-#raise
-#===============================================================================
-#--- SETUP Add parent module
-#===============================================================================
-import os
-import sys
-#from os import sys, path
-# Add parent to path
-if __name__ == '__main__' and __package__ is None:
-    this_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(this_path)
-    logging.debug("ADDED TO PATH: ".format(this_path))
-
-
-
 #===============================================================================
 #--- SETUP Standard modules
 #===============================================================================
 import subprocess
+import sys
+import os
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
@@ -85,16 +68,30 @@ def run_notebook(start_dir = None, start_file=None):
     
     
 if __name__ == "__main__":
-    print("ss")
+    #print("ss")
     #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
     #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
     
-    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
-    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
+    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
     #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    
+    #Jupyter config file is located here:
+    #"C:\Users\jon\.jupyter"
     
     #this_file = r"LP 01 - Lesson.ipynb"
     #this_file =r"Lecture-1-Introduction-to-Python-Programming.ipynb"
     this_file = None
     
     run_notebook(this_dir,this_file)
+    #print(os.path)
+    #import sys
+    #for it in sys.path:
+    #    print(it)
+    print("\nPYTHONPATH")
+    for it in os.environ['PYTHONPATH'].split(';'):
+        print(it)
+    print("\nPATH")
+    for it in os.environ['PATH'].split(';'):
+        print(it)            
+    

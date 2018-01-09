@@ -572,7 +572,7 @@ def load_database(fullPath):
     
 
 
-def run_project(database_path, output_path):
+def parse_html_to_excel_summary(database_path, output_path):
 
     engine = sa.create_engine('sqlite:///{}'.format(database_path), echo=ECHO_ON, listeners=[ForeignKeysListener()])
     logging.info("Connected to {} ".format(database_path))

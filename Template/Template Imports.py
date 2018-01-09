@@ -1,7 +1,7 @@
 #===============================================================================
 #--- SETUP Config
 #===============================================================================
-from config import *
+from config.config import *
 import unittest
 
 #===============================================================================
@@ -12,7 +12,6 @@ print(ABSOLUTE_LOGGING_PATH)
 logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
-
 
 #===============================================================================
 #--- SETUP Add parent module
@@ -28,12 +27,17 @@ if __name__ == '__main__' and __package__ is None:
 #===============================================================================
 #--- SETUP Standard modules
 #===============================================================================
-from utility_inspect import get_self
+from util_inspect import get_self
+
+
+#===============================================================================
+#--- SETUP external modules
+#===============================================================================
 
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from utility_inspect import get_self
+from util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files
@@ -41,3 +45,10 @@ from utility_inspect import get_self
 #curr_dir = path.dirname(path.abspath(__file__))
 #DIR_SAMPLE_IDF = path.abspath(curr_dir + "\..\.." + "\SampleIDFs")
 #print(DIR_SAMPLE_IDF)
+
+#===============================================================================
+#--- MAIN CODE
+#===============================================================================
+
+
+if 

@@ -18,7 +18,7 @@
 """The :mod:`xx` module is a utility and notebook module to interface with Excel. This is a pure API implementation. 
 For xlrd/xlwt methods, see utility_excel module. 
 """
-
+raise Exception("Is this repo still useful??")
 #from win32com.client import Dispatch
 import clr
 clr.AddReferenceByName('Microsoft.Office.Interop.Excel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c')

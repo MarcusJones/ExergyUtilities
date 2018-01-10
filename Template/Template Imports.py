@@ -16,18 +16,17 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- SETUP Add parent module
 #===============================================================================
-from os import sys, path
-# Add parent to path
-if __name__ == '__main__' and __package__ is None:
-    this_path = path.dirname(path.dirname(path.abspath(__file__)))
-    sys.path.append(this_path)
-    logging.debug("ADDED TO PATH: ".format(this_path))
+# from os import sys, path
+# # Add parent to path
+# if __name__ == '__main__' and __package__ is None:
+#     this_path = path.dirname(path.dirname(path.abspath(__file__)))
+#     sys.path.append(this_path)
+#     logging.debug("ADDED TO PATH: ".format(this_path))
 
 
 #===============================================================================
 #--- SETUP Standard modules
 #===============================================================================
-from util_inspect import get_self
 
 
 #===============================================================================
@@ -37,7 +36,7 @@ from util_inspect import get_self
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from util_inspect import get_self
+from ExergyUtilities.util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files
@@ -49,6 +48,9 @@ from util_inspect import get_self
 #===============================================================================
 #--- MAIN CODE
 #===============================================================================
+def run():
+    pass
 
+if __name__ == "__main__":
+    run()
 
-if 

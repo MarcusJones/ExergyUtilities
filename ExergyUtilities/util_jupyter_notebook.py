@@ -73,8 +73,9 @@ if __name__ == "__main__":
     #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
     
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
-    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
-    this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
+    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
     
     #Jupyter config file is located here:
     #C:\Users\jon\.jupyter
@@ -83,7 +84,7 @@ if __name__ == "__main__":
     help_str = """
     Files will be run in lexicographical order, so you can control
     the execution order of files with a prefix, e.g.::
-
+    
     00-first.py
     50-middle.py
     99-last.ipy

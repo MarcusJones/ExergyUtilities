@@ -50,5 +50,8 @@ from util_inspect import get_self
 #--- MAIN CODE
 #===============================================================================
 
+def run():
+    pass
 
-if 
+if __name__ == "__main__":
+    run()

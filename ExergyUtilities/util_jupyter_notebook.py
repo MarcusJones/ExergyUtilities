@@ -76,6 +76,7 @@ if __name__ == "__main__":
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
     #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
     this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
+    this_dir = r"C:\Users\jon\git\data-science-retreat-svm"
     
     #Jupyter config file is located here:
     #C:\Users\jon\.jupyter

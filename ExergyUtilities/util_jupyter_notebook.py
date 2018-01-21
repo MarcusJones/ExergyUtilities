@@ -46,7 +46,7 @@ def run_notebook(start_dir = None, start_file=None):
                  #"--notebook-dir=\"{}\"".format(myIPythonDir),
                  #"--profile=myHomeProfile",
                  #"--pylab=inline"
-
+                 #r"C:\Users\jon\.ipython\profile_default\startup\00-startup.py"
                  ]
     if start_file:
         #arguments.append("--file_to_run=\"{}\"".format(file_name))
@@ -68,19 +68,29 @@ def run_notebook(start_dir = None, start_file=None):
     
     
 if __name__ == "__main__":
-    #print("ss")
+    print("ss")
     #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
     #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
     
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
-    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
-    this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
+    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
+    this_dir = r"C:\Users\jon\git\data-science-retreat-svm"
     
     #Jupyter config file is located here:
-    #"C:\Users\jon\.jupyter"
+    #C:\Users\jon\.jupyter
+    print("NOTE! Jupyter (actually IPython) startup script directory {}: ".format('C:\\Users\\jon\\.ipython\\profile_default\\startup'))
+    print("NOTE! Jupyter configuration file is (likely, as default) at {}: ".format(r"C:\Users\jon\.jupyter"))
+    help_str = """
+    Files will be run in lexicographical order, so you can control
+    the execution order of files with a prefix, e.g.::
     
-    #this_file = r"LP 01 - Lesson.ipynb"
-    #this_file =r"Lecture-1-Introduction-to-Python-Programming.ipynb"
+    00-first.py
+    50-middle.py
+    99-last.ipy
+    """
+    print(help_str)
     this_file = None
-    
+
     run_notebook(this_dir,this_file)

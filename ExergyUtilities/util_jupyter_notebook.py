@@ -65,19 +65,7 @@ def run_notebook(start_dir = None, start_file=None):
     #p = subprocess.Popen(wholeCommandString, stdout=PIPE, stderr=PIPE, stdin=PIPE,shell=True).wait()
     p = subprocess.Popen(wholeCommandString,shell=True)
 
-    
-    
-if __name__ == "__main__":
-    print("ss")
-    #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
-    #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
-    
-    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
-    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
-    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
-    this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
-    this_dir = r"C:\Users\jon\git\data-science-retreat-svm"
-    
+def help_notes():
     #Jupyter config file is located here:
     #C:\Users\jon\.jupyter
     print("NOTE! Jupyter (actually IPython) startup script directory {}: ".format('C:\\Users\\jon\\.ipython\\profile_default\\startup'))
@@ -90,7 +78,22 @@ if __name__ == "__main__":
     50-middle.py
     99-last.ipy
     """
-    print(help_str)
-    this_file = None
+    
+        
 
-    run_notebook(this_dir,this_file)
+if __name__ == "__main__":
+    #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
+    #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
+    
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
+    #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
+    #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
+    start_nb_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
+    start_nb_dir = r"C:\Users\jon\git\data-science-retreat-svm"
+    start_nb_dir = r"D:\LOCAL_REPO\ref_DataScienceRetreat\DSR Lecture notebooks"
+    
+    help_notes()
+    
+    this_file = None
+    
+    run_notebook(start_nb_dir,this_file)

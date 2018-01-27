@@ -48,7 +48,7 @@ if __name__ == '__main__' and __package__ is None:
 
 
 
-# External 
+# External
 #import xxx
 
 # Own
@@ -62,6 +62,6 @@ class allTests(unittest.TestCase):
     def setUp(self):
         print("**** TEST {} ****".format(get_self()))
         self.curr_dir = os.path.dirname(os.path.realpath(__file__))
-        
+
     def test010_empty(self):
         print("**** TEST {} ****".format(get_self()))

@@ -268,7 +268,15 @@ def change_parameter_multiple(doc, el_list, param_name, new_value_list):
     logger.setLevel(logging.DEBUG)
         
     logging.debug("Overwrote {} {} parameters in {} elements".format(len(new_value_list),param_name,len(el_list)))
-          
+
+def table_parameters_sameline(el):
+    
+    
+    print("{:20} {:20} {:30} {:30} {:30} {:30}".format("-name-","-ParameterGroup-","-ParameterType-","-Value String-","-String-","-UnitType-"))
+    for param in el.Parameters:
+        print("{0!s:20} {1!s:20} {2!s:30} {3!s:30} {4!s:30} {5!s:30}".format(param.Definition.Name,param.Definition.ParameterGroup,param.Definition.ParameterType,param.AsValueString(),param.AsString(),param.Definition.UnitType))
+        
+
         
 def table_parameters(el):
     """Given an element, print a formatted table of the parameters atttached, 

@@ -29,14 +29,15 @@ from config import *
 
 import logging.config
 import unittest
-from win32com.client import Dispatch
+#from win32com.client import Dispatch
 import clr
 #from Autodesk.Revit.DB import *
 from exergy_frame.tests.utility_inspect import get_self, get_parent, list_object
 import sys
 
 sys.path.append(r'D:\Apps\Autocad Plant 3D\Revit 2015')
-
+sys.path.append(r'C:\Program Files\Autodesk\Revit 2017')
+print(dir(clr))
 clr.AddReference('RevitAPI')
 clr.AddReference('RevitAPIUIMacros')
 import Autodesk.Revit.DB as rdg

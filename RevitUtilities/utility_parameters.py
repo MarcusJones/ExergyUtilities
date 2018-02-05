@@ -77,6 +77,29 @@ def get_parameter_value_float(el, param_name, flg_DNE=False):
         raise
 
 
+def get_all_params(el):
+    
+    
+    #this_type = target_param.Definition.ParameterType
+    #target_type = rvt_db.ParameterType.Text
+    #assert this_type == target_type, "This function only works {}, not {}".format(target_type,this_type)
+    #this_dict[param.Definition.Name] = param.AsValueString()
+    #this_dict[param.Definition.Name] = param.Value()
+    
+    #print(param,param.AsValueString())
+
+    #print("{} : {}".format(param.Definition.Name,  param.AsValueString()))
+    #print(param.Definition.Name, ":", param.AsValueString())
+
+    
+    this_dict = dict()
+    for param in el.Parameters:
+        if param.Definition.ParameterType==rvt_db.ParameterType.Text:
+            this_dict[param.Definition.Name] = param.AsString()
+        else: 
+            this_dict[param.Definition.Name] = param.AsValueString()
+    return this_dict
+
 
 def get_parameter_plain_string(el, param_name, flg_DNE=False):
     """Wrapper on param.AsDouble()
@@ -275,8 +298,56 @@ def table_parameters_sameline(el):
     print("{:20} {:20} {:30} {:30} {:30} {:30}".format("-name-","-ParameterGroup-","-ParameterType-","-Value String-","-String-","-UnitType-"))
     for param in el.Parameters:
         print("{0!s:20} {1!s:20} {2!s:30} {3!s:30} {4!s:30} {5!s:30}".format(param.Definition.Name,param.Definition.ParameterGroup,param.Definition.ParameterType,param.AsValueString(),param.AsString(),param.Definition.UnitType))
-        
 
+
+def table_parameters_string(el):
+    """Given an element, print a formatted table of the parameters atttached, 
+    and the properties of these parameters."""
+    logging.debug(util_gen.get_self())
+    string_lines = list()
+    
+    new_line = list()
+    new_line.append("{:20}".format("-name-")  )
+    new_line.append("-ParameterGroup-")
+    new_line.append("-ParameterType-")
+    new_line.append("-Value String-") 
+    new_line.append("-String-")              
+    new_line.append("-UnitType-")
+    string_lines.append(" ".join(new_line))
+    
+    for param in el.Parameters:
+        new_line = list()
+        new_line.append(str(param.Definition.Name)              )
+        new_line.append(str(param.Definition.ParameterGroup)    )
+        new_line.append(str(param.Definition.ParameterType)     )
+        new_line.append(str(param.AsValueString())              )
+        new_line.append(str(param.AsString())                   )
+        new_line.append(str(param.Definition.UnitType)          )
+        string_lines.append(" ".join(new_line)                  )            
+        
+    return(string_lines)
+
+def table_parameters_scirpted(el,printer):
+    """Given an element, print a formatted table of the parameters atttached, 
+    and the properties of these parameters."""
+    logging.debug(util_gen.get_self())
+
+    printer("{:20}".format("-name-").encode('utf-8'),           )
+    printer("{:20}".format("-ParameterGroup-").encode('ascii'), )
+    printer("{:30}".format("-ParameterType-").encode('ascii'),  )
+    printer("{:30}".format("-Value String-").encode('ascii'),   )
+    printer("{:30}".format("-String-").encode('ascii'),         )
+    printer("{:30}".format("-UnitType-").encode('ascii'),       )
+    printer("")
+
+    for param in el.Parameters:
+        printer("{0!s:20}".format(param.Definition.Name),           )
+        printer("{0!s:20}".format(param.Definition.ParameterGroup), )
+        printer("{0!s:30}".format(param.Definition.ParameterType),  )
+        printer("{0!s:30}".format(param.AsValueString()),           )
+        printer("{0!s:30}".format(param.AsString()),                )
+        printer("{0!s:30}".format(param.Definition.UnitType),       )
+        printer("")
         
 def table_parameters(el):
     """Given an element, print a formatted table of the parameters atttached, 
@@ -318,7 +389,8 @@ def print_all_params(el):
     """Prints a list of the parameters attached to the element.
     """
     for param in el.Parameters:
-        print(param.Definition.Name, ":", param.AsValueString())
+        print("{} : {}".format(param.Definition.Name,  param.AsValueString()))
+        #print(param.Definition.Name, ":", param.AsValueString())
         
 def list_parameters_OBSELETE(el):
     """Prints a list of the parameters attached to the element.

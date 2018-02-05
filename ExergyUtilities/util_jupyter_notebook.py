@@ -89,9 +89,9 @@ if __name__ == "__main__":
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
     #this_dir = r"C:\DSR GIT courses\pandas-tutorial"
     start_nb_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\Week 00 lecture notebooks"
-    start_nb_dir = r"C:\Users\jon\git\data-science-retreat-svm"
-    start_nb_dir = r"D:\LOCAL_REPO\ref_DataScienceRetreat\DSR Lecture notebooks"
     
+    start_nb_dir = r"D:\LOCAL_REPO\ref_DataScienceRetreat\DSR Lecture notebooks"
+    start_nb_dir = r"C:\Users\jon\git\data-science-retreat-svm"
     help_notes()
     
     this_file = None

@@ -34,13 +34,13 @@ from util_inspect import get_self
 def run_notebook(start_dir = None, start_file=None):
     #profilesDir = os.getcwd() + "\..\IpythonNotebook\Profiles"
     
-    #myIPythonDir = os.getcwd() + "\..\IpythonNotebook\myIPythonDir"
+    myIPythonDir = os.getcwd() + "\..\IpythonNotebook\myIPythonDir"
     
     
     #os.getcwd() + "\..\IpythonNotebook\Profiles"
     
     arguments = [
-                 #"jupyter lab", 
+                 "notebook", 
 
                  #"--ipython-dir=\"{}\"".format(myIPythonDir),
                  #"--notebook-dir=\"{}\"".format(myIPythonDir),
@@ -53,11 +53,10 @@ def run_notebook(start_dir = None, start_file=None):
         arguments.append("\"{}\"".format(start_file))
         
     if start_dir:
-        #--NotebookApp.notebook_dir=<directory_name>
-        arguments.append("--NotebookApp.notebook_dir=\"{}\"".format(start_dir))
+        arguments.append("--notebook-dir=\"{}\"".format(start_dir))
         
 
-    wholeCommand = ["jupyter lab"] + arguments
+    wholeCommand = ["jupyter"] + arguments
     
     wholeCommandString = " ".join(wholeCommand)
     
@@ -94,7 +93,7 @@ if __name__ == "__main__":
     #start_nb_dir = r"D:\LOCAL_REPO\ref_DataScienceRetreat\DSR Lecture notebooks"
     #start_nb_dir = r"C:\Users\jon\git\data-science-retreat-svm"
     start_nb_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\DSR Lecture notebooks"    
-    #help_notes()
+    help_notes()
     
     this_file = None
     

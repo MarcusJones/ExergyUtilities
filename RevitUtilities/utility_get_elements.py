@@ -51,10 +51,36 @@ def get_element_by_id(doc,id):
 def get_element_OST_Walls_ActiveView(doc):
     fec = rvt_db.FilteredElementCollector(doc, doc.ActiveView.Id)
     fec.OfCategory(BuiltInCategory.OST_Walls);
+
+    
     
 def get_element_OST_Walls_Document(doc):
-    fec = rvt_db.FilteredElementCollector(doc)
-    fec.OfCategory(BuiltInCategory.OST_Walls);
+    #fec = rvt_db.FilteredElementCollector(doc)
+    #fec.OfCategory(BuiltInCategory.OST_Walls);
+
+    
+    #this_class = FamilySymbol
+    
+    #collector = FilteredElementCollector(doc)
+    #collector.OfCategory(this_category)
+    #collector.OfClass(this_class)
+    
+    this_category = BuiltInCategory.OST_Walls
+    this_class = FamilySymbol
+
+    collector = FilteredElementCollector(doc)
+    collector.OfCategory(this_category)
+    collector.OfClass(this_class)
+    
+   
+    #this_dict = dict()
+    elems = list()
+    for el in collector:
+        elems.append(el)
+
+    logging.debug("Returned {}".format(len(elems)))
+    
+    return elems
 
 def get_grids(doc):
     logging.debug("get_grids")

@@ -42,7 +42,7 @@ import time
 import logging
 #from operator import itemgetter
 
-import utility_general as util 
+#import .utility_general as util 
 
 #-Get objects---
 def get_element_by_id(doc,id):
@@ -54,7 +54,7 @@ def get_element_OST_Walls_ActiveView(doc):
 
     
     
-def get_element_OST_Walls_Document(doc):
+def get_element_OST_Walls_Document(doc,rvt_db,FilteredElementCollector):
     #fec = rvt_db.FilteredElementCollector(doc)
     #fec.OfCategory(BuiltInCategory.OST_Walls);
 
@@ -65,8 +65,8 @@ def get_element_OST_Walls_Document(doc):
     #collector.OfCategory(this_category)
     #collector.OfClass(this_class)
     
-    this_category = BuiltInCategory.OST_Walls
-    this_class = FamilySymbol
+    this_category = rvt_db.BuiltInCategory.OST_Walls
+    this_class = rvt_db.FamilySymbol
 
     collector = FilteredElementCollector(doc)
     collector.OfCategory(this_category)

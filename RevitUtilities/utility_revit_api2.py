@@ -36,7 +36,8 @@ import time
 import logging
 #from operator import itemgetter
 
-import utility_general as util 
+#import ExergyUtilities.utility_inspect as util
+import ExergyUtilities.utility_inspect as util 
 
 def family_data_dict(doc,fam):
     assert type(fam) == rvt_db.FamilyInstance, "Not an instance"
@@ -115,14 +116,14 @@ def get_element_from_id(doc, id_int):
 
 #-Selection---
 def selection(uidoc,doc):
-    logging.debug(util.get_self())
+    #logging.debug(util.get_self())
     #print(uidoc.Selection)
     for el_ID in uidoc.Selection.GetElementIds():
         el = doc.GetElement(el_ID)
         logging.debug("Selected: {} {}".format(el_ID,el))        
     
 def single_selection(uidoc,doc):
-    logging.debug(util.get_self())
+    #logging.debug(util.get_self())
     selection = uidoc.Selection.GetElementIds()
     assert len(selection) == 1, "*Must select one and only one element*"
     for el_ID in selection:

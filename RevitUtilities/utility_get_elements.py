@@ -288,7 +288,7 @@ def get_sort_all_elements(doc):
 
 
 def get_sort_all_FamilyInstance(doc):
-    logging.info("{}".format(util.get_self()))
+    #logging.info("{}".format(util.get_self()))
     
     start = time.time()
         
@@ -447,7 +447,7 @@ def get_all_FamilyInstance(doc):
     """
     Returns FamilyInstance objects only.
     """
-    logging.info("{}".format(util.get_self()))
+    #logging.info("{}".format(util.get_self()))
     
     this_filter = rvt_db.LogicalOrFilter(
       rvt_db.ElementIsElementTypeFilter( False ), 

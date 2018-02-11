@@ -371,6 +371,11 @@ def table_parameters(el):
         print("{0!s:30}".format(param.Definition.UnitType), end="")
         print("")
 
+
+
+
+
+
 def print_built_in_params(el):
     pass
 #     Array bips = Enum.GetValues(typeof(BuiltInParameter));

@@ -27,7 +27,7 @@ from config.config import *
 import os
 import re
 #import time
-from .utility_inspect import get_self, get_parent
+from .util_inspect import get_self, get_parent
 import sys
 import shutil
 import errno
@@ -265,6 +265,28 @@ def get_most_recent_file(pathName):
                 pass
     #print "last modified: {}".format(time.ctime(greatestMtime))
     return (pathName, greatestMtime)
+
+
+def force_utf_conversion(path_in, path_out=None):
+    logging.debug("Converting {} ".format(path_in))
+    
+    # open the file
+    fp = open(path_in, encoding="utf-8-sig")
+    s = fp.read()
+    
+    # Force convertions
+    u = s.encode().decode("utf-8-sig")
+    s = u.encode("utf-8")
+
+    # Output name
+    if not path_out:
+        path_out = path_in
+    
+    # Write
+    with open(path_out, "wb") as text_file:
+        text_file.write(s)
+    
+    logging.debug("Wrote {} ".format(path_in))
 
 
 def get_latest_revision(fullFilePath, verbose = False):

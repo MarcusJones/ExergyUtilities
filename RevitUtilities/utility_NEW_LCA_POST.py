@@ -50,8 +50,8 @@ import ExergyUtilities.util_path as util_path
 #===============================================================================
 #--- MAIN CODE
 #===============================================================================
-def second_pass():
-    path_base = r"C:\Users\jon\Desktop\temp_boq2"
+def second_pass(path_base):
+    #path_base = r"C:\Users\jon\Desktop\temp_boq2"
     
         #print(df.groupby(df['Comments']).agg(sum))
 
@@ -67,9 +67,11 @@ def second_pass():
         
         #print(f"{basename_noext}")
         logging.debug("Processing {}".format(basename_noext))
-        df = pd.read_csv(f, sep=";",encoding='utf-8-sig-8')
+        df = pd.read_csv(f, sep=";")
         
-        #df = pd.read_csv(f, sep=";",encoding='utf_16') 
+        df = pd.read_csv(f, sep=";",encoding='utf_8')
+        
+         
         print(df.shape)
         print(df)
         #print(pd.to_numeric(df['Volume']))

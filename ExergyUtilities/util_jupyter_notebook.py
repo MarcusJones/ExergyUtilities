@@ -2,6 +2,7 @@
 #--- SETUP Config
 #===============================================================================
 from config.config import *
+#from Exergyconfig.config import *
 import unittest
 
 #===============================================================================
@@ -33,14 +34,15 @@ from util_inspect import get_self
 
 def run_notebook(start_dir = None, start_file=None):
     #profilesDir = os.getcwd() + "\..\IpythonNotebook\Profiles"
-    
+
     #myIPythonDir = os.getcwd() + "\..\IpythonNotebook\myIPythonDir"
-    
-    
+
+
     #os.getcwd() + "\..\IpythonNotebook\Profiles"
-    
+
     arguments = [
                  #"jupyter lab", 
+                 "notebook",
 
                  #"--ipython-dir=\"{}\"".format(myIPythonDir),
                  #"--notebook-dir=\"{}\"".format(myIPythonDir),
@@ -51,18 +53,18 @@ def run_notebook(start_dir = None, start_file=None):
     if start_file:
         #arguments.append("--file_to_run=\"{}\"".format(file_name))
         arguments.append("\"{}\"".format(start_file))
-        
+
     if start_dir:
         #--NotebookApp.notebook_dir=<directory_name>
         arguments.append("--NotebookApp.notebook_dir=\"{}\"".format(start_dir))
-        
+
 
     wholeCommand = ["jupyter lab"] + arguments
-    
+
     wholeCommandString = " ".join(wholeCommand)
-    
+
     print("Command - >\n", wholeCommandString)
-    
+
     #p = subprocess.Popen(wholeCommandString, stdout=PIPE, stderr=PIPE, stdin=PIPE,shell=True).wait()
     p = subprocess.Popen(wholeCommandString,shell=True)
 
@@ -74,18 +76,18 @@ def help_notes():
     help_str = """
     Files will be run in lexicographical order, so you can control
     the execution order of files with a prefix, e.g.::
-    
+
     00-first.py
     50-middle.py
     99-last.ipy
     """
-    
-        
+
+
 
 if __name__ == "__main__":
     #C:\LOCAL_REPO\py_ExergyUtilities\ExergyUtilities\
     #this_dir = r"C:\LOCAL_REPO\Old_Python\MyUtilities\IpythonNotebook\myIPythonDir"
-    
+
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\kaggle_titanic"
     #this_dir = r"C:\Users\jon\git\ref_DataScienceRetreat\dsr_python_course"
     #this_dir = r"C:\DSR GIT courses\pandas-tutorial"

@@ -42,7 +42,7 @@ def run_notebook(start_dir = None, start_file=None):
 
     arguments = [
                  #"jupyter lab", 
-                 "notebook",
+                 #"notebook",
 
                  #"--ipython-dir=\"{}\"".format(myIPythonDir),
                  #"--notebook-dir=\"{}\"".format(myIPythonDir),

@@ -16,5 +16,5 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 __author__ = "Benjamin Marcus Jones"
-__version__ = "0"
+__version__ = "2.0."
 __revision__ = "0.1"

@@ -1,0 +1,4 @@
+/home/batman/miniconda3
+/home/batman/miniconda3/envs/spark
+/home/batman/miniconda3/envs/deep
+/home/batman/miniconda3/envs/drive

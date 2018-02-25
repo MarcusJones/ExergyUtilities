@@ -1,0 +1,269 @@
+{
+ "labelsOn": true,
+ "refreshRate": 500,
+ "labelColor": [
+  0.9333333333333333,
+  0.9333333333333333,
+  0.9254901960784314,
+  1
+ ],
+ "backgroundColor": [
+  1,
+  1,
+  1,
+  0.1
+ ],
+ "cpu": {
+  "enabled": true,
+  "width": 53,
+  "colors": [
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    1,
+    1,
+    1,
+    1
+   ]
+  ]
+ },
+ "mem": {
+  "enabled": true,
+  "width": 40,
+  "colors": [
+   [
+    1,
+    1,
+    1,
+    1
+   ],
+   [
+    0.6,
+    0.6,
+    0.6,
+    0.8
+   ],
+   [
+    0.8,
+    0.8,
+    0.8,
+    0.8
+   ],
+   [
+    0.9,
+    0.9,
+    0.9,
+    0.1
+   ]
+  ],
+  "swapcolors": [
+   [
+    1,
+    1,
+    1,
+    0.15
+   ]
+  ]
+ },
+ "net": {
+  "enabled": true,
+  "autoscale": true,
+  "logscale": true,
+  "width": 40,
+  "devices": [
+   {
+    "id": "wlp61s0",
+    "enabled": true,
+    "show": 4,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      0.8
+     ],
+     [
+      0,
+      0,
+      0,
+      0.6
+     ]
+    ],
+    "up": 27496321,
+    "down": 311171660,
+    "lastReading": [
+     0,
+     0
+    ]
+   },
+   {
+    "id": "docker0",
+    "enabled": true,
+    "show": 4,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      0.8
+     ],
+     [
+      0,
+      0,
+      0,
+      0.6
+     ]
+    ],
+    "up": 0,
+    "down": 0,
+    "lastReading": [
+     0,
+     0
+    ]
+   },
+   {
+    "id": "enp0s25",
+    "enabled": true,
+    "show": 4,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      0.8
+     ],
+     [
+      0,
+      0,
+      0,
+      0.6
+     ]
+    ],
+    "up": 0,
+    "down": 0,
+    "lastReading": [
+     0,
+     0
+    ]
+   },
+   {
+    "id": "lo",
+    "enabled": true,
+    "show": 4,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      0.8
+     ],
+     [
+      0,
+      0,
+      0,
+      0.6
+     ]
+    ],
+    "up": 349611035,
+    "down": 349611035,
+    "lastReading": [
+     0,
+     0
+    ]
+   }
+  ]
+ },
+ "disk": {
+  "enabled": true,
+  "autoscale": true,
+  "logscale": true,
+  "width": 40,
+  "devices": [
+   {
+    "id": "/",
+    "enabled": true,
+    "show": 4,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      1
+     ],
+     [
+      0.6,
+      0.6,
+      0.6,
+      0.8
+     ]
+    ],
+    "path": "/",
+    "read": 4026114048,
+    "write": 124715008,
+    "lastReading": [
+     0,
+     0
+    ]
+   },
+   {
+    "id": "Windows",
+    "enabled": true,
+    "show": true,
+    "colors": [
+     [
+      1,
+      1,
+      1,
+      0.8
+     ],
+     [
+      0,
+      0,
+      0,
+      0.6
+     ]
+    ]
+   }
+  ]
+ }
+}

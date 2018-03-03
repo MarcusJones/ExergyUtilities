@@ -37,7 +37,7 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from .ExergyUtilities.util_inspect import get_self
+from ..ExergyUtilities.util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files

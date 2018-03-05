@@ -1,9 +1,17 @@
 #===============================================================================
-#--- SETUP Config
+#--- Add parent module
 #===============================================================================
-#from ..config import *
-from path_config import *
+
+import sys
+sys.path.append('/home/batman/git/py_ExergyUtilities')
+
+import ExergyUtilities as xrg
+from config import *
+
+
 import unittest
+
+
 
 #===============================================================================
 #--- SETUP Logging
@@ -13,6 +21,8 @@ import logging.config
 #logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
+
+
 
 #===============================================================================
 #--- SETUP Add parent module
@@ -37,7 +47,6 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from ..ExergyUtilities.util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files
@@ -50,6 +59,8 @@ from ..ExergyUtilities.util_inspect import get_self
 #--- MAIN CODE
 #===============================================================================
 def run():
+    print("run")
+    
     pass
 
 

@@ -6,19 +6,22 @@ import sys
 sys.path.append('/home/batman/git/py_ExergyUtilities')
 
 import ExergyUtilities as xrg
-from config import *
+from config.config import *
 
 
 import unittest
-
-
+import ExergyUtilities.util_inspect
+#import ExergyUtilities.u
 
 #===============================================================================
 #--- SETUP Logging
 #===============================================================================
 import logging.config
-#print(ABSOLUTE_LOGGING_PATH)
-#logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+print(ABSOLUTE_LOGGING_PATH)
+import yaml as yaml
+log_config = yaml.load(open(ABSOLUTE_LOGGING_PATH, 'r'))
+logging.config.dictConfig(log_config)
+
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
 
@@ -58,9 +61,17 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- MAIN CODE
 #===============================================================================
-def run():
-    print("run")
+
+def get_dotbashrc():
+    logging.debug("{}".format(xrg.util_inspect.get_self()))
     
+
+def run():
+    print("run2")
+    logging.debug("{}".format(xrg.util_inspect.get_self()))
+    
+    get_dotbashrc()
+    xrg.util_inspect
     pass
 
 

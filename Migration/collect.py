@@ -41,6 +41,7 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- SETUP Standard modules
 #===============================================================================
+import os
 
 
 #===============================================================================
@@ -62,18 +63,55 @@ myLogger.setLevel("DEBUG")
 #--- MAIN CODE
 #===============================================================================
 
-def get_dotbashrc():
-    logging.debug("{}".format(xrg.util_inspect.get_self()))
+#---Utilities
+
+class AFile():
+    def __init__(self,fname):
+        self.fname = fname
+        self.path_source = None
+        self.path_full = None
+    def set_source_path(self,path_source):
+        self.path_source = path_source
+        self.path_full = os.path.join(self.path_source,self.fname)
+        assert os.path.exists(self.path_full), "{} does not exist".format(self.path_full)
+    
+    def __repr__(self):
+        rstring = "Path object at "
+        if self.path_full:
+            rstring += self.path_full
+        if os.path.exists(self.path_full):
+            rstring += ' Exists'
+        return(rstring)
+    
+    
+
+# def get_dotbashrc(home_dir):
+#     logging.debug("{}".format(xrg.util_inspect.get_self()))
+#     fname = ".bashrc"
+#     fullpath = 
+#     
+#     
+#     return fullpath
     
 
 def run():
     print("run2")
+    
+    home_dir = os.path.expanduser("~")
+    
+    
+    bashrc = AFile('.bashrc')
+    bashrc.set_source_path(home_dir)
+    
+    print(bashrc)
+    
+    
     logging.debug("{}".format(xrg.util_inspect.get_self()))
     
-    get_dotbashrc()
-    xrg.util_inspect
-    pass
-
+    
+    #this_file = get_dotbashrc(current_home_dir)
+    
+    
 
 if __name__ == "__main__":
     run()

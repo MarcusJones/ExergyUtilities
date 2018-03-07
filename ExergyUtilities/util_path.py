@@ -35,8 +35,12 @@ import unittest
 #import zipfile, os.path
 
 # Logging
+
 import logging.config
-logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+import yaml as yaml
+log_config = yaml.load(open(ABSOLUTE_LOGGING_PATH, 'r'))
+logging.config.dictConfig(log_config)
+
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
 
@@ -93,6 +97,126 @@ def e(pathName):
         myFileName = myFileName + "_r00"
 
     raise
+
+
+
+
+def OLDget_all_files(this_path,this_ext='.jpg'):
+    #print(os.path.join(this_path))
+    search = this_path + '/**/*'+this_ext
+    all_file_paths = glob.glob(search, recursive=True)
+    logging.debug("Found {} {} files at {}".format(len(all_file_paths),this_ext,this_path))
+    return all_file_paths
+
+def OLDget_path_dict(this_path):
+    data_dict = dict()
+    
+    for (path, dirs, files) in os.walk(this_path):
+        files = [file for file in files]
+        
+        if len(files) > 0:
+            total_split = xrg.util_path.my_splitpath(path)
+            variablename = "_".join(total_split[-2:])
+            data_dict[variablename] = dict()
+            data_dict[variablename]['path'] = path
+            
+  
+            
+            data_dict[variablename]['file_count'] = len(files)
+
+    logging.debug("File and path count dictionary returned from {}".format(this_path))
+    return data_dict
+
+
+def deep_learning_sort_and_mv(data_root,target_dir):
+    start = timer()
+    
+    
+    # Get cats
+    search = data_root + '/**/cat*'+'.jpg'
+    cat_file_paths = glob.glob(search, recursive=True)
+    logging.debug("Found {} {} files at {}".format(len(cat_file_paths),'cat',data_root))
+    
+    # Get dogs
+    search = data_root + '/**/dog*'+'.jpg'
+    dog_file_paths = glob.glob(search, recursive=True)
+    logging.debug("Found {} {} files at {}".format(len(cat_file_paths),'dog',data_root))
+    
+    # Split and move
+    train_test_split = 0.8
+    path_tr_cats = os.path.join(target_dir,'train','cats')
+    if not os.path.exists(path_tr_cats): os.makedirs(path_tr_cats)
+    path_tr_cats = os.path.join(target_dir,'val','cats')
+    if not os.path.exists(path_tr_cats): os.makedirs(path_tr_cats)
+    path_tr_cats = os.path.join(target_dir,'train','dogs')
+    if not os.path.exists(path_tr_cats): os.makedirs(path_tr_cats)
+    path_tr_cats = os.path.join(target_dir,'val','dogs')
+    if not os.path.exists(path_tr_cats): os.makedirs(path_tr_cats)
+
+    # CATS
+    split_index = int(math.floor(train_test_split*len(cat_file_paths)))
+    logging.debug("Splitting {} cats at {}".format(len(cat_file_paths),split_index))
+    random.shuffle(cat_file_paths)
+    train_cats = cat_file_paths[:split_index]
+    val_cats = cat_file_paths[split_index:]    
+    
+    #         TRAIN
+    path_file_tups = tuple((path,
+                            os.path.join(target_dir,'train','cats',
+                                         os.path.split(path)[1])) 
+                           for path in train_cats)
+    
+    moves = [shutil.move(mvdef[0],mvdef[1]) for mvdef in path_file_tups]
+    logging.debug("Moved {} cats to train. {} elapsed.".format(len(moves),timer() - start))
+
+    #         VAL
+    path_file_tups = tuple((path,
+                            os.path.join(target_dir,'val','cats',
+                                         os.path.split(path)[1])) 
+                           for path in val_cats)
+    
+    moves = [shutil.move(mvdef[0],mvdef[1]) for mvdef in path_file_tups]
+    logging.debug("Moved {} cats to val. {} elapsed.".format(len(moves),timer() - start))
+
+
+    # DOGS
+    split_index = int(math.floor(train_test_split*len(dog_file_paths)))
+    logging.debug("Splitting {} dogs at {}".format(len(dog_file_paths),split_index))
+    random.shuffle(dog_file_paths)
+    train_dogs = dog_file_paths[:split_index]
+    val_dogs = dog_file_paths[split_index:]    
+    
+    #         TRAIN
+    path_file_tups = tuple((path,
+                            os.path.join(target_dir,'train','dogs',
+                                         os.path.split(path)[1])) 
+                           for path in train_dogs)
+    
+    moves = [shutil.move(mvdef[0],mvdef[1]) for mvdef in path_file_tups]
+    logging.debug("Moved {} dogs to train. {} elapsed.".format(len(moves),timer() - start))
+
+    #         VAL
+    path_file_tups = tuple((path,
+                            os.path.join(target_dir,'val','dogs',
+                                         os.path.split(path)[1])) 
+                           for path in val_dogs)
+    
+    moves = [shutil.move(mvdef[0],mvdef[1]) for mvdef in path_file_tups]
+    logging.debug("Moved {} dogs to val. {} elapsed.".format(len(moves),timer() - start))
+    
+    logging.debug("Done moving files".format())
+
+
+
+def my_splitpath(path, maxdepth=20):
+    
+    ( head, tail ) = os.path.split(path)
+    return my_splitpath(head, maxdepth - 1) + [ tail ] \
+        if maxdepth and head and head != path \
+        else [ head or tail ]
+
+
+
 
 
 

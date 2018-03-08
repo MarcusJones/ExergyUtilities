@@ -27,11 +27,11 @@ from config.config import *
 import os
 import re
 #import time
-from .util_inspect import get_self, get_parent
+#from .util_inspect import get_self, get_parent
 import sys
 import shutil
 import errno
-import unittest
+#import unittest
 #import zipfile, os.path
 
 # Logging
@@ -41,8 +41,8 @@ import yaml as yaml
 log_config = yaml.load(open(ABSOLUTE_LOGGING_PATH, 'r'))
 logging.config.dictConfig(log_config)
 
-myLogger = logging.getLogger()
-myLogger.setLevel("DEBUG")
+my_logger = logging.getLogger()
+my_logger.setLevel("DEBUG")
 
 
 def e(pathName):

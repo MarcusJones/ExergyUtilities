@@ -9,5 +9,6 @@ Set Git-ignore flag
 
 #ABSOLUTE_LOGGING_PATH = r"/home/batman/git/py_ExergyUtilities/LoggingConfig/loggingNofile.conf"
 ABSOLUTE_LOGGING_PATH = r"/home/batman/git/py_ExergyUtilities/LoggingConfig/loggingNoFile.yaml"
+FILE_CONSOLE_LOGGING_PATH = r"/home/batman/git/py_ExergyUtilities/LoggingConfig/loggingWithFile.yaml"
 DATA_PATH = r"/home/batman/Dropbox/DATA"
 PROJECT_PATH = r"/home/batman/Dropbox/PROJECT"

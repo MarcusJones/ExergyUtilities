@@ -173,8 +173,8 @@ def execute_parallel(commands, update_delay, max_cpu_percent, max_processes):
 if __name__ == "__main__":
     #print(ABSOLUTE_LOGGING_PATH)
     #logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
-    myLogger = logging.getLogger()
-    myLogger.setLevel("DEBUG")
+    my_logger = logging.getLogger()
+    my_logger.setLevel("DEBUG")
 
     logging.debug("Started _main".format())
 

@@ -211,8 +211,8 @@ if __name__ == "__main__":
     logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
     
     
-    myLogger = logging.getLogger()
-    myLogger.setLevel("DEBUG")
+    my_logger = logging.getLogger()
+    my_logger.setLevel("DEBUG")
 
     logging.debug("Started _main".format())
     

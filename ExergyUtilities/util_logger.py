@@ -28,17 +28,17 @@ LOGGING_CONFIG_2 = '%(module)-20s %(funcName)-20s %(levelno)-3s: %(message)s'
 #===============================================================================
 class LoggerCritical:
     def __enter__(self):
-        myLogger = logging.getLogger()
-        myLogger.setLevel("CRITICAL")
+        my_logger = logging.getLogger()
+        my_logger.setLevel("CRITICAL")
     def __exit__(self, type, value, traceback):
-        myLogger = logging.getLogger()
-        myLogger.setLevel("DEBUG")
+        my_logger = logging.getLogger()
+        my_logger.setLevel("DEBUG")
         
 class LoggerDebug:
     def __enter__(self):
-        myLogger = logging.getLogger()
-        myLogger.setLevel("DEBUG")
+        my_logger = logging.getLogger()
+        my_logger.setLevel("DEBUG")
     def __exit__(self, type, value, traceback):
-        myLogger = logging.getLogger()
-        myLogger.setLevel("DEBUG")
+        my_logger = logging.getLogger()
+        my_logger.setLevel("DEBUG")
 

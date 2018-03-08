@@ -11,8 +11,8 @@ import unittest
 import logging.config
 print(ABSOLUTE_LOGGING_PATH)
 logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
-myLogger = logging.getLogger()
-myLogger.setLevel("DEBUG")
+my_logger = logging.getLogger()
+my_logger.setLevel("DEBUG")
 
 
 #===============================================================================
@@ -107,13 +107,13 @@ print("Test")
 class BasicTest(unittest.TestCase):
     def setUp(self):
         #print "**** TEST {} ****".format(get_self())
-        myLogger.setLevel("CRITICAL")
+        my_logger.setLevel("CRITICAL")
         print("Setup")
          
         curr_path = os.path.dirname(os.path.realpath(__file__))
         curr_path = os.path.abspath(curr_path + "\..\..\ExcelTemplates\Table test.xlsx")
          
-        myLogger.setLevel("DEBUG")
+        my_logger.setLevel("DEBUG")
          
          
     def test010_SimpleCreation(self):

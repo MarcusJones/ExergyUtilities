@@ -10,8 +10,8 @@ from config.config import *
 import logging.config
 #print(ABSOLUTE_LOGGING_PATH)
 #logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
-myLogger = logging.getLogger()
-myLogger.setLevel("DEBUG")
+my_logger = logging.getLogger()
+my_logger.setLevel("DEBUG")
 
 #===============================================================================
 #--- SETUP Add parent module

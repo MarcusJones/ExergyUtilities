@@ -2,14 +2,17 @@
 #--- SETUP Config
 #===============================================================================
 from config.config import *
-import unittest
+#import unittest
 
 #===============================================================================
 #--- SETUP Logging
 #===============================================================================
 import logging.config
-print(ABSOLUTE_LOGGING_PATH)
-logging.config.fileConfig(ABSOLUTE_LOGGING_PATH)
+
+import yaml as yaml
+log_config = yaml.load(open(ABSOLUTE_LOGGING_PATH, 'r'))
+logging.config.dictConfig(log_config)
+
 myLogger = logging.getLogger()
 myLogger.setLevel("DEBUG")
 
@@ -35,7 +38,7 @@ myLogger.setLevel("DEBUG")
 #===============================================================================
 #--- SETUP Custom modules
 #===============================================================================
-from ExergyUtilities.util_inspect import get_self
+#from ExergyUtilities.util_inspect import get_self
 
 #===============================================================================
 #--- Directories and files

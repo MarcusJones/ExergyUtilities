@@ -1,0 +1,14 @@
+"""
+Copy this file to config.py
+Set the proper config target
+Set Git-ignore flag
+"""
+#from config.config_home import *
+#print("TEST")
+#from config.config.config_ces_laptop import *
+
+#ABSOLUTE_LOGGING_PATH = r"/home/batman/git/py_ExergyUtilities/LoggingConfig/loggingNofile.conf"
+ABSOLUTE_LOGGING_PATH = r"/home/alfred/git/py_ExergyUtilities/LoggingConfig/loggingNoFile.yaml"
+FILE_CONSOLE_LOGGING_PATH = r"/home/alfred/git/py_ExergyUtilities/LoggingConfig/loggingWithFile.yaml"
+DATA_PATH = r"/home/alfred/Dropbox/DATA"
+PROJECT_PATH = r"/home/batman/alfred/PROJECT"

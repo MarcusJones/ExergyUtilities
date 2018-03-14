@@ -84,6 +84,17 @@ class AFile():
         return(rstring)
     
     
+#--- Eclipse theme
+
+#--- Eclipse run configurations for projects (python env)
+
+#--- .bashrc 
+
+#--- mj.sh
+
+#--- Jupyter Lab startup script (ipython startup)
+
+
 
 # def get_dotbashrc(home_dir):
 #     logging.debug("{}".format(xrg.util_inspect.get_self()))

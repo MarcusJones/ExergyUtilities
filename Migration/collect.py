@@ -83,7 +83,9 @@ class AFile():
             rstring += ' Exists'
         return(rstring)
     
-    
+#--- Atom packages
+print("Atom packages are starred in the server")
+
 #--- Eclipse theme
 
 #--- Eclipse run configurations for projects (python env)

@@ -99,30 +99,15 @@ class AFile():
         shutil.copy2(self.src_path_full,self.tgt_path_full)    
         logging.debug("Copied {} -> {}".format(self.src_name, self.tgt_path))
 
-        
-    
+
 #--- Atom packages
 print("Atom packages are starred in the server")
 
-#--- Eclipse theme
 
 #--- Eclipse run configurations for projects (python env)
 
 
 
-#--- mj.sh
-
-
-
-
-# def get_dotbashrc(home_dir):
-#     logging.debug("{}".format(xrg.util_inspect.get_self()))
-#     fname = ".bashrc"
-#     fullpath = 
-#     
-#     
-#     return fullpath
-    
 
 def run():
     print("run2")
@@ -134,9 +119,16 @@ def run():
     
     #--- .bashrc 
     files.append(AFile(src_root,'','.bashrc'))
+
+    #--- mj.sh
+    files.append(AFile(src_root,'','.mj.sh'))
     
     #--- Jupyter Lab startup script (ipython startup)
     files.append(AFile(src_root,'.ipython/profile_default/startup','00 MJ.py'))
+    
+    #--- Eclipse theme
+    
+
     
     for f in files:
         print('SRC', f.src_exists,f.src_path_full)

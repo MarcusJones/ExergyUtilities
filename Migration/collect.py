@@ -25,8 +25,6 @@ logging.config.dictConfig(log_config)
 my_logger = logging.getLogger()
 my_logger.setLevel("DEBUG")
 
-
-
 #===============================================================================
 #--- SETUP Add parent module
 #===============================================================================
@@ -42,6 +40,8 @@ my_logger.setLevel("DEBUG")
 #--- SETUP Standard modules
 #===============================================================================
 import os
+
+import shutil
 
 
 #===============================================================================
@@ -63,25 +63,43 @@ import os
 #--- MAIN CODE
 #===============================================================================
 
-#---Utilities
+#--- Utilities
 
 class AFile():
-    def __init__(self,fname):
-        self.fname = fname
-        self.path_source = None
-        self.path_full = None
-    def set_source_path(self,path_source):
-        self.path_source = path_source
-        self.path_full = os.path.join(self.path_source,self.fname)
-        assert os.path.exists(self.path_full), "{} does not exist".format(self.path_full)
+    def __init__(self,src_root,src_path,src_name):
+        self.src_root   = src_root
+        self.src_path   = src_path
+        self.src_name   = src_name
+        logging.debug("Created source file {}".format(self.src_path_full))
     
-    def __repr__(self):
-        rstring = "Path object at "
-        if self.path_full:
-            rstring += self.path_full
-        if os.path.exists(self.path_full):
-            rstring += ' Exists'
-        return(rstring)
+    def add_target_root(self,tgt_root):
+        self.tgt_root   = tgt_root
+        self.tgt_path   = self.src_path
+        self.tgt_name   = self.src_name      
+    
+
+    @property
+    def src_path_full(self):
+        return os.path.join(self.src_root, self.src_path, self.src_name)
+
+    @property
+    def tgt_path_full(self):
+        return os.path.join(self.tgt_root, self.src_path, self.src_name)
+        
+    @property
+    def src_exists(self):
+        return os.path.exists(self.src_path_full)
+
+    @property
+    def tgt_exists(self):
+        return os.path.exists(self.tgt_path_full)
+
+    def copy_src_tgt(self):
+        os.makedirs(os.path.dirname(self.tgt_path_full), exist_ok=True)
+        shutil.copy2(self.src_path_full,self.tgt_path_full)    
+        logging.debug("Copied {} -> {}".format(self.src_name, self.tgt_path))
+
+        
     
 #--- Atom packages
 print("Atom packages are starred in the server")
@@ -90,11 +108,10 @@ print("Atom packages are starred in the server")
 
 #--- Eclipse run configurations for projects (python env)
 
-#--- .bashrc 
+
 
 #--- mj.sh
 
-#--- Jupyter Lab startup script (ipython startup)
 
 
 
@@ -110,13 +127,25 @@ print("Atom packages are starred in the server")
 def run():
     print("run2")
     
-    home_dir = os.path.expanduser("~")
+    src_root = os.path.expanduser("~")
+    tgt_root = r"/home/batman/git/py_ExergyUtilities/Migration/home/usr"
     
+    files = list()
     
-    bashrc = AFile('.bashrc')
-    bashrc.set_source_path(home_dir)
+    #--- .bashrc 
+    files.append(AFile(src_root,'','.bashrc'))
     
-    print(bashrc)
+    #--- Jupyter Lab startup script (ipython startup)
+    files.append(AFile(src_root,'.ipython/profile_default/startup','00 MJ.py'))
+    
+    for f in files:
+        print('SRC', f.src_exists,f.src_path_full)
+        f.add_target_root(tgt_root)
+        print('TGT', f.tgt_exists, f.tgt_path_full)
+        f.copy_src_tgt()
+        #print(f.)
+    
+    #print(bashrc)
     
     
     logging.debug("{}".format(xrg.util_inspect.get_self()))

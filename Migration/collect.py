@@ -100,11 +100,8 @@ class AFile():
         logging.debug("Copied {} -> {}".format(self.src_name, self.tgt_path))
 
 
-#--- Atom packages
-print("Atom packages are starred in the server")
 
 
-#--- Eclipse run configurations for projects (python env)
 
 
 
@@ -118,16 +115,24 @@ def run():
     files = list()
     
     #--- .bashrc 
+    print(".bashrc")    
     files.append(AFile(src_root,'','.bashrc'))
 
     #--- mj.sh
-    files.append(AFile(src_root,'','.mj.sh'))
+    print("mj.sh")
+    files.append(AFile(src_root,'','mj.sh'))
     
     #--- Jupyter Lab startup script (ipython startup)
+    print("Jupyter Lab startup script (ipython startup)")
     files.append(AFile(src_root,'.ipython/profile_default/startup','00 MJ.py'))
     
+    #--- Atom packages
+    print("Atom packages are starred in the server")
+
     #--- Eclipse theme
+    print("Atom packages are starred in the server")
     
+    #--- Eclipse run configurations for projects (python env)
 
     
     for f in files:

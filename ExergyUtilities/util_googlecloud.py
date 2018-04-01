@@ -2,11 +2,14 @@ import os
 
 import google.cloud.storage
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/batman/gcloud_credentials/Test First-48dd42d10d05.json"
+
 # Create a storage client.
 storage_client = google.cloud.storage.Client()
+print(storage_client)
 
 # TODO (Developer): Replace this with your Cloud Storage bucket name.
-bucket_name = 'Name of a bucket, for example my-bucket'
+bucket_name = 'test-bucket-1s'
 bucket = storage_client.get_bucket(bucket_name)
 
 # TODO (Developer): Replace this with the name of the local file to upload.

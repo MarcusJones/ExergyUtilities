@@ -2,6 +2,8 @@ import os
 
 import google.cloud.storage
 
+OLD CODE OBSELETE
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/home/batman/gcloud_credentials/Test First-48dd42d10d05.json"
 
 # Create a storage client.

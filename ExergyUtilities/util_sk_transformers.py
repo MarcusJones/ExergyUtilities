@@ -16,6 +16,7 @@ class WordCounter(sk.base.BaseEstimator, sk.base.TransformerMixin,TransformerLog
     def __init__(self, col_name, new_col_name):
         self.col_name = col_name
         self.new_col_name = new_col_name
+        
     def fit(self, X, y=None):
         return self
     

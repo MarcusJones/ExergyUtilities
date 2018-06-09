@@ -1,10 +1,97 @@
 import sklearn as sk
 import pandas as pd
+import utm
+import time
 
 class TransformerLog():
     @property
     def log(self):
         return "Transformer: {}".format(type(self).__name__)
+
+
+def timeit(method):
+    def timed(*args, **kw):
+        ts = time.time()
+        result = method(*args, **kw)
+        te = time.time()
+#        if 'log_time' in kw:
+#            name = kw.get('log_name', method.__name__.upper())
+#            kw['log_time'][name] = int((te - ts) * 1000)
+        if 0:
+            pass
+        else:
+            pass
+#            print('Elapsed', (te - ts) * 1000)
+            #print '%r  %2.2f ms' % \
+            #      (method.__name__, (te - ts) * 1000)
+        return result
+    return timed
+
+# class SpyderLog:
+#     def __init__(self,this_format):
+#         self.this_format = this_format
+#         self.last_time = datetime.datetime.now()
+#     
+#     def debug(self,msg):
+#         print(self.time, self.elapsed, "DBG", msg)
+#         self.last_time = datetime.datetime.now()
+#     
+#     def info(self,msg):
+#         print(self.time,  self.elapsed, "INF", msg)
+#         self.last_time = datetime.datetime.now()
+#     
+#     @property
+#     def elapsed(self):
+#         tdelta = datetime.datetime.now() - self.last_time
+#         return "{:>3.2f}".format(tdelta.seconds / 60)
+#     
+#     @property
+#     def time(self):
+#         return datetime.datetime.now().strftime('%H:%M:%S')
+
+
+class ChainedAssignment:
+
+    """ Context manager to temporarily set pandas chained assignment warning. Usage:
+    
+        with ChainedAssignment():
+             blah  
+             
+        with ChainedAssignment('error'):
+             run my code and figure out which line causes the error! 
+    
+    """
+
+    def __init__(self, chained = None):
+        acceptable = [ None, 'warn','raise']
+        assert chained in acceptable, "chained must be in " + str(acceptable)
+        self.swcw = chained
+
+    def __enter__( self ):
+        self.saved_swcw = pd.options.mode.chained_assignment
+        pd.options.mode.chained_assignment = self.swcw
+        return self
+
+    def __exit__(self, *args):
+        pd.options.mode.chained_assignment = self.saved_swcw
+
+#%% EMPTY
+#===============================================================================
+# EmptyTX
+#===============================================================================
+class Empty(sk.base.BaseEstimator, sk.base.TransformerMixin,TransformerLog):
+    """
+    """
+    def __init__(self):
+        pass
+        
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, df):
+        print(self.log)
+        return df
+
 
 #%% 
 #===============================================================================
@@ -139,3 +226,57 @@ class ConvertToDatetime(sk.base.BaseEstimator, sk.base.TransformerMixin,Transfor
         df[self.time_col_name] = pd.to_datetime(df[self.time_col_name], unit=self.unit)
         print("Transformer:", type(self).__name__, "converted", self.time_col_name, "to dt")
         return df
+
+#%%=============================================================================
+# UTM Grid 
+#===============================================================================
+class UTMGridConvert(sk.base.BaseEstimator, sk.base.TransformerMixin, TransformerLog):
+    def __init__(self, new_col_name, lat_col, long_col):
+        self.new_col_name = new_col_name
+        self.lat_col = lat_col
+        self.long_col = long_col
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, df ):
+        with ChainedAssignment():
+            df.loc[:,self.new_col_name]=df.apply(lambda row: utm.from_latlon(row[self.lat_col], row[self.long_col]), axis=1)
+        print(self.log)
+        return df
+
+
+
+#%%=============================================================================
+# ConvertDoubleColToDatetime
+#===============================================================================
+class ConvertDoubleColToDatetime(sk.base.BaseEstimator, sk.base.TransformerMixin,TransformerLog):
+    """
+    """
+    #pd.options.mode.chained_assignment = None  # default='warn'
+    def __init__(self, new_col_name, name_col1, name_col2, this_format):
+        self.new_col_name = new_col_name
+        self.name_col1 = name_col1
+        self.name_col2 = name_col2
+        self.this_format = this_format
+    
+    def fit(self, X, y=None):
+        return self
+    
+    @timeit
+    def transform(self, df, y=None):
+        combined_date_string_series = df.loc[:,self.name_col1] + " " + df.loc[:,self.name_col2]
+        with ChainedAssignment():
+            df.loc[:,self.new_col_name] = pd.to_datetime(combined_date_string_series,format=self.this_format)
+#        pd.options.mode.chained_assignment = 'warn'  # default='warn'
+
+        #print("Transformer:", type(self).__name__, "converted", self.new_col_name, "to dt")
+        print(self.log)
+        return df
+
+# Debug:
+#df = sfpd_head
+#new_col_name = 'dt'
+#time_adder = ConvertDoubleColToDatetime(new_col_name,name_col1="Date", name_col2="Time",this_format=r'%m/%d/%Y %H:%M')
+#res=time_adder.transform(df)
+

@@ -1,13 +1,29 @@
 import sklearn as sk
+import sklearn.preprocessing
 import pandas as pd
 import utm
 import time
-
+import numpy as np
 class TransformerLog():
     @property
     def log(self):
         return "Transformer: {}".format(type(self).__name__)
 
+class Imputer1D(sk.preprocessing.Imputer):
+    """
+    A simple subclass on Imputer to avoid having to make a single column 2D. 
+    """
+    def fit(self, X, y=None):
+        X2 = np.expand_dims(X, axis=1)
+        # Call the Imputer as normal
+        super(Imputer1D, self).fit(X2, y=None) 
+        
+    def transform(self, X, y=None):
+        X2 = np.expand_dims(X, axis=1)
+        # Return the result
+        return super(Imputer1D, self).transform(X2) 
+             
+        
 
 def timeit(method):
     def timed(*args, **kw):

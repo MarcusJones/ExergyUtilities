@@ -1,4 +1,4 @@
-"""Binary encoding"""
+"""Binary encoding, modified from sk.categorical"""
 
 # SEE
 #http://contrib.scikit-learn.org/categorical-encoding/binary.html

@@ -4,7 +4,10 @@ import pandas as pd
 import utm
 import time
 import numpy as np
+
 class TransformerLog():
+    """Add a .log attribute for logging
+    """
     @property
     def log(self):
         return "Transformer: {}".format(type(self).__name__)
@@ -12,21 +15,19 @@ class TransformerLog():
 
 class Imputer1D(sk.preprocessing.Imputer):
     """
-    A simple subclass on Imputer to avoid having to make a single column 2D. 
+    A simple wrapper class on Imputer to avoid having to make a single column 2D. 
     """
     def fit(self, X, y=None):
         if X.ndim == 1:
             X = np.expand_dims(X, axis=1)
-        # Call the Imputer as normal
+        # Call the Imputer as normal, return result
         return super(Imputer1D, self).fit(X, y=None) 
         
     def transform(self, X, y=None):
         if X.ndim == 1:
             X = np.expand_dims(X, axis=1)        
-        # Return the result
+        # Call the Imputer as normal, return result
         return super(Imputer1D, self).transform(X) 
-
-        
 
 def timeit(method):
     def timed(*args, **kw):
@@ -99,7 +100,7 @@ class ChainedAssignment:
 # EmptyTX
 #===============================================================================
 class Empty(sk.base.BaseEstimator, sk.base.TransformerMixin,TransformerLog):
-    """
+    """An empty transformer
     """
     def __init__(self):
         pass

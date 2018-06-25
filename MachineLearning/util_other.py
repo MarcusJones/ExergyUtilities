@@ -4,12 +4,164 @@ import matplotlib as mpl
 import pandas as pd
 import matplotlib.pyplot as plt
 import logging
+import os
+import seaborn as sns
+
+#--- Loading tools
+#%% Write the CSV dataframes to HDF5
+def save_df_hd5(dfs,file_dict):
+    raise "Pasted from Spyder, clean up"
+    for file in dfs:
+        #dfs[file]
+        file_path = file_dict[file]
+        fname,_ = os.path.splitext(file_path)
+        fname,_ = os.path.splitext(fname)
+        fname += ".h5"
+        logging.debug("Writing {}, {} rows, cols, to {}".format(file,dfs[file].shape,fname))
+        dfs[file].to_hdf(fname, 'data', format='table')
+
+#--- Feature engineering
+#%% Aggregator for numeric
+def agg_numeric(df, group_var, df_name):
+    """Aggregates the numeric values in a dataframe. This can
+    be used to create features for each instance of the grouping variable.
+    
+    Parameters
+    --------
+        df (dataframe): 
+            the dataframe to calculate the statistics on
+        group_var (string): 
+            the variable by which to group df
+        df_name (string): 
+            the variable used to rename the columns
+        
+    Return
+    --------
+        agg (dataframe): 
+            a dataframe with the statistics aggregated for 
+            all numeric columns. Each instance of the grouping variable will have 
+            the statistics (mean, min, max, sum; currently supported) calculated. 
+            The columns are also renamed to keep track of features created.
+    
+    """
+    
+    # First calculate counts
+    counts = pd.DataFrame(df.groupby(group_var, as_index = False)[df.columns[1]].count()).rename(columns = {df.columns[1]: '%s_counts' % df_name})
+    
+    # Group by the specified variable and calculate the statistics
+    agg = df.groupby(group_var).agg(['mean', 'max', 'min', 'sum']).reset_index()
+    
+    # Need to create new column names
+    columns = [group_var]
+    
+    # Iterate through the variables names
+    for var in agg.columns.levels[0]:
+        # Skip the grouping variable
+        if var != group_var:
+            # Iterate through the stat names
+            for stat in agg.columns.levels[1][:-1]:
+                # Make a new column name for the variable and stat
+                columns.append('%s_%s_%s' % (df_name, var, stat))
+              
+    #  Rename the columns
+    agg.columns = columns
+    
+    # Merge with the counts
+    agg = agg.merge(counts, on = group_var, how = 'left')
+    
+    return agg
 
 
+def count_categorical(df, group_var, df_name):
+    """Computes counts and normalized counts for each observation
+    of `group_var` of each unique category in every categorical variable
+    
+    Parameters
+    --------
+    df : dataframe 
+        The dataframe to calculate the value counts for.
+        
+    group_var : string
+        The variable by which to group the dataframe. For each unique
+        value of this variable, the final dataframe will have one row
+        
+    df_name : string
+        Variable added to the front of column names to keep track of columns
 
+    
+    Return
+    --------
+    categorical : dataframe
+        A dataframe with counts and normalized counts of each unique category in every categorical variable
+        with one row for every unique value of the `group_var`.
+        
+    """
+    
+    # Select the categorical columns
+    categorical = pd.get_dummies(df.select_dtypes('category'))
 
+    # Make sure to put the identifying id on the column
+    categorical[group_var] = df[group_var]
+
+    # Groupby the group var and calculate the sum and mean
+    categorical = categorical.groupby(group_var).agg(['sum', 'mean'])
+    
+    column_names = []
+    
+    # Iterate through the columns in level 0
+    for var in categorical.columns.levels[0]:
+        # Iterate through the stats in level 1
+        for stat in ['count', 'count_norm']:
+            # Make a new column name
+            column_names.append('%s_%s_%s' % (df_name, var, stat))
+    
+    categorical.columns = column_names
+    
+    return categorical
 
 #--- EDA tools
+
+# Function to calculate correlations with the target for a dataframe
+def target_corrs(df):
+
+    # List of correlations
+    corrs = []
+
+    # Iterate through the columns 
+    for col in df.columns:
+        print(col)
+        # Skip the target column
+        if col != 'TARGET':
+            # Calculate correlation with the target
+            corr = df['TARGET'].corr(df[col])
+
+            # Append the list as a tuple
+            corrs.append((col, corr))
+            
+    # Sort by absolute magnitude of correlations
+    corrs = sorted(corrs, key = lambda x: abs(x[1]), reverse = True)
+    
+    return corrs
+
+
+#%% Create a summary of each dataframe and their columns
+def save_summaries_excel():
+    raise "Pasted from Spyder, clean up"
+    df_summaries = dict()
+    for df_name in dfs:
+        df_summaries[df_name] = exergyml_util_other.create_column_summary(dfs[df_name])
+        #print(k)
+
+#%% Print summaries to excel
+    PATH_PROJECT_ROOT
+    excel_file_name = "all columns r00.xlsx"
+    
+    with pd.ExcelWriter(os.path.join(PATH_PROJECT_ROOT,excel_file_name), engine='xlsxwriter') as writer:
+        for df_name in df_summaries:
+            df_summaries[df_name].to_excel(writer, sheet_name=df_name)
+        #writer.save()
+
+
 
 #%% Function to calculate missing values by column# Funct 
 def missing_values_table(df, sort = True, show_all=True):
@@ -100,6 +252,37 @@ def convert_categorical(df):
         ], axis=1).reindex(df.columns, axis=1)
 
 #--- Plotting
+
+#%% Plot correlations
+# Plots the disribution of a variable colored by value of the target
+def kde_target(var_name, df):
+    
+    # Calculate the correlation coefficient between the new variable and the target
+    corr = df['TARGET'].corr(df[var_name])
+    
+    # Calculate medians for repaid vs not repaid
+    avg_repaid = df.loc[df['TARGET'] == 0, var_name].median()
+    avg_not_repaid = df.loc[df['TARGET'] == 1, var_name].median()
+    
+    plt.figure(figsize = (12, 6))
+    
+    # Plot the distribution for target == 0 and target == 1
+    sns.kdeplot(df.loc[df['TARGET'] == 0, var_name], label = 'TARGET == 0')
+    sns.kdeplot(df.loc[df['TARGET'] == 1, var_name], label = 'TARGET == 1')
+    
+    # label the plot
+    plt.xlabel(var_name); plt.ylabel('Density'); plt.title('%s Distribution' % var_name)
+    plt.legend();
+    
+    # print out the correlation
+    print('The correlation between %s and the TARGET is %0.4f' % (var_name, corr))
+    # Print out average values
+    print('Median value for loan that was not repaid = %0.4f' % avg_not_repaid)
+    print('Median value for loan that was repaid =     %0.4f' % avg_repaid)
+
+
+
+
 #exergy.util_excel
 def get_contour_verts(cn):
     contours = []

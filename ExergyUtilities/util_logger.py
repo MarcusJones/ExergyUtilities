@@ -33,6 +33,32 @@ class LoggerCritical:
     def __exit__(self, type, value, traceback):
         my_logger = logging.getLogger()
         my_logger.setLevel("DEBUG")
+
+
+class LoggerCritical:
+    def __enter__(self):
+        my_logger = logging.getLogger()
+        #my_logger.setLevel("CRITICAL")
+        logger.setLevel(logging.DEBUG)
+        return self
+    def __exit__(self, type, value, traceback):
+        my_logger = logging.getLogger()
+        my_logger.setLevel("DEBUG")
+
+class NoLog:
+    def __enter__(self):
+        logging.disabled = True
+    def __exit__(self, type, value, traceback):
+        logging.disabled = False    
+
+
+#import requests
+import logging
+for key in logging.Logger.manager.loggerDict:
+    print(key)
+
+logging.getLogger("github.Requester").setLevel(logging.WARNING)
+
         
 class LoggerDebug:
     def __enter__(self):
